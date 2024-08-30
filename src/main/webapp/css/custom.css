@@ -1,0 +1,172 @@
+@import url(http://fonts.googleapis.com/earlyaccess/nanumgothic.css);
+@import url(http://fonts.googleapis.com/earlyaccess/hanna.css);
+* {
+	font-family : 'Nanum Gothic';
+}
+
+h1 {
+	font-family : 'Hanna'
+}
+
+textarea {
+    height: 150px;
+}
+
+.table-dark-line {
+  border: 1px solid #000;
+}
+
+.pagination .page-item .page-link {
+  color: #000;
+  background-color: #fff;
+}
+.pagination .page-item.active .page-link {
+  color: #fff;
+  background-color: #000;
+}
+.pagination .page-item.disabled .page-link {
+  color: #6c757d;
+  background-color: #e9ecef;
+}
+
+.select-dark-custom {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  font-size: 17px !important;
+  font-weight: bold !important; 
+  text-align: center !important;
+}
+
+.select-dark-custom option {
+  font-size: 17px;
+  font-weight: bold; 
+}
+
+.btn-xs {
+  --bs-btn-padding-y: .2rem;
+  --bs-btn-padding-x: .75rem;
+  --bs-btn-font-size: .75rem;
+}
+
+.btn-white {
+  --bs-btn-padding-y: .1rem;
+  flex: 1;
+}
+
+.input-group-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.d-i{
+	display:inline;
+}
+
+.d-ib{
+	display:inline-block;
+}
+
+.d-f{
+	display: flex;
+}
+
+.input-group.d-f{
+	display: flex;
+}
+
+.form-control.f-140p {
+  flex: 0 0 140px;
+}
+
+.form-control.f-110p {
+  flex: 0 0 110px;
+}
+
+.form-control.f-90p {
+  flex: 0 0 90px;
+}
+
+.form-control.f-1 {
+  flex: 1;
+}
+
+.t-c {
+	text-align: center;
+}
+
+.t-l {
+	text-align: left;
+}
+
+.t-r {
+	text-align: right;
+}
+
+.t-p{
+	padding-top: 20px;
+}
+
+.w-4 {
+	width:4%;
+}
+
+.w-5 {
+	width:5%;
+}
+
+.w-7 {
+	width:7%;
+}
+
+.w-10 {
+	width:10%;
+}
+
+.w-12 {
+	width:12%;
+}
+
+.w-14 {
+	width:14%;
+}
+
+.w-15 {
+	width:15%;
+}
+
+.w-18 {
+	width:18%;
+}
+
+.w-19 {
+	width:19%;
+}
+
+.w-20 {
+	width:20%;
+}
+
+.w-22 {
+	width:22%;
+}
+
+.w-45 {
+	width:45%;
+}
+
+.w-70 {
+	width:70%;
+}
+
+.w-80 {
+	width:80%;
+}
+
+.w-55p {
+	width:55px;
+}
+
+.w-90p {
+	width:90px;
+}

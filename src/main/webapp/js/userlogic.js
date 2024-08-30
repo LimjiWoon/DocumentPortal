@@ -1,0 +1,101 @@
+function PasswordChange(){
+  sessionStorage.setItem('check', '1');
+  var popup = window.open('PasswordRenew.jsp', '비밀번호 변경', 'toolbar=no, location=no, menubar=no, width=600, height=350');
+  var checkWindowClosed = setInterval(function() { 
+    if (popup.closed) { 
+      clearInterval(checkWindowClosed);
+      sessionStorage.removeItem('check');
+    } 
+  }, 500);
+}
+
+function passwordChange(){
+  sessionStorage.setItem('check', '1');
+  var popup = window.open('PasswordRenew.jsp', '비밀번호 변경', 'toolbar=no, location=no, menubar=no, width=600, height=350');
+  var checkWindowClosed = setInterval(function() { 
+    if (popup.closed) { 
+      clearInterval(checkWindowClosed);
+      sessionStorage.removeItem('check');
+	  history.back();
+    } 
+  }, 500);
+}
+
+
+function check(){
+	let userpw = document.forms["checkPassword"]["newPassword"];
+	if (userpw == null) {
+		userpw = document.forms["checkPassword"]["userPassword"];
+	}
+	
+	let reg = /^[0-9a-fA-F]{64}$/;
+
+	if (reg.test(userpw.value)) {
+	    return true;
+	}
+		
+	if (userpw.value.indexOf(" ") != -1) {
+		alert("비밀번호에 공백을 포함할 수 없습니다.");
+		userpw.focus();
+		return false;
+	}
+
+	reg = /^(?=.*?[A-Za-z])(?=.*?[0-9])(?=.*?[~?!@#$%^&*_-]).{10,20}$/;
+
+	if(!reg.test(userpw.value)){
+		alert("비밀번호는 10자 이상 20자리 이하에 영문, 숫자, 특수문자를 포함해야합니다.");
+		userpw.focus();
+		return false;
+	}
+	
+	return true;
+}
+
+
+function checkID(event) {
+    var pattern = /^[a-zA-Z0-9]*$/;
+    var currentValue = this.value;
+
+    if (!pattern.test(currentValue)) {
+        // 허용된 문자를 제외한 모든 문자를 제거
+        this.value = currentValue.replace(/[^a-zA-Z0-9]/g, '');
+    }
+}
+
+function checkName(event) {
+    var pattern = /^[a-zA-Z가-힣ㄱ-ㅎㅏ-ㅣ\s.\-']*$/;
+    var currentValue = this.value;
+
+    if (!pattern.test(currentValue)) {
+        // 허용된 문자를 제외한 모든 문자를 제거
+        this.value = currentValue.replace(/[^a-zA-Z가-힣ㄱ-ㅎㅏ-ㅣ\s.\-']/g, '');
+    }
+}
+
+function changeLock(button, userCode) {
+  var newStatus;
+   if (button.classList.contains('btn-outline-success')) {
+    button.classList.remove('btn-outline-success');
+    button.classList.add('btn-outline-danger');
+    button.textContent = 'O';
+    newStatus = 'O';
+  } else {
+    button.classList.remove('btn-outline-danger');
+    button.classList.add('btn-outline-success');
+    button.textContent = 'X';
+    newStatus = 'X';
+  }
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', 'UserLock', true);
+  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+  xhr.send('userCode=' + encodeURIComponent(userCode) + '&status=' + encodeURIComponent(newStatus));
+
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      console.log('Status updated successfully');
+  } else if (xhr.readyState === 4) {
+      console.log('error');
+    };
+  }  
+}

@@ -1,0 +1,63 @@
+package com.myservlet;
+
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import com.user.*;
+import com.myclass.XSSEscape;
+
+/**
+ * Servlet implementation class UserRetireAction
+ */
+@WebServlet("/UserRetire")
+public class UserRetireAction extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public UserRetireAction() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding("UTF-8"); 
+        response.setContentType("text/html; charset=UTF-8");
+        
+        String userCode = XSSEscape.changeUserCode(request.getParameter("userCode"));
+        String isRetire = request.getParameter("isRetire");
+        HttpSession session = request.getSession();
+        UserDTO master = (UserDTO) session.getAttribute("user");
+        UserDAO userDAO = new UserDAO();
+        
+        
+        try {
+        	// 검증을 위한 if 문이다.
+        	// 제대로 된 값을 입력 받았는지 확인하고 master 권한을 가진 유저인지 확인한다.
+        	if (userCode == null || "0".equals(userCode)
+        			|| (!"0".equals(isRetire) && !"1".equals(isRetire))
+        			|| master == null || master.getUserCode() != 0) {
+                request.setAttribute("errorMessage", "잘못된 접근입니다.");
+                request.getRequestDispatcher("Error.jsp").forward(request, response);
+        	} else{
+        		// 유저 탈퇴 or 복직 처리
+            	userDAO.userRetire(Integer.parseInt(userCode), isRetire);
+                request.getRequestDispatcher("User").forward(request, response);
+        	}
+
+        } catch(Exception e) {
+            request.setAttribute("errorMessage", "오류");
+            request.getRequestDispatcher("Error.jsp").forward(request, response);
+        }
+
+    }
+
+}

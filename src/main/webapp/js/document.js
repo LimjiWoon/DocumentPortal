@@ -1,0 +1,116 @@
+function selectAll(selectAll)  {
+  const checkboxes 
+       = document.getElementsByName('checkedDocumentCode');
+  
+  checkboxes.forEach((checkbox) => {
+    checkbox.checked = selectAll.checked;
+  })
+}
+
+
+function submitCheckedDocuments() {
+    // 폼 객체 가져오기
+    var form = document.getElementById('documentForm');
+    
+    // 폼 제출
+    form.submit();
+}
+
+function submitForm(action, fileName, categoryCode) {
+    var form = document.createElement('form');
+    form.method = 'POST';
+    form.action = action;
+
+    var inputFileName = document.createElement('input');
+    inputFileName.type = 'hidden';
+    inputFileName.name = 'fileName';
+    inputFileName.value = fileName;
+    form.appendChild(inputFileName);
+
+    var inputCategoryCode = document.createElement('input');
+    inputCategoryCode.type = 'hidden';
+    inputCategoryCode.name = 'categoryCode';
+    inputCategoryCode.value = categoryCode;
+    form.appendChild(inputCategoryCode);
+
+    document.body.appendChild(form);
+    form.submit();
+}
+
+
+function checkAndUpload() {
+	var fileInput = document.getElementById('fileName');
+	var categoryCode = document.getElementById('categoryCode').value; // 카테고리 코드 추출
+
+	var formData = new FormData();
+	formData.append("fileName", fileInput.files[0]); // 파일 추가
+	formData.append("categoryCode", categoryCode); // 카테고리 코드 추가
+
+    $.ajax({
+        url: 'DocumentUpToUp',
+        type: 'POST',
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function(response) {
+            if (response === 'true') {
+				var confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+				confirmationModal.show();
+            } else {
+                $('#DocumentInfo').submit();
+            }
+        }
+    });
+}
+
+
+
+function checkAndUpdate() {
+	var fileInput = document.getElementById('fileName');
+	var categoryCode = document.getElementById('categoryCode').value;
+	var originFileName = document.getElementById('originFileName').value;
+	var originCategoryCode = document.getElementById('originCategoryCode').value;
+
+	var formData = new FormData();
+	formData.append("fileName", fileInput.files[0]); // 파일 추가
+	formData.append("categoryCode", categoryCode); // 카테고리 코드 추가
+	formData.append("originFileName", originFileName); 
+	formData.append("originCategoryCode", originCategoryCode); 
+
+    $.ajax({
+        url: 'DocumentUpToUp',
+        type: 'POST',
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function(response) {
+            if (response === 'true') {
+				var confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+				confirmationModal.show();
+            } else {
+                $('#DocumentInfo').submit();
+            }
+        }
+    });
+}
+
+function confirmUpload(isConfirmed) {
+    if (isConfirmed) {
+        $('#DocumentInfo').submit();
+    } else {
+		var confirmationModal = bootstrap.Modal.getInstance(document.getElementById('confirmationModal'));
+		confirmationModal.hide();
+    }
+}
+
+
+
+function checkDocumentName(event) {
+    var pattern = /[\\/:*?"<>|]/g; // 허용되지 않는 문자 패턴
+    var currentValue = event.target.value;
+
+    // 허용된 문자를 제외한 모든 문자를 제거
+    if (pattern.test(currentValue)) {
+        event.target.value = currentValue.replace(pattern, '');
+    }
+}

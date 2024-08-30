@@ -1,0 +1,102 @@
+package com.myservlet;
+
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import com.user.*;
+import com.myclass.XSSEscape;
+
+/**
+ * Servlet implementation class UpdateUserLock
+ */
+@WebServlet("/UserUpdate")
+public class UserUpdateAction extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public UserUpdateAction() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		request.setCharacterEncoding("UTF-8");
+		response.setContentType("text/html; charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+		UserDAO userDAO = new UserDAO();
+		UserDTO updateUser = new UserDTO();
+		
+		try {
+			String userCode = XSSEscape.changeUserCode(request.getParameter("userCode"));
+			String userID = XSSEscape.changeUserID(request.getParameter("userID"));
+			String userName = XSSEscape.changeUserName(request.getParameter("userName"));
+			String userPassword = XSSEscape.changeUserPassword(request.getParameter("userPassword"));
+			String isCategory = XSSEscape.changePermisson(request.getParameter("isCategory"));
+			String isClient = XSSEscape.changePermisson(request.getParameter("isClient"));
+			String isDocument = XSSEscape.changePermisson(request.getParameter("isDocument"));
+
+
+        	//userCode가 없는 경우
+			if (userCode == null) {
+                request.setAttribute("errorMessage", "비정상적인 접근");
+                request.getRequestDispatcher("Error.jsp").forward(request, response);
+			} //처음 페이지를 띄웠을 때
+			else if (userID == null && userName == null && userPassword == null 
+					&& isCategory == null && isClient == null  && isDocument == null ) {
+				updateUser = userDAO.getInfo(Integer.parseInt(userCode)); 
+
+	            request.setAttribute("updateUser", updateUser);
+                request.getRequestDispatcher("UserUpdate.jsp").forward(request, response);
+			} //잘못된 값이 존재할 때
+			else if (userID == null || userName == null || userPassword == null 
+					|| isCategory == null || isClient == null || isDocument == null ) {
+				updateUser = userDAO.getInfo(Integer.parseInt(userCode)); 
+
+                request.setAttribute("errorMessage", "변경 실패");
+                request.getRequestDispatcher("Error.jsp").forward(request, response);
+			} //수정을 시도할 때
+			else {
+				updateUser = userDAO.getInfo(Integer.parseInt(userCode)); 
+				//ID가 변경 시도가 감지 되었을 때
+				if (!userID.equals(updateUser.getUserID())) {
+	                request.setAttribute("errorMessage", "에러");
+	                request.getRequestDispatcher("Error.jsp").forward(request, response);
+				} //입력한 값들 중 그 어떠한 값도 바뀌지 않았을 떄
+				else if (userName.equals(updateUser.getUserName())
+						&& userPassword.equals(updateUser.getUserPassword())
+						&& isCategory.equals("1")==updateUser.getIsCategory()
+						&& isClient.equals("1")==updateUser.getIsClient()
+						&& isDocument.equals("1")==updateUser.getIsDocument()) {
+	                request.setAttribute("errorMessage", "변경된 값이 없습니다.");
+	                request.getRequestDispatcher("Error.jsp").forward(request, response);
+				} else if (userDAO.userUpdate(request.getParameter("userID"),
+							userName, updateUser.getUserName(),
+							userPassword, updateUser.getUserPassword(),
+							isCategory, (updateUser.getIsCategory()? "1": "0"),
+							isClient, (updateUser.getIsClient()? "1": "0"),
+							isDocument, (updateUser.getIsDocument()? "1": "0"))  == 1) {
+	                request.setAttribute("messageUser", "사용자 수정 성공!");
+	                request.getRequestDispatcher("Message.jsp").forward(request, response);
+				} else {
+	                request.setAttribute("errorMessage", "데이터 베이스 오류.");
+	                request.getRequestDispatcher("Error.jsp").forward(request, response);
+				}
+			}
+		} catch (Exception e) {
+            request.setAttribute("errorMessage", "오류");
+            request.getRequestDispatcher("Error.jsp").forward(request, response);
+		}
+		
+		userDAO.userClose();
+	}
+
+}
