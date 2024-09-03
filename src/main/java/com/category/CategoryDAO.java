@@ -207,16 +207,16 @@ public class CategoryDAO {
 		return null;
 	}
 	
-	public int categoryUpload(String categoryName, int categoryLv, int categoryCode, int userCode, String categoryRoot) {
+	public int categoryUpload(String categoryName, int categoryLv, int userCode, String categoryRoot) {
 		String SQL = "INSERT INTO dbo.CATEGORIES VALUES (?, ?, ?, ?, GETDATE(), ?);";
 		
 		try {
 			pstmt = conn.prepareStatement(SQL);
 			pstmt.setInt(1, categoryLv+1);
-			pstmt.setInt(2, categoryCode);
+			pstmt.setInt(2, 10000);
 			pstmt.setString(3, categoryName);
 			pstmt.setInt(4, userCode);
-			pstmt.setString(5, categoryRoot+"/"+categoryName);
+			pstmt.setString(5, categoryRoot);
 			
 			pstmt.executeUpdate();
 			

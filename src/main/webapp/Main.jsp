@@ -69,16 +69,10 @@
                 </c:if>
                 <c:choose>
                   <c:when test="${user.isClient}">
-                    <li class="nav-item dropdown">
-                      <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">고객사 관리</a>
-                      <ul class="dropdown-menu">
-                        <form method="post" action="Client">
-                          <input type="submit" class="dropdown-item" value="고객사 조회" />
-                        </form>
-                        <form method="post" action="ClientUpload">
-                          <input type="submit" class="dropdown-item" value="고객사 등록" />
-                        </form>
-                      </ul>
+                    <li class="nav-item">
+                      <form method="post" action="Client">
+                        <input type="submit" class="nav-link" value="고객사 관리" />
+                      </form>
                     </li>
                   </c:when>
                   <c:otherwise>
@@ -97,13 +91,9 @@
                             <form method="post" action="Category">
                               <input type="submit" class="dropdown-item" value="문서 목록 조회" />
                             </form>
-                            <form method="post" action="CategoryUpload">
-                              <input type="submit" class="dropdown-item" value="문서 목록 등록" />
-                            </form>
                           </c:when>
                           <c:otherwise>
                             <li><a class="dropdown-item disabled">문서 목록 조회</a></li>
-                            <li><a class="dropdown-item disabled"">문서 목록 등록</a></li>
                           </c:otherwise>
                         </c:choose>
                         <c:choose>
@@ -176,9 +166,6 @@
             </button>
           </c:otherwise>
         </c:choose>
-        <button class="btn btn-outline-secondary btn-lg px-4 rounded-pill" type="button" onclick="location.href='http://www.lucis.co.kr/'">
-          루키스 알아보기
-        </button>
       </div>
     </div>
   </div>

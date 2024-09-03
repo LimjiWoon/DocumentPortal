@@ -113,6 +113,7 @@
       <table class="table table-hover table-dark-line t-c">
         <thead class="table-dark">
           <tr>
+            <th scope="col" class="t-c w-5">코드</th>
             <th scope="col" class="t-c w-7">사용자</th>
             <th scope="col" class="t-c w-7">
               <form method="post" action="Log">
@@ -155,7 +156,8 @@
             <c:otherwise>
               <c:forEach var="log" items="${list}">
                 <tr>
-                  <td scope="row">${log.logWhoName}</td>
+                  <td scope="row">${log.logWho}</td>
+                  <td>${log.logWhoName}</td>
                   <td>${log.logWhere}</td>
                   <td>${log.logWhen}</td>
                   <td>${log.logWhat}</td>

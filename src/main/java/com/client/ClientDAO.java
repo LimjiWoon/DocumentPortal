@@ -44,8 +44,7 @@ public class ClientDAO {
 	public int maxPage(String searchField, String searchText) { //다음 글 가지고 오기
 		String SQL = "SELECT COUNT(*) AS cnt "
 				+ "FROM  dbo.CLIENTS c "
-				+ "LEFT JOIN dbo.USERS u ON c.userCode = u.userCode "
-				+ "LEFT JOIN dbo.CATEGORIES cat ON c.categoryCode = cat.categoryCode ";
+				+ "LEFT JOIN dbo.USERS u ON c.userCode = u.userCode ";
 		if (searchText.trim() != "")
 				SQL += "WHERE " + searchField.trim() + " LIKE '%" + searchText.trim() + "%'";
 		
@@ -85,10 +84,9 @@ public class ClientDAO {
 	
 
 	public ArrayList<ClientDTO> getList(String nowPage){
-		String SQL = "SELECT c.clientCode, c.clientName, cat.categoryName, u.userName, c.dateOfUpdate, c.isUse "
+		String SQL = "SELECT c.clientCode, c.clientName, u.userName, c.dateOfUpdate, c.isUse, c.clientContent "
 				+ "FROM  dbo.CLIENTS c "
 				+ "LEFT JOIN dbo.USERS u ON c.userCode = u.userCode "
-				+ "LEFT JOIN dbo.CATEGORIES cat ON c.categoryCode = cat.categoryCode "
 				+ "ORDER BY c.clientCode DESC OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
 		ArrayList<ClientDTO> list = new ArrayList<ClientDTO>();
 		
@@ -105,10 +103,10 @@ public class ClientDAO {
 				client = new ClientDTO();
 				client.setClientCode(rs.getInt(1));
 				client.setClientName(rs.getString(2));
-				client.setCategoryName(rs.getString(3));
-				client.setUserName(rs.getString(4));
-				client.setDateOfUpdate(rs.getString(5));
-				client.setUse(rs.getInt(6));
+				client.setUserName(rs.getString(3));
+				client.setDateOfUpdate(rs.getString(4));
+				client.setUse(rs.getInt(5));
+				client.setClientContent(rs.getString(6));
 				list.add(client);
 			}			
 		} catch(Exception e) {
@@ -119,10 +117,9 @@ public class ClientDAO {
 	}
 	
 	public ArrayList<ClientDTO> getSearch(String nowPage, String searchField, String searchOrder, String searchText){
-		String SQL = "SELECT c.clientCode, c.clientName, cat.categoryName, u.userName, c.dateOfUpdate, c.isUse "
+		String SQL = "SELECT c.clientCode, c.clientName, u.userName, c.dateOfUpdate, c.isUse, c.clientContent "
 				+ "FROM  dbo.CLIENTS c "
-				+ "LEFT JOIN dbo.USERS u ON c.userCode = u.userCode "
-				+ "LEFT JOIN dbo.CATEGORIES cat ON c.categoryCode = cat.categoryCode ";
+				+ "LEFT JOIN dbo.USERS u ON c.userCode = u.userCode ";
 		if (searchText.trim() != "")
 			SQL += " WHERE " + searchField.trim() + " LIKE '%" + searchText.trim() + "%'";
 		SQL += "ORDER BY " + searchField.trim() + " " + searchOrder +" OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
@@ -141,10 +138,10 @@ public class ClientDAO {
 				client = new ClientDTO();
 				client.setClientCode(rs.getInt(1));
 				client.setClientName(rs.getString(2));
-				client.setCategoryName(rs.getString(3));
-				client.setUserName(rs.getString(4));
-				client.setDateOfUpdate(rs.getString(5));
-				client.setUse(rs.getInt(6));
+				client.setUserName(rs.getString(3));
+				client.setDateOfUpdate(rs.getString(4));
+				client.setUse(rs.getInt(5));
+				client.setClientContent(rs.getString(6));
 				list.add(client);
 			}			
 		} catch(Exception e) {
@@ -172,16 +169,15 @@ public class ClientDAO {
 		}
 	}
 	
-	public int clientUpload(String clientName, int categoryCode, String clientContent, int userCode) {
-		String SQL = "INSERT INTO dbo.CLIENTS (clientName, categoryCode, clientContent, userCode) "
-				+ "VALUES (?, ?, ?, ?);";
+	public int clientUpload(String clientName, String clientContent, int userCode) {
+		String SQL = "INSERT INTO dbo.CLIENTS (clientName, clientContent, userCode) "
+				+ "VALUES (?, ?, ?);";
 		
 		try {
 			pstmt = conn.prepareStatement(SQL);
 			pstmt.setString(1, clientName);
-			pstmt.setInt(2, categoryCode);
-			pstmt.setString(3, clientContent);
-			pstmt.setInt(4, userCode);
+			pstmt.setString(2, clientContent);
+			pstmt.setInt(3, userCode);
 
 			pstmt.executeUpdate();
 			logUpload(userCode, clientName, "client", "create", "신규 고객사 생성");
@@ -216,7 +212,7 @@ public class ClientDAO {
 	
 	public ClientDTO getClientInfo(int clientCode) {
 		ClientDTO client = new ClientDTO();
-		String SQL = "SELECT clientName, clientContent, categoryCode FROM dbo.CLIENTS WHERE clientCode=?;";
+		String SQL = "SELECT clientName, clientContent FROM dbo.CLIENTS WHERE clientCode=?;";
 		
 		try {
 			pstmt = conn.prepareStatement(SQL);
@@ -225,8 +221,7 @@ public class ClientDAO {
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
 				client.setClientName(rs.getString(1));
-				client.setClientContent(rs.getString(2));;
-				client.setCategoryCode(rs.getInt(3));
+				client.setClientContent(rs.getString(2));
 				client.setClientCode(clientCode);
 				return client;
 			}	
@@ -237,21 +232,17 @@ public class ClientDAO {
 		return null;
 	}
 	
-	public int clientUpdate(int clientCode, String categoryCode, String hiddenCategoryCode, String clientName, 
-			String hiddenClientName, String clientContent, String hiddenClientContent, int userCode) {
+	public int clientUpdate(int clientCode, String clientName, String hiddenClientName, 
+			String clientContent, String hiddenClientContent, int userCode) {
 		String SQL = "UPDATE dbo.CLIENTS SET dateOfUpdate=GETDATE()";
-		boolean isCode = categoryCode.equals(hiddenCategoryCode);
 		boolean isName = clientName.equals(hiddenClientName);
 		boolean isContent = clientContent.equals(hiddenClientContent);
 		int cnt = 1;
 		String logContent = "고객사 수정: ";
 		
-		if (isCode && isName && isContent)
+		if (isName && isContent)
 			return 0;
 		
-		
-		if (!isCode) 
-			SQL += ", categoryCode=?";
 		if (!isName) 
 			SQL += ", clientName=?";
 		if (!isContent) 
@@ -261,19 +252,14 @@ public class ClientDAO {
 		
 		try {
 			pstmt = conn.prepareStatement(SQL);
-			if (!isCode) {
-				pstmt.setInt(cnt, Integer.parseInt(categoryCode));
-				logContent += "<br> 폴더 위치 변겅: (전) " + hiddenCategoryCode + " (후)" + categoryCode;
-				cnt += 1;
-			}
 			if (!isName) {
 				pstmt.setString(cnt, clientName);
-				logContent += "<br> 이름 변경: (전) " + hiddenClientName + " (후)" + clientName;
+				logContent += " 고객사명: " + hiddenClientName + "-&gt;" + clientName;
 				cnt += 1;
 			}
 			if (!isContent) {
 				pstmt.setString(cnt, clientContent);
-				logContent += "<br> 고객사 설명 변경";
+				logContent += "  설명 변경";
 				cnt += 1;
 			}
 			

@@ -178,8 +178,6 @@ public class XSSEscape {
 			return "c.clientCode";
 		case "2":
 			return "c.clientName";
-		case "3":
-			return "cat.categoryName";
 		case "4":
 			return "u.userName";
 		case "5":
@@ -199,8 +197,6 @@ public class XSSEscape {
 			return "1";
 		case "c.clientName":
 			return "2";
-		case "cat.categoryName":
-			return "3";
 		case "u.userName":
 			return "4";
 		case "c.isUse":

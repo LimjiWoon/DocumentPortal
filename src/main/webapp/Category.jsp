@@ -109,13 +109,9 @@
                             <form method="post" action="Category">
                               <input type="submit" class="dropdown-item" value="문서 목록 조회" />
                             </form>
-                            <form method="post" action="CategoryUpload">
-                              <input type="submit" class="dropdown-item" value="문서 목록 등록" />
-                            </form>
                           </c:when>
                           <c:otherwise>
                             <li><a class="dropdown-item disabled">문서 목록 조회</a></li>
-                            <li><a class="dropdown-item disabled"">문서 목록 등록</a></li>
                           </c:otherwise>
                         </c:choose>
                         <c:choose>
@@ -365,15 +361,53 @@
         </c:otherwise>
       </c:choose>
       <div class="col t-r w-25">
-        <form method="post" action="CategoryUpload">
-          <input type="submit" class="btn btn-dark btn-allow-left" value="등록" />
-        </form>
+        <button type="button" class="btn btn-dark btn-allow-left" data-bs-toggle="modal" data-bs-target="#CategoryUploadModal">
+          등록
+        </button>
       </div>
     </div>
   </div>
 
   <div id="modalContainer"></div>
-
+  
+  <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+      var folderNameInput = document.querySelector('#categoryName');
+      folderNameInput.addEventListener('input', checkCategoryName);
+    });
+  </script>
+  
+  <div class="modal fade" id="CategoryUploadModal" data-bs-backdrop="static" data-bs-keyboard="false" 
+  tabindex="-1" aria-labelledby="CategoryUploadModallabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="CategoryUploadModallabel">신규 문서 목록 등록</h4>
+        </div>
+        <form id="categoryUploadForm" action="CategoryUpload" method="post">
+          <div class="modal-body">
+            <div class="container">
+              <table class="table table-dark-line t-c custom-table">
+                <tbody>
+                  <tr>
+                  <tr>
+                    <td class="t-c bg-gray"><b>문서 목록명</b></td>
+                    <td><input type="text" class="form-control" id="categoryName" name="categoryName" required /></td>
+                  </tr>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            <button type="submit" class="btn btn-secondary">등록</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/category.modal.js"></script>

@@ -174,7 +174,6 @@
               <option value="" disabled ${empty searchField ? 'selected' : ''}>선택</option>
               <option value="1" ${'1'.equals(searchField) ? 'selected' : ''}>코드</option>
               <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>이름</option>
-              <option value="3" ${'3'.equals(searchField) ? 'selected' : ''}>문서 위치</option>
               <option value="4" ${'4'.equals(searchField) ? 'selected' : ''}>만든 이</option>
               <option value="5" ${'5'.equals(searchField) ? 'selected' : ''}>사용 유무</option>
               <option value="6" ${'6'.equals(searchField) ? 'selected' : ''}>최근 수정일</option>
@@ -197,11 +196,11 @@
         <thead class="table-dark">
           <tr>
             <th scope="col" class="t-c w-7">코드</th>
-            <th scope="col" class="t-c w-14">이름</th>
-            <th scope="col" class="t-c w-18">문서 위치</th>
+            <th scope="col" class="t-c w-18">이름</th>
             <th scope="col" class="t-c w-18">만든 이</th>
             <th scope="col" class="t-c w-auto">최근 수정일</th>
-            <th scope="col" class="t-c w-12">사용 유무</th>
+            <th scope="col" class="t-c w-10">문서 목록</th>
+            <th scope="col" class="t-c w-10">사용 유무</th>
             <th scope="col" class="t-c w-7"></th>
           </tr>
         </thead>
@@ -215,9 +214,11 @@
                 <tr>
                   <td scope="row">${client.clientCode}</td>
                   <td>${client.clientName}</td>
-                  <td>${client.categoryName}</td>
                   <td>${client.userName}</td>
                   <td>${client.dateOfUpdate}</td>
+                  <td>
+                    <button class="btn btn-outline-dark btn-xs">조회</button>
+                  </td>
                   <td>
                     <c:choose>
                       <c:when test="${client.isUse}">
@@ -229,10 +230,10 @@
                     </c:choose>
                   </td>
                   <td>
-                    <form method="post" action="ClientUpdate">
-                      <input type="hidden" name="clientCode" value="${client.clientCode}" />
-                      <button type="submit" class="btn btn-outline-dark btn-xs">수정</button>
-                    </form>
+                    <button type="button" class="btn btn-outline-dark btn-xs" data-bs-toggle="modal" data-bs-target="#ClientUpdateModal"
+                    data-client-name="${client.clientName}" data-client-code="${client.clientCode}" data-client-content="${client.clientContent}">
+                      수정
+                    </button>
                   </td>
                 </tr>
               </c:forEach>
@@ -374,13 +375,94 @@
         </c:otherwise>
       </c:choose>
       <div class="col t-r w-20">
-        <form method="post" action="ClientUpload">
-          <input type="submit" class="btn btn-dark btn-allow-left" value="등록" />
+        <button type="button" class="btn btn-dark btn-allow-left" data-bs-toggle="modal" data-bs-target="#ClientUploadModal">
+          등록
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <div class="modal fade" id="ClientUploadModal" data-bs-backdrop="static" data-bs-keyboard="false" 
+  tabindex="-1" aria-labelledby="ClientUploadModallabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="ClientUploadModallabel">신규 고객사 등록</h4>
+        </div>
+        <form id="ClientInfo" method="post" name="ClientInfo" action="ClientUpload">
+          <div class="modal-body">
+            <div class="container">
+              <table class="table table-dark-line t-c custom-table">
+                <tbody>
+                  <tr>
+                    <td class="bg-gray col-1"><b>이름</b></td>
+                    <td class="col-5">
+                      <input type="text" id="clientName" name="clientName" class="form-control" 
+                      placeholder="고객사 이름" aria-label="ClientName" aria-describedby="ClientName" maxlength="25" required>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="bg-gray col-1"><b>설명</b></td>
+                    <td class="col-5">
+                      <textarea id="clientContent" name="clientContent" class="form-control" placeholder="고객사 설명" aria-label="With textarea" maxlength="200"></textarea>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            <button type="submit" class="btn btn-secondary">등록</button>
+          </div>
         </form>
       </div>
     </div>
   </div>
 
+  <div class="modal fade" id="ClientUpdateModal" data-bs-backdrop="static" data-bs-keyboard="false" 
+  tabindex="-1" aria-labelledby="ClientUpdateModallabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="ClientUpdateModallabel">고객사 수정</h4>
+        </div>
+        <form id="ClientInfo" method="post" name="ClientInfo" action="ClientUpdate">
+          <div class="modal-body">
+            <div class="container">
+              <table class="table table-dark-line t-c custom-table">
+                <tbody>
+                  <tr>
+                    <td class="bg-gray col-1"><b>이름</b></td>
+                    <td class="col-5">
+                      <input type="text" id="clientName" name="clientName" class="form-control" 
+                      placeholder="고객사 이름" aria-label="ClientName" aria-describedby="ClientName" maxlength="25" required>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="bg-gray col-1"><b>설명</b></td>
+                    <td class="col-5">
+                      <textarea id="clientContent" name="clientContent" class="form-control" placeholder="고객사 설명" aria-label="With textarea" maxlength="200"></textarea>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            <input type="hidden" class="form-control" id="clientCode" name="clientCode" required readonly>
+            <input type="hidden" class="form-control" id="hiddenClientName" name="hiddenClientName" required readonly>
+            <input type="hidden" class="form-control" id="hiddenClientContent" name="hiddenClientContent" required readonly>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            <button type="submit" class="btn btn-secondary">수정</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>

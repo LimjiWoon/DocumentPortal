@@ -163,27 +163,23 @@
     </c:otherwise>
   </c:choose>
 
-  <script type="text/javascript">
-    document.addEventListener('DOMContentLoaded', function() {
-      //inputID
-      var userIDInput = document.querySelector('#documentName');
-      userIDInput.addEventListener('input', checkDocumentName);
-    });
-  </script>
-
-  <div class="container w-100 t-c">
-    <div class="col-lg-6"></div>
-    <div class="col-lg-6 d-ib">
-      <div class="jumbotron t-c t-p">
-        <form id="DocumentInfo" method="post" name="DocumentInfo" action="DocumentUpload"  enctype="multipart/form-data" >
-          <h3>문서 등록</h3>
-          <p>틀린 부분 없이 잘 확인해 등록해주세요</p>
-          
-          <div class="input-group mb-3">
-            <span class="input-group-text w-90p">문서 제목</span>
-            <input type="text" id="documentName" name="documentName" class="form-control" placeholder="문서 제목" 
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col">
+        <h1 class="my-2">문서 등록</h1>
+      </div>
+    </div>
+    <form id="DocumentInfo" method="post" name="DocumentInfo" action="DocumentUpload"  enctype="multipart/form-data" >
+      <div class="row t-c input-group mb-3">
+        <div class="col">
+          <span class="input-group-text">문서 제목</span>
+        </div>
+        <div class="col">
+          <input type="text" id="documentName" name="documentName" class="form-control" placeholder="문서 제목" 
             aria-label="DocumentName" aria-describedby="DocumentName" maxlength="25" required>
-          </div>
+        </div>
+            
+            
           
           <div class="input-group mb-3">
             <input type="file" id="fileName" name="fileName" class="form-control" required>
@@ -227,11 +223,23 @@
           <div>
             <input type="button" class="btn btn-primary form-control" value="취소" onClick="history.back()">
           </div>
-        </form>
+        
+    
       </div>
-    </div>
-    <div class="col-lg-4"></div>
+    </form>
   </div>
+
+
+
+
+  <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+      //inputID
+      var userIDInput = document.querySelector('#documentName');
+      userIDInput.addEventListener('input', checkDocumentName);
+    });
+  </script>
+
 
 
   <div id="modalContainer"></div>

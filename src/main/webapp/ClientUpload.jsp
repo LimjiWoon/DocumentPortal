@@ -112,15 +112,11 @@
                         <c:choose>
                           <c:when test="${user.isCategory}">
                             <form method="post" action="Category">
-                              <input type="submit" class="dropdown-item" value="문서 목록 조회" />
-                            </form>
-                            <form method="post" action="CategoryUpload">
-                              <input type="submit" class="dropdown-item" value="문서 목록 등록" />
+                              <input type="submit" class="dropdown-item" value="문서 목록" />
                             </form>
                           </c:when>
                           <c:otherwise>
                             <li><a class="dropdown-item disabled">문서 목록 조회</a></li>
-                            <li><a class="dropdown-item disabled"">문서 목록 등록</a></li>
                           </c:otherwise>
                         </c:choose>
                         <c:choose>
@@ -173,62 +169,55 @@
     });
   </script>
 
-  <div class="container w-100 t-c">
-    <div class="col-lg-6"></div>
-    <div class="col-lg-6 d-ib">
-      <div class="jumbotron t-c t-p">
-        <form id="ClientInfo" method="post" name="ClientInfo" action="ClientUpload">
-          <h3>고객사 등록</h3>
-          <p>틀린 부분 없이 잘 확인해 등록해주세요</p>
-          <div class="input-group mb-3">
-            <span class="input-group-text w-90p">이름</span>
-            <input type="text" id="clientName" name="clientName" class="form-control" placeholder="고객사 이름" 
-            aria-label="ClientName" aria-describedby="ClientName" maxlength="25" required>
-          </div>
-                    
-          <div class="input-group mb-3">
-            <label class="input-group-text w-90p">목록 선택</label>
-            <select class="form-select" title="ChangeSelect" id="ChangeSelect" name="ChangeSelect" required>
-              <option value="" disabled selected>선택하시오</option>
-              <c:forEach var="list" items="${list}">
-                <option value="${list.categoryCode}">${list.categoryName}</option>
-              </c:forEach>
-            </select>
-          </div>
-          
-          <div class="input-group mb-3">
-            <span class="input-group-text w-90p">선택된 목록</span>
-            <input type="text" class="form-control" id="nowCategoryName" name="nowCategoryName" placeholder="위 문서 목록을 선택하면 자동기입 됩니다." required readonly>
-            <c:if test="${user.isCategory}">
-              <input type="checkbox" class="btn-check" id="newCategory" name="newCategory" value="1" autocomplete="off">
-              <label class="btn btn-outline-secondary" for="newCategory">신규등록</label>
-            </c:if>
-          </div>
-          
-          <input type="hidden" class="form-control" id="categoryLv" name="categoryLv" required readonly>
-          <input type="hidden" class="form-control" id="categoryCode" name="categoryCode" required readonly>
-          
-          <div class="input-group">
-            <span class="input-group-text w-90p">설명</span>
-            <textarea id="clientContent" name="clientContent" class="form-control" placeholder="고객사 설명" aria-label="With textarea" maxlength="200"></textarea>
-          </div> <br>
-          <input type="submit" class="btn btn-primary form-control" value="고객사 등록">
-          <div>
-            <input type="button" class="btn btn-primary form-control" value="취소" onClick="history.back()">
-          </div>
-        </form>
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col">
+        <h1 class="my-2">고객사 등록</h1>
+        <p>틀린 부분 없이 잘 확인해 등록해주세요</p>
       </div>
     </div>
-    <div class="col-lg-6"></div>
+    <div class="row">
+      <form id="ClientInfo" method="post" name="ClientInfo" action="ClientUpload">
+        <table class="table table-dark-line t-c custom-table">
+          <tbody>
+            <tr>
+              <td class="bg-gray col-1"><b>이름</b></td>
+              <td class="col-2">
+                <input type="text" id="clientName" name="clientName" class="form-control" 
+                placeholder="고객사 이름" aria-label="ClientName" aria-describedby="ClientName" maxlength="25" required>
+              </td>
+              <td class="bg-gray col-1"><b>폴더 목록</b></td>
+              <td class="col-2">
+                <select class="form-select" title="ChangeSelect" id="ChangeSelect" name="ChangeSelect" required>
+                  <option value="" disabled selected>선택하시오</option>
+                  <c:forEach var="list" items="${list}">
+                    <option value="${list.categoryCode}">${list.categoryName}</option>
+                  </c:forEach>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td class="bg-gray col-1"><b>설명</b></td>
+              <td class="col-5" colspan="3">
+                <textarea id="clientContent" name="clientContent" class="form-control" placeholder="고객사 설명" aria-label="With textarea" maxlength="200"></textarea>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <div class="d-flex justify-content-end">
+          <input type="submit" class="btn btn-primary me-2" value="고객사 등록">
+          <input type="button" class="btn btn-secondary" value="취소" onClick="history.back()">
+        </div>
+      </form>
+    </div>
   </div>
 
-  
 
-  <div id="modalContainer"></div>
+
 
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/client.js"></script>
-  <script src="js/client.modal.js"></script>
 </body>
 </html>

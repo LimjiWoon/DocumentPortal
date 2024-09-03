@@ -33,12 +33,6 @@ public class ClientDTO {
 	public void setClientContent(String clientContent) {
 		this.clientContent = clientContent;
 	}
-	public int getCategoryCode() {
-		return categoryCode;
-	}
-	public void setCategoryCode(int categoryCode) {
-		this.categoryCode = categoryCode;
-	}
 	public int getUserCode() {
 		return userCode;
 	}

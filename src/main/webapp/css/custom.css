@@ -12,8 +12,46 @@ textarea {
     height: 150px;
 }
 
+.modal-header {
+    background-color: black;
+    color: white;
+}
+
+.modal-title {
+    color: white;
+}
+
+.bg-gray {
+  background-color: #d3d3d3 !important;
+}
+
 .table-dark-line {
   border: 1px solid #000;
+}
+
+.custom-table {
+  border-collapse: collapse;
+}
+
+.custom-table td {
+  vertical-align: middle;
+  padding: 10px;
+}
+
+.custom-table input,
+.custom-table select {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  display: block;
+}
+
+.custom-table input {
+  height: 38px;
+}
+
+.custom-table select.form-select {
+  height: 38px;
 }
 
 .pagination .page-item .page-link {
