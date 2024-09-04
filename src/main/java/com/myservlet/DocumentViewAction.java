@@ -47,6 +47,8 @@ public class DocumentViewAction extends HttpServlet {
 		
 		document = documentDAO.getDocumentInfo(fileName, categoryCode);
 		
+		documentDAO.documentClose();
+		
         request.setAttribute("document", document);
 	    request.getRequestDispatcher("DocumentView.jsp").forward(request, response);
 		

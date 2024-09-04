@@ -89,9 +89,11 @@ public class DocumentUploadAction extends HttpServlet {
     				= new MultipartRequest(request, folderPath, maxSize, encoding,
     					new DefaultFileRenamePolicy());
     	        DocumentDAO documentDAO = new DocumentDAO();
+        		ClientDAO clientDAO= new ClientDAO();
     			String documentName = XSSEscape.changeCategoryName(multipartRequest.getParameter("documentName"));
     			String categoryCode = XSSEscape.isNumber(multipartRequest.getParameter("categoryCode"));
     			String clientCode = XSSEscape.isNumber(multipartRequest.getParameter("clientCode"));
+    			String clientName = null;
     			String fileContent = XSSEscape.escapeHtml(multipartRequest.getParameter("fileContent"));
     			String categoryRoot = documentDAO.getRoot(categoryCode);
     			int result;
@@ -103,6 +105,15 @@ public class DocumentUploadAction extends HttpServlet {
     		        request.setAttribute("errorMessage", "비정상적인 접근");
     			    request.getRequestDispatcher("Error.jsp").forward(request, response);
     				return;
+    			}
+    			
+    			//clientCode에 맞는 정보가 있는지 확인하고 지정한다.
+    			//없으면 기타에 넣는다.
+    			if (clientCode != null) {
+    				ClientDTO client = clientDAO.getClientInfo(Integer.parseInt(clientCode));
+    				if (client != null) {
+    					clientName = client.getClientName();
+    				}
     			}
     			
     			//업로드한 파일의 정보를 가져온다
@@ -123,11 +134,23 @@ public class DocumentUploadAction extends HttpServlet {
     			    request.getRequestDispatcher("Error.jsp").forward(request, response);
     				return;
     			}
+
     			
     			//이제 실제 경로에 파일 같은 이름의 파일이 있는지 확인한다.
-    			String movePath = getServletContext().getRealPath(File.separator + categoryRoot + File.separator + fileName);
+    			String movePath = getServletContext().getRealPath(File.separator + categoryRoot + File.separator + clientName + "/");
+    			File folder = new File(movePath);
+    			if(!folder.exists()) {
+    				if(!folder.mkdir()) {
+        				deleteFile(multipartRequest.getFile("fileName"));
+        		        request.setAttribute("errorMessage", "비정상적인 접근");
+        			    request.getRequestDispatcher("Error.jsp").forward(request, response);
+    					return;
+    				}
+    			}
+    			
     			//기존 업로드 경로에 파일명을 붙여 파일 경로로 만든다.
     			folderPath += fileName;
+    			movePath += fileName;
     			File moveFile = new File(movePath);
     			boolean isFile = moveFile.exists();
     			if (isFile) {
@@ -170,6 +193,9 @@ public class DocumentUploadAction extends HttpServlet {
     		
         	category = categoryDAO.getList();
         	client = clientDAO.getList();
+        	
+        	categoryDAO.categoryClose();
+        	clientDAO.clientClose();
 
             request.setAttribute("category", category);
             request.setAttribute("client", client);

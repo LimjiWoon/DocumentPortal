@@ -243,7 +243,6 @@ public class DocumentUpdateAction extends HttpServlet {
             // 일반 form-data 처리
     	    ArrayList<CategoryDTO> categoryList = new ArrayList<CategoryDTO>();
     	    ArrayList<ClientDTO> client = new ArrayList<ClientDTO>();
-    	    CategoryDTO category = new CategoryDTO();
     	    DocumentDTO document = new DocumentDTO();
     		CategoryDAO categoryDAO= new CategoryDAO();
     		ClientDAO clientDAO= new ClientDAO();
@@ -257,12 +256,14 @@ public class DocumentUpdateAction extends HttpServlet {
     			return;
     		}
     		
-    		category = categoryDAO.getCategoryInfo(Integer.parseInt(categoryCode));
     		categoryList = categoryDAO.getList();
         	client = clientDAO.getList();
-        	document = documentDAO.getInfo(fileName, categoryCode);
-
-            request.setAttribute("category", category);
+        	document = documentDAO.getDocumentInfo(fileName, categoryCode);
+        	
+        	clientDAO.clientClose();
+        	categoryDAO.categoryClose();
+        	documentDAO.documentClose();
+        	
             request.setAttribute("categoryList", categoryList);
             request.setAttribute("client", client);
             request.setAttribute("document", document);

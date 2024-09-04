@@ -40,11 +40,13 @@ function submitForm(action, fileName, categoryCode) {
 
 function checkAndUpload() {
 	var fileInput = document.getElementById('fileName');
-	var categoryCode = document.getElementById('categoryCode').value; // 카테고리 코드 추출
+	var clientCode = document.getElementById('clientCode').value;
+	var categoryCode = document.getElementById('categoryCode').value;
 
 	var formData = new FormData();
-	formData.append("fileName", fileInput.files[0]); // 파일 추가
-	formData.append("categoryCode", categoryCode); // 카테고리 코드 추가
+	formData.append("fileName", fileInput.files[0]);
+	formData.append("clientCode", clientCode);
+	formData.append("categoryCode", categoryCode);
 
     $.ajax({
         url: 'DocumentUpToUp',
@@ -67,14 +69,18 @@ function checkAndUpload() {
 
 function checkAndUpdate() {
 	var fileInput = document.getElementById('fileName');
+	var clientCode = document.getElementById('clientCode').value;
 	var categoryCode = document.getElementById('categoryCode').value;
 	var originFileName = document.getElementById('originFileName').value;
+	var originClientCode = document.getElementById('originClientCode').value;
 	var originCategoryCode = document.getElementById('originCategoryCode').value;
 
 	var formData = new FormData();
-	formData.append("fileName", fileInput.files[0]); // 파일 추가
-	formData.append("categoryCode", categoryCode); // 카테고리 코드 추가
+	formData.append("fileName", fileInput.files[0]);
+	formData.append("clientCode", clientCode);
+	formData.append("categoryCode", categoryCode);
 	formData.append("originFileName", originFileName); 
+	formData.append("originClientCode", originClientCode); 
 	formData.append("originCategoryCode", originCategoryCode); 
 
     $.ajax({

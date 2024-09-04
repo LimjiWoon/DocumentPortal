@@ -39,6 +39,7 @@ public class DocumentViewDownloadAction extends HttpServlet {
         response.setContentType("text/html; charset=UTF-8");
 
 		String fileName = XSSEscape.changeCategoryName(request.getParameter("fileName"));
+		String clientName = XSSEscape.changeClientName(request.getParameter("clientName"));
 		String categoryCode = XSSEscape.isNumber(request.getParameter("categoryCode"));
 		String categoryRoot = "";
 		String folderPath = getServletContext().getRealPath("");
@@ -103,13 +104,13 @@ public class DocumentViewDownloadAction extends HttpServlet {
 		// 단일 파일 다운로드 할 때 파일이 이상할 경우
 		categoryRoot = documentDAO.getRoot(categoryCode);
 		
-		if (fileName == null || categoryCode== null || categoryRoot == null) {
+		if (fileName == null || categoryCode== null || categoryRoot == null || clientName == null) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
 		    request.getRequestDispatcher("Error.jsp").forward(request, response);
 			return;
 		}
 		
-		File file = new File(folderPath + File.separator + categoryRoot + File.separator + fileName);
+		File file = new File(folderPath + File.separator + categoryRoot + File.separator + clientName + File.separator + fileName);
 		
 		if (!file.exists()) {
 	        request.setAttribute("errorMessage", "파일이 없습니다.");

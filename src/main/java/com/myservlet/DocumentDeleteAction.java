@@ -40,6 +40,7 @@ public class DocumentDeleteAction extends HttpServlet {
 		HttpSession session = request.getSession();
 		UserDTO user = (UserDTO) session.getAttribute("user");
 		String categoryCode = XSSEscape.isNumber(request.getParameter("categoryCode"));
+		String clientName = XSSEscape.changeClientName(request.getParameter("clientName"));
 		String fileName = XSSEscape.changeCategoryName(request.getParameter("fileName"));
 		
 		if (user == null || !user.isDocument() || categoryCode == null || fileName == null) {
@@ -49,11 +50,15 @@ public class DocumentDeleteAction extends HttpServlet {
 		}
 
         DocumentDAO documentDAO = new DocumentDAO();
-		String folderPath = getServletContext().getRealPath(File.separator + documentDAO.getRoot(categoryCode) + File.separator + fileName);
-        File file = new File(folderPath);
+		String folderPath = getServletContext().getRealPath(File.separator + documentDAO.getRoot(categoryCode) + File.separator + clientName + "/");
+        File file = new File(folderPath+ fileName);
 		
         if (file.exists() && documentDAO.documentDelete(fileName, categoryCode, user.getUserCode()) == 1) {
             file.delete();
+            file = new File(folderPath);
+            if (isDirectoryEmpty(file)) {
+            	file.delete();
+            }
             request.setAttribute("messageDocument", "문서 삭제 성공!");
             request.getRequestDispatcher("Message.jsp").forward(request, response);
         } else {
@@ -62,5 +67,10 @@ public class DocumentDeleteAction extends HttpServlet {
         }
 
 	}
+	
+   private static boolean isDirectoryEmpty(File directory) {
+        String[] files = directory.list();
+        return files == null || files.length == 0;
+    }
 
 }

@@ -83,16 +83,10 @@
                 </c:if>
                 <c:choose>
                   <c:when test="${user.isClient}">
-                    <li class="nav-item dropdown">
-                      <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">고객사 관리</a>
-                      <ul class="dropdown-menu">
-                        <form method="post" action="Client">
-                          <input type="submit" class="dropdown-item" value="고객사 조회" />
-                        </form>
-                        <form method="post" action="ClientUpload">
-                          <input type="submit" class="dropdown-item" value="고객사 등록" />
-                        </form>
-                      </ul>
+                    <li class="nav-item">
+                      <form method="post" action="Client">
+                        <input type="submit" class="nav-link" value="고객사 관리" />
+                      </form>
                     </li>
                   </c:when>
                   <c:otherwise>
@@ -109,15 +103,11 @@
                         <c:choose>
                           <c:when test="${user.isCategory}">
                             <form method="post" action="Category">
-                              <input type="submit" class="dropdown-item" value="문서 목록 조회" />
-                            </form>
-                            <form method="post" action="CategoryUpload">
-                              <input type="submit" class="dropdown-item" value="문서 목록 등록" />
+                              <input type="submit" class="dropdown-item" value="문서 목록" />
                             </form>
                           </c:when>
                           <c:otherwise>
-                            <li><a class="dropdown-item disabled">문서 목록 조회</a></li>
-                            <li><a class="dropdown-item disabled"">문서 목록 등록</a></li>
+                            <li><a class="dropdown-item disabled">문서 목록</a></li>
                           </c:otherwise>
                         </c:choose>
                         <c:choose>
@@ -170,83 +160,88 @@
     });
   </script>
   
-  <div class="container w-100 t-c">
-    <div class="col-lg-6"></div>
-    <div class="col-lg-6 d-ib">
-      <div class="jumbotron t-c t-p">
-        <form id="DocumentInfo" method="post" name="DocumentInfo" action="DocumentUpdate"  enctype="multipart/form-data" >
-          <h3>문서 수정</h3>
-          
-          <div class="input-group mb-3">
-            <span class="input-group-text w-90p">문서 제목</span>
-            <input type="text" id="documentName" name="documentName" class="form-control" value="${document.fileTitle}" 
-            placeholder="문서 제목" aria-label="DocumentName" aria-describedby="DocumentName" maxlength="25" required>
-          </div>
-          
-          <div class="input-group mb-3">
-            <input type="file" id="fileName" name="fileName" class="form-control">
-          </div>
-          
-          <div class="input-group mb-3">
-            <label class="input-group-text w-90p" for="clientCode">고객사</label>
-            <select class="form-select" id="clientCode" name="clientCode">
-              <option ${empty document.clientCode ? 'selected' : ''}>미선택</option>
-              <c:forEach var="list" items="${client}">
-                <option value="${list.clientCode}" ${list.clientCode.equals(document.clientCode) ? 'selected' : ''}>${list.clientName}</option>
-              </c:forEach>
-            </select>
-          </div>
-          
-          <div class="input-group mb-3">
-            <label class="input-group-text w-90p">목록 선택</label>
-            <select class="form-select" title="ChangeSelect" id="ChangeSelect" name="ChangeSelect">
-              <option value="" disabled selected>선택하시오</option>
-              <c:forEach var="list" items="${categoryList}">
-                <option value="${list.categoryCode}">${list.categoryName}</option>
-              </c:forEach>
-            </select>
-          </div>
-          
-          <div class="input-group mb-3">
-            <span class="input-group-text w-90p">선택된 목록</span>
-            <input type="text" class="form-control" id="nowCategoryName" name="nowCategoryName" 
-            value="${category.categoryName}" placeholder="위 문서 목록을 선택하면 자동기입 됩니다." required readonly>
-          </div>
-          
-          <input type="hidden" class="form-control" id="categoryLv" name="categoryLv" 
-          value="${category.categoryLv}" required readonly>
-          <input type="hidden" class="form-control" id="categoryCode" name="categoryCode" 
-          value="${category.categoryCode}" required readonly>
-          <input type="hidden" class="form-control" id="originFileName" name="originFileName" 
-          value="${document.fileName}" required readonly>
-          <input type="hidden" class="form-control" id="originCategoryCode" name="originCategoryCode" 
-          value="${document.categoryCode}" required readonly>
-          
-          <div class="input-group">
-            <span class="input-group-text w-90p">설명</span>
-            <textarea class="form-control" name="fileContent" aria-label="With textarea" placeholder="문서 설명을 적어주세요.">${document.fileContent}</textarea>
-          </div> <br>
-          <input type="button" class="btn btn-danger form-control" value="삭제" onclick="document.getElementById('deleteForm').submit()" >
-          <input type="button" class="btn btn-primary form-control" value="문서 수정" onclick="checkAndUpdate();">
-          <div>
-            <input type="button" class="btn btn-primary form-control" value="취소" onClick="history.back()">
-          </div>
-        </form>
-      </div>
+  <br>
+  
+  <div class="container">
+    <div class="row d-flex justify-content-between align-items-center">
+      <form class="flex-grow-1" id="DocumentInfo" method="post" name="DocumentInfo" action="DocumentUpdate"  enctype="multipart/form-data" >
+        <div class="mb-3">
+          <table class="table table-dark-line t-c custom-table">
+            <thead class="table-dark">
+              <tr>
+                <td colspan="5">
+                  <h1 class="my-2">문서 수정</h1>
+                </td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="bg-gray col-1"><b>문서 제목</b></td>
+                <td class="col-2">
+                  <input type="text" id="documentName" name="documentName" class="form-control" value="${document.fileTitle}" 
+                      placeholder="문서 제목" aria-label="DocumentName" aria-describedby="DocumentName" maxlength="25" required>
+                </td>
+                <td class="bg-gray col-1"><b>고객사</b></td>
+                <td class="col-2">
+                  <select class="form-select" id="clientCode" name="clientCode">
+                    <option ${empty document.clientCode ? 'selected' : ''}>미선택</option>
+                    <c:forEach var="list" items="${client}">
+                      <option value="${list.clientCode}" ${list.clientCode.equals(document.clientCode) ? 'selected' : ''}>${list.clientName}</option>
+                    </c:forEach>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-gray col-1"><b>파일 등록</b></td>
+                <td class="col-2">
+                  <input type="file" id="fileName" name="fileName" class="form-control" required>
+                </td>
+                <td class="bg-gray col-1"><b>문서 목록</b></td>
+                <td class="col-2">
+                  <select class="form-select" id="categoryCode" name="categoryCode" >
+                    <option ${empty document.categoryCode ? 'selected' : ''}>미선택</option>
+                    <c:forEach var="list" items="${categoryList}">
+                      <option value="${list.categoryCode}" ${list.categoryCode.equals(document.categoryCode) ? 'selected' : ''} >${list.categoryName}</option>
+                    </c:forEach>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-gray col-1"><b>설명</b></td>
+                <td class="col-5" colspan="3">
+                  <textarea class="form-control" name="fileContent" aria-label="With textarea" placeholder="문서 설명을 적어주세요.">${document.fileContent}</textarea>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="d-flex justify-content-end">
+          <input type="button" class="btn btn-secondary me-2" value="수정" onclick="checkAndUpdate();">
+          <input type="button" class="btn btn-secondary me-2" value="취소" onClick="history.back()">
+          <input type="button" class="btn btn-danger" value="삭제" onclick="document.getElementById('deleteForm').submit()" >
+        </div>
+        <input type="hidden" class="form-control" id="originFileTitle" name="originFileTitle" 
+            value="${document.fileTitle}" required readonly>
+        <input type="hidden" class="form-control" id="originFileName" name="originFileName" 
+            value="${document.fileName}" required readonly>
+        <input type="hidden" class="form-control" id="originClientCode" name="originClientCode" 
+            value="${document.clientCode}" required readonly>
+        <input type="hidden" class="form-control" id="originCategoryCode" name="originCategoryCode" 
+            value="${document.categoryCode}" required readonly>
+        <input type="hidden" class="form-control" id="originFileContent" name="originFileContent" 
+            value="${document.fileContent}" required readonly>
+      </form>
     </div>
     <div class="col-lg-4">
       <form id="deleteForm" action="DocumentDelete" method="post">
+        <input type="hidden" name="clientName" value="${document.clientName}" />
         <input type="hidden" name="categoryCode" value="${document.categoryCode}" />
         <input type="hidden" name="fileName" value="${document.fileName}" />
       </form>
     </div>
   </div>
-
-
-
-
-
-  <div id="modalContainer"></div>
+  
+          
   
   
   <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">

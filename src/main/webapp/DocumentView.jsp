@@ -84,16 +84,10 @@
                 </c:if>
                 <c:choose>
                   <c:when test="${user.isClient}">
-                    <li class="nav-item dropdown">
-                      <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">고객사 관리</a>
-                      <ul class="dropdown-menu">
-                        <form method="post" action="Client">
-                          <input type="submit" class="dropdown-item" value="고객사 조회" />
-                        </form>
-                        <form method="post" action="ClientUpload">
-                          <input type="submit" class="dropdown-item" value="고객사 등록" />
-                        </form>
-                      </ul>
+                    <li class="nav-item">
+                      <form method="post" action="Client">
+                        <input type="submit" class="nav-link" value="고객사 관리" />
+                      </form>
                     </li>
                   </c:when>
                   <c:otherwise>
@@ -110,15 +104,11 @@
                         <c:choose>
                           <c:when test="${user.isCategory}">
                             <form method="post" action="Category">
-                              <input type="submit" class="dropdown-item" value="문서 목록 조회" />
-                            </form>
-                            <form method="post" action="CategoryUpload">
-                              <input type="submit" class="dropdown-item" value="문서 목록 등록" />
+                              <input type="submit" class="dropdown-item" value="문서 목록" />
                             </form>
                           </c:when>
                           <c:otherwise>
-                            <li><a class="dropdown-item disabled">문서 목록 조회</a></li>
-                            <li><a class="dropdown-item disabled"">문서 목록 등록</a></li>
+                            <li><a class="dropdown-item disabled">문서 목록</a></li>
                           </c:otherwise>
                         </c:choose>
                         <c:choose>
@@ -163,57 +153,52 @@
     </c:otherwise>
   </c:choose>
 
-
-  <div class="container">
+  <br>
   
-    <div class="row align-items-center">
-      <div class="col">
-        <h1 class="my-2">문서 관리 페이지</h1>
-      </div>
-    </div>
-    
+  <div class="container">
     <c:set var="document" value="${document}" />
     
     <div class="row">
       <table class="table table-hover table-dark-line table-bordered t-c">
         <thead class="table-dark">
           <tr>
-            <th colspan="3">문서 보기</th>
+            <th colspan="3"><h1>문서 보기</h1></th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td class="w-25">문서 제목</td>
+            <td class="w-25"><b>문서 제목</b></td>
             <td colspan="2">${document.fileTitle}</td>
           </tr>
           <tr>
-            <td class="w-25">저장된 문서명</td>
+            <td class="w-25"><b>저장된 문서명</b></td>
             <td colspan="2">
               <form method="post" class="d-flex justify-content-center" action="DocumentViewDownload">
                 <input type="hidden" name="categoryCode" value="${document.categoryCode}" />
+                <input type="hidden" name="clientName" value="${document.clientName}" />
                 <input type="hidden" name="fileName" value="${document.fileName}" />
                 <input type="submit" class="btn btn-white w-auto" value="${document.fileName}"/>
               </form>
             </td>
           </tr>
           <tr>
-            <td class="w-25">작성자</td>
+            <td class="w-25"><b>작성자</b></td>
             <td colspan="2">${document.userName}</td>
           </tr>
           <tr>
-            <td class="w-25">고객사</td>
+            <td class="w-25"><b>고객사</b></td>
             <td colspan="2">${document.clientName}</td>
           </tr>
           <tr>
-            <td class="w-25">문서 위치</td>
+            <td class="w-25"><b>문서 위치</b></td>
             <td colspan="2">${document.categoryName}</td>
           </tr>
           <tr>
-            <td class="w-25">최근 수정일</td>
+            <td class="w-25"><b>최근 수정일</b></td>
             <td colspan="2">${document.dateOfUpdate}</td>
           </tr>
           <tr>
-            <td class="w-25">설명</td>
+            <td class="w-25"><b>설명</b></td>
             <td colspan="2">${document.fileContent}</td>
           </tr>
         </tbody>
@@ -228,10 +213,12 @@
   
   <form id="updateForm" action="DocumentUpdate" method="post">
     <input type="hidden" name="categoryCode" value="${document.categoryCode}" />
+    <input type="hidden" name="clientName" value="${document.clientName}" />
     <input type="hidden" name="fileName" value="${document.fileName}" />
   </form>
   <form id="deleteForm" action="DocumentDelete" method="post">
     <input type="hidden" name="categoryCode" value="${document.categoryCode}" />
+    <input type="hidden" name="clientName" value="${document.clientName}" />
     <input type="hidden" name="fileName" value="${document.fileName}" />
   </form>
 

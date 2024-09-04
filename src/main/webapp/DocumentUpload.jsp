@@ -25,7 +25,6 @@
   
   
   
-  
   <c:choose>
     <c:when test="${empty user}">
       <nav class="navbar navbar-expand-lg bg-body-tertiary rounded">
@@ -84,16 +83,10 @@
                 </c:if>
                 <c:choose>
                   <c:when test="${user.isClient}">
-                    <li class="nav-item dropdown">
-                      <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">고객사 관리</a>
-                      <ul class="dropdown-menu">
-                        <form method="post" action="Client">
-                          <input type="submit" class="dropdown-item" value="고객사 조회" />
-                        </form>
-                        <form method="post" action="ClientUpload">
-                          <input type="submit" class="dropdown-item" value="고객사 등록" />
-                        </form>
-                      </ul>
+                    <li class="nav-item">
+                      <form method="post" action="Client">
+                        <input type="submit" class="nav-link" value="고객사 관리" />
+                      </form>
                     </li>
                   </c:when>
                   <c:otherwise>
@@ -110,15 +103,11 @@
                         <c:choose>
                           <c:when test="${user.isCategory}">
                             <form method="post" action="Category">
-                              <input type="submit" class="dropdown-item" value="문서 목록 조회" />
-                            </form>
-                            <form method="post" action="CategoryUpload">
-                              <input type="submit" class="dropdown-item" value="문서 목록 등록" />
+                              <input type="submit" class="dropdown-item" value="문서 목록" />
                             </form>
                           </c:when>
                           <c:otherwise>
-                            <li><a class="dropdown-item disabled">문서 목록 조회</a></li>
-                            <li><a class="dropdown-item disabled"">문서 목록 등록</a></li>
+                            <li><a class="dropdown-item disabled">문서 목록</a></li>
                           </c:otherwise>
                         </c:choose>
                         <c:choose>
@@ -163,74 +152,68 @@
     </c:otherwise>
   </c:choose>
 
+  <br>
+
   <div class="container">
-    <div class="row align-items-center">
-      <div class="col">
-        <h1 class="my-2">문서 등록</h1>
-      </div>
+    <div class="row d-flex justify-content-between align-items-center">
+      <form class="flex-grow-1" id="DocumentInfo" method="post" name="DocumentInfo" action="DocumentUpload" enctype="multipart/form-data" >
+        <div class="mb-3">
+          <table class="table table-dark-line t-c custom-table">
+            <thead class="table-dark">
+              <tr>
+                <td colspan="5">
+                  <h1 class="my-2">문서 등록</h1>
+                </td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="bg-gray col-1"><b>문서 제목</b></td>
+                <td class="col-2">
+                  <input type="text" id="documentName" name="documentName" class="form-control" placeholder="문서 제목" 
+                      aria-label="DocumentName" aria-describedby="DocumentName" maxlength="25" required>
+                </td>
+                <td class="bg-gray col-1"><b>고객사</b></td>
+                <td class="col-2">
+                  <select class="form-select" id="clientCode" name="clientCode">
+                    <option selected>미선택</option>
+                    <c:forEach var="list" items="${client}">
+                      <option value="${list.clientCode}">${list.clientName}</option>
+                    </c:forEach>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-gray col-1"><b>파일 등록</b></td>
+                <td class="col-2">
+                  <input type="file" id="fileName" name="fileName" class="form-control" required>
+                </td>
+                <td class="bg-gray col-1"><b>문서 목록</b></td>
+                <td class="col-2">
+                  <select class="form-select" id="categoryCode" name="categoryCode" required>
+                    <option disabled selected>선택</option>
+                    <c:forEach var="list" items="${category}">
+                      <option value="${list.categoryCode}">${list.categoryName}</option>
+                    </c:forEach>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-gray col-1"><b>설명</b></td>
+                <td class="col-5" colspan="3">
+                  <textarea class="form-control" name="fileContent" aria-label="With textarea" placeholder="문서 설명을 적어주세요."></textarea>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="d-flex justify-content-end">
+          <input type="button" class="btn btn-secondary me-2" value="등록" onclick="checkAndUpload();">
+          <input type="button" class="btn btn-secondary" value="취소" onClick="history.back()">
+        </div>
+      </form>
     </div>
-    <form id="DocumentInfo" method="post" name="DocumentInfo" action="DocumentUpload"  enctype="multipart/form-data" >
-      <div class="row t-c input-group mb-3">
-        <div class="col">
-          <span class="input-group-text">문서 제목</span>
-        </div>
-        <div class="col">
-          <input type="text" id="documentName" name="documentName" class="form-control" placeholder="문서 제목" 
-            aria-label="DocumentName" aria-describedby="DocumentName" maxlength="25" required>
-        </div>
-            
-            
-          
-          <div class="input-group mb-3">
-            <input type="file" id="fileName" name="fileName" class="form-control" required>
-          </div>
-          
-          <div class="input-group mb-3">
-            <label class="input-group-text w-90p" for="clientCode">고객사</label>
-            <select class="form-select" id="clientCode" name="clientCode">
-              <option selected>미선택</option>
-              <c:forEach var="list" items="${client}">
-                <option value="${list.clientCode}">${list.clientName}</option>
-              </c:forEach>
-            </select>
-          </div>
-          
-          <div class="input-group mb-3">
-            <label class="input-group-text w-90p">목록 선택</label>
-            <select class="form-select" title="ChangeSelect" id="ChangeSelect" name="ChangeSelect" required>
-              <option value="" disabled selected>선택하시오</option>
-              <c:forEach var="list" items="${category}">
-                <option value="${list.categoryCode}">${list.categoryName}</option>
-              </c:forEach>
-            </select>
-          </div>
-          
-          <div class="input-group mb-3">
-            <span class="input-group-text w-90p">선택된 목록</span>
-            <input type="text" class="form-control" id="nowCategoryName" name="nowCategoryName" placeholder="위 문서 목록을 선택하면 자동기입 됩니다." required readonly>
-          </div>
-          
-          
-          
-          <input type="hidden" class="form-control" id="categoryLv" name="categoryLv" required readonly>
-          <input type="hidden" class="form-control" id="categoryCode" name="categoryCode" required readonly>
-          
-          <div class="input-group">
-            <span class="input-group-text w-90p">설명</span>
-            <textarea class="form-control" name="fileContent" aria-label="With textarea" placeholder="문서 설명을 적어주세요."></textarea>
-          </div> <br>
-          <input type="button" class="btn btn-primary form-control" value="문서 등록" onclick="checkAndUpload();">
-          <div>
-            <input type="button" class="btn btn-primary form-control" value="취소" onClick="history.back()">
-          </div>
-        
-    
-      </div>
-    </form>
   </div>
-
-
-
 
   <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function() {
@@ -240,9 +223,6 @@
     });
   </script>
 
-
-
-  <div id="modalContainer"></div>
 
   <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -264,7 +244,6 @@
 
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
-  <script src="js/client.modal.js"></script>
   <script src="js/document.js"></script>
 </body>
 </html>

@@ -64,7 +64,8 @@ public class ClientDAO {
 	
 
 	public ArrayList<ClientDTO> getList(){
-		String SQL = "SELECT clientCode, clientName FROM  dbo.CLIENTS ORDER BY clientName ASC;";
+		String SQL = "SELECT clientCode, clientName FROM  dbo.CLIENTS "
+				+ "WHERE isUse=1 ORDER BY clientName ASC;";
 		ArrayList<ClientDTO> list = new ArrayList<ClientDTO>();
 		
 		try {

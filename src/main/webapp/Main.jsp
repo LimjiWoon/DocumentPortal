@@ -89,11 +89,11 @@
                         <c:choose>
                           <c:when test="${user.isCategory}">
                             <form method="post" action="Category">
-                              <input type="submit" class="dropdown-item" value="문서 목록 조회" />
+                              <input type="submit" class="dropdown-item" value="문서 목록" />
                             </form>
                           </c:when>
                           <c:otherwise>
-                            <li><a class="dropdown-item disabled">문서 목록 조회</a></li>
+                            <li><a class="dropdown-item disabled">문서 목록</a></li>
                           </c:otherwise>
                         </c:choose>
                         <c:choose>

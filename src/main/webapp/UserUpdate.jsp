@@ -51,25 +51,16 @@
                 <li><a class="dropdown-item" href="UserUpload.jsp">사용자 등록</a></li>
               </ul>
             </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">고객사 관리</a>
-              <ul class="dropdown-menu">
-                <form method="post" action="Client">
-                  <input type="submit" class="dropdown-item" value="고객사 조회" />
-                </form>
-                <form method="post" action="ClientUpload">
-                  <input type="submit" class="dropdown-item" value="고객사 등록" />
-                </form>
-              </ul>
+            <li class="nav-item">
+              <form method="post" action="Client">
+                <input type="submit" class="nav-link" value="고객사 관리" />
+              </form>
             </li>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">문서 관리</a>
               <ul class="dropdown-menu">
                 <form method="post" action="Category">
-                  <input type="submit" class="dropdown-item" value="문서 목록 조회" />
-                </form>
-                <form method="post" action="CategoryUpload">
-                  <input type="submit" class="dropdown-item" value="문서 목록 등록" />
+                  <input type="submit" class="dropdown-item" value="문서 목록" />
                 </form>
                 <form method="post" action="Document">
                   <input type="submit" class="dropdown-item" value="문서 조회" />
@@ -94,80 +85,99 @@
     </div>
   </nav>
     
-  <div class="container w-100 t-c">
-    <div class="col-lg-6"></div>
-    <div class="col-lg-6 d-ib">
-      <div class="jumbotron t-p t-c">
-        <form id="myForm" method="post" name="checkPassword" action="UserUpdate" onsubmit="return check();">
-          <h3>사용자 수정</h3>
-          <p>틀린 부분 없이 잘 확인해 수정해주세요</p>
-          
-          <div class="input-group mb-3">
-            <input type="hidden" class="form-control" name="userCode" id="userCode" 
-            value="${updateUser.userCode}" autocomplete="off" readonly required>
-          </div>
-          
-          <div class="input-group mb-3">
-            <span class="input-group-text w-90p">이름</span>
-            <input type="text" class="form-control" placeholder="UserName" name="userName" id="userName" 
-            value="${updateUser.userName}" autocomplete="off" maxlength=20 required>
-          </div>
-          
-          <div class="input-group mb-3">
-            <span class="input-group-text w-90p">아이디</span>
-            <input type="text" class="form-control" placeholder="UserID" name="userID" id="userID" 
-            value="${updateUser.userID}" autocomplete="off" maxlength=20 readonly required>
-          </div>
-          
-          <div class="input-group mb-3">
-            <span class="input-group-text w-90p">비밀번호</span>
-            <input type="password" class="form-control" placeholder="UserPassword" name="userPassword" id="userPassword" 
-            value="${updateUser.userPassword}" autocomplete="new-password" minlength=10 maxlength=20  required>
-          </div>
-          
-          <div class="form-check">
-            <button type="button" class="btn btn-secondary w-50" disabled>고객사</button>
-            <input type="radio" class="btn-check" name="isClient" id="isClientO" value=1
-             ${updateUser.isClient ? 'checked="checked"' : ''}>
-            <label class="btn btn-outline-success w-22" for="isClientO">권한 O</label>
-            <input type="radio" class="btn-check" name="isClient" id="isClientX" value=0
-             ${!updateUser.isClient ? 'checked="checked"' : ''}>
-            <label class="btn btn-outline-danger w-22" for="isClientX">권한 X</label>
-          </div>
-          
-          <div class="form-check">
-            <button type="button" class="btn btn-secondary w-50" disabled>문서 목록</button>
-            <input type="radio" class="btn-check" name="isCategory" id="isCategoryO" value=1
-             ${updateUser.isCategory ? 'checked="checked"' : ''}>
-            <label class="btn btn-outline-success w-22" for="isCategoryO">권한 O</label>
-            <input type="radio" class="btn-check" name="isCategory" id="isCategoryX" value=0
-             ${!updateUser.isCategory ? 'checked="checked"' : ''}>
-            <label class="btn btn-outline-danger w-22" for="isCategoryX">권한 X</label>
-          </div>
-              
-          <div class="form-check">
-            <button type="button" class="btn btn-secondary w-50" disabled>문서</button>
-            <input type="radio" class="btn-check" name="isDocument" id="isDocumentO" value=1
-             ${updateUser.isDocument ? 'checked="checked"' : ''}>
-            <label class="btn btn-outline-success w-22" for="isDocumentO">권한 O</label>
-            <input type="radio" class="btn-check" name="isDocument" id="isDocumentX"  value=0
-             ${!updateUser.isDocument ? 'checked="checked"' : ''}>
-            <label class="btn btn-outline-danger w-22" for="isDocumentX">권한 X</label>
-          </div> <br>
-          <input type="submit" class="btn btn-primary form-control" value="사용자 수정">
-        </form>
-        <div>
-          <input type="button" class="btn btn-primary form-control" value="취소" onClick="history.back()" >
+    <br>
+
+  <div class="container">
+    <div class="row d-flex justify-content-between align-items-center">
+      <form class="flex-grow-1" method="post" id="UserUpdate" name="checkPassword" action="UserUpdate" onsubmit="return check();">
+        <div class="mb-3">
+          <input type="hidden" class="form-control" name="userCode" id="userCode" 
+              value="${updateUser.userCode}" autocomplete="off" readonly required>
+          <table class="table table-dark-line t-c custom-table">
+            <thead class="table-dark">
+              <tr>
+                <td colspan="5">
+                  <h1 class="my-2">사용자 수정</h1>
+                  <p>틀린 부분 없이 잘 확인해 수정해주세요</p>
+                </td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="bg-gray col-1"><b>이름</b></td>
+                <td class="col-2">
+                  <input type="text" class="form-control" placeholder="UserName" name="userName" id="userName" 
+                      value="${updateUser.userName}" autocomplete="off" maxlength=20 required>
+                </td>
+                <td class="bg-gray col-1"><b>고객사</b></td>
+                <td class="col-1">
+                  <input type="radio" class="btn-check" name="isClient" id="isClientO" value=1
+                      ${updateUser.isClient ? 'checked="checked"' : ''}>
+                  <label class="btn btn-outline-dark w-100" for="isClientO">권한 O</label>
+                </td>
+                <td class="col-1">
+                  <input type="radio" class="btn-check" name="isClient" id="isClientX" value=0
+                    ${!updateUser.isClient ? 'checked="checked"' : ''}>
+                  <label class="btn btn-outline-dark w-100" for="isClientX">권한 X</label>
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-gray col-1"><b>아이디</b></td>
+                <td class="col-2">
+                  <input type="text" class="form-control" placeholder="UserID" name="userID" id="userID" 
+                      value="${updateUser.userID}" autocomplete="off" maxlength=20 readonly required>
+                </td>
+                <td class="bg-gray col-1"><b>문서 목록</b></td>
+                <td class="col-1">
+                  <input type="radio" class="btn-check" name="isCategory" id="isCategoryO" value=1
+                      ${updateUser.isCategory ? 'checked="checked"' : ''}>
+                  <label class="btn btn-outline-dark w-100" for="isCategoryO">권한 O</label>
+                </td>
+                <td class="col-1">
+                  <input type="radio" class="btn-check" name="isCategory" id="isCategoryX" value=0
+                      ${!updateUser.isCategory ? 'checked="checked"' : ''}>
+                  <label class="btn btn-outline-dark w-100" for="isCategoryX">권한 X</label>
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-gray col-1"><b>비밀번호</b></td>
+                <td class="col-2">
+                  <input type="password" class="form-control" placeholder="UserPassword" name="userPassword" id="userPassword" 
+                      value="${updateUser.userPassword}" autocomplete="new-password" minlength=10 maxlength=20  required>
+                </td>
+                <td class="bg-gray col-1"><b>고객사</b></td>
+                <td class="col-1">
+                  <input type="radio" class="btn-check" name="isDocument" id="isDocumentO" value=1
+                      ${updateUser.isDocument ? 'checked="checked"' : ''}>
+                  <label class="btn btn-outline-dark w-100" for="isDocumentO">권한 O</label>
+                </td>
+                <td class="col-1">
+                  <input type="radio" class="btn-check" name="isDocument" id="isDocumentX"  value=0
+                      ${!updateUser.isDocument ? 'checked="checked"' : ''}>
+                  <label class="btn btn-outline-dark w-100" for="isDocumentX">권한 X</label>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <form method="post" name="update" id="update" action="UserRetire" onsubmit="return confirm('정말 퇴사시키겠습니까?');">
-          <input type="hidden" name="userCode" id="userCode" value="${updateUser.userCode}" />
-          <input type="hidden" name="isRetire" id="isRetire" value="1" />
-          <button type="submit" class="btn btn-danger w-100">퇴사</button>
-        </form>
-      </div>
+        
+      </form>
+        <div class="d-flex justify-content-end">
+          <button type="button" class="btn btn-secondary me-2" onclick="document.getElementById('UserUpdate').submit();">
+            수정
+          </button>
+          <input type="button" class="btn btn-secondary" value="취소" onClick="history.back()">
+          <button type="button" class="btn btn-danger ms-2" onclick="if (confirm('정말 퇴사시키겠습니까?')) { document.getElementById('UserRetire').submit(); }">
+            퇴사
+          </button>
+        </div>
+      <form method="post" class="ms-2" name="UserRetire" id="UserRetire" action="UserRetire" >
+        <input type="hidden" name="userCode" id="userCode" value="${updateUser.userCode}" />
+        <input type="hidden" name="isRetire" id="isRetire" value="1" />
+      </form>
     </div>
-    <div class="col-lg-6"></div>
   </div>
+
 
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>

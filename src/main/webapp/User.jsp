@@ -45,25 +45,16 @@
                 <li><a class="dropdown-item" href="UserUpload.jsp">사용자 등록</a></li>
               </ul>
             </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">고객사 관리</a>
-              <ul class="dropdown-menu">
-                <form method="post" action="Client">
-                  <input type="submit" class="dropdown-item" value="고객사 조회" />
-                </form>
-                <form method="post" action="ClientUpload">
-                  <input type="submit" class="dropdown-item" value="고객사 등록" />
-                </form>
-              </ul>
+            <li class="nav-item">
+              <form method="post" action="Client">
+                <input type="submit" class="nav-link" value="고객사 관리" />
+              </form>
             </li>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">문서 관리</a>
               <ul class="dropdown-menu">
                 <form method="post" action="Category">
-                  <input type="submit" class="dropdown-item" value="문서 목록 조회" />
-                </form>
-                <form method="post" action="CategoryUpload">
-                  <input type="submit" class="dropdown-item" value="문서 목록 등록" />
+                  <input type="submit" class="dropdown-item" value="문서 목록" />
                 </form>
                 <form method="post" action="Document">
                   <input type="submit" class="dropdown-item" value="문서 조회" />
@@ -203,7 +194,7 @@
     <div class="row">
       <c:choose>
         <c:when test="${not empty searchField and searchText != null and not empty searchOrder}">
-          <div class="col t-l w-20">
+          <div class="col t-l w-25">
             <c:choose>
               <c:when test="${isRetire == 0}">
                 <form method="post" action="User?page=1" class="d-i">
@@ -231,7 +222,7 @@
           <c:choose>
             <c:when test="${empty list}"></c:when>
             <c:otherwise>
-              <nav class="col t-c w-80" aria-label="Page navigation">
+              <nav class="col t-c w-auto" aria-label="Page navigation">
                 <ul class="pagination justify-content-center">
                   <c:if test="${totalPages > 5}">
                     <li class="page-item">
@@ -396,7 +387,7 @@
           </nav>
         </c:otherwise>
       </c:choose>
-      <div class="col t-r w-20">
+      <div class="col t-r w-25">
         <a href="UserUpload.jsp" class="btn btn-dark btn-allow-left">등록</a>
       </div>
     </div>

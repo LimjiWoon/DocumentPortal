@@ -197,7 +197,7 @@ public class DocumentDAO {
 	
 	
 	public DocumentDTO getDocumentInfo(String fileName, String categoryCode){
-		String SQL = "SELECT f.fileTitle, c.clientName, cat.categoryName, u.userName, f.dateOfUpdate, f.fileName, f.categoryCode, f.fileContent "
+		String SQL = "SELECT f.fileTitle, c.clientName, cat.categoryName, u.userName, f.dateOfUpdate, f.fileName, f.categoryCode, f.fileContent, f.clientCode "
 				+ "FROM dbo.FILES f "
 				+ "LEFT JOIN dbo.CATEGORIES cat ON cat.categoryCode = f.categoryCode "
 				+ "LEFT JOIN dbo.USERS u ON u.userCode = f.userCode "
@@ -228,6 +228,7 @@ public class DocumentDAO {
 				document.setFileName(rs.getString(6));
 				document.setCategoryCode(rs.getInt(7));
 				document.setFileContent(rs.getString(8));
+				document.setClientCode(rs.getInt(9));
 				return document;
 			}			
 		} catch(Exception e) {
