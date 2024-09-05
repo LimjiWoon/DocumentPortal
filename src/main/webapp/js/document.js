@@ -16,7 +16,7 @@ function submitCheckedDocuments() {
     form.submit();
 }
 
-function submitForm(action, fileName, categoryCode) {
+function submitForm(action, fileName, categoryCode, clientCode) {
     var form = document.createElement('form');
     form.method = 'POST';
     form.action = action;
@@ -27,11 +27,17 @@ function submitForm(action, fileName, categoryCode) {
     inputFileName.value = fileName;
     form.appendChild(inputFileName);
 
-    var inputCategoryCode = document.createElement('input');
-    inputCategoryCode.type = 'hidden';
-    inputCategoryCode.name = 'categoryCode';
-    inputCategoryCode.value = categoryCode;
-    form.appendChild(inputCategoryCode);
+	var inputCategoryCode = document.createElement('input');
+	inputCategoryCode.type = 'hidden';
+	inputCategoryCode.name = 'categoryCode';
+	inputCategoryCode.value = categoryCode;
+	form.appendChild(inputCategoryCode);
+
+	var inputClientCode = document.createElement('input');
+	inputClientCode.type = 'hidden';
+	inputClientCode.name = 'clientCode';
+	inputClientCode.value = clientCode;
+	form.appendChild(inputClientCode);
 
     document.body.appendChild(form);
     form.submit();
@@ -72,16 +78,18 @@ function checkAndUpdate() {
 	var clientCode = document.getElementById('clientCode').value;
 	var categoryCode = document.getElementById('categoryCode').value;
 	var originFileName = document.getElementById('originFileName').value;
-	var originClientCode = document.getElementById('originClientCode').value;
-	var originCategoryCode = document.getElementById('originCategoryCode').value;
+	
+	var pass = ((clientCode === document.getElementById('originClientCode').value
+				|| (clientCode === '미선택' && document.getElementById('originClientCode').value === '0')) 
+				&& categoryCode === document.getElementById('originCategoryCode').value) ? 1 : 0;
+	
 
 	var formData = new FormData();
 	formData.append("fileName", fileInput.files[0]);
 	formData.append("clientCode", clientCode);
 	formData.append("categoryCode", categoryCode);
 	formData.append("originFileName", originFileName); 
-	formData.append("originClientCode", originClientCode); 
-	formData.append("originCategoryCode", originCategoryCode); 
+	formData.append("pass", pass); 
 
     $.ajax({
         url: 'DocumentUpToUp',

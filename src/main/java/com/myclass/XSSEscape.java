@@ -208,6 +208,15 @@ public class XSSEscape {
 		}
     }
 	
+
+	public static String isClientCode(String input) {
+	    if (input == null) return null;
+	    if (!input.matches("^[0-9]+$")) return null;
+	    if ("0".equals(input)) return null;
+	    
+	    return input;
+	}
+	
 	//문서 목록 검색 검증을 위한 메소드
 	public static String changeCategoryField(String input) {
         if (input == null) return null;

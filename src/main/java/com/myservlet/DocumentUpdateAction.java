@@ -94,21 +94,25 @@ public class DocumentUpdateAction extends HttpServlet {
     				= new MultipartRequest(request, folderPath, maxSize, encoding,
     					new DefaultFileRenamePolicy());
         		DocumentDAO documentDAO= new DocumentDAO();
-    			String fileTitle = XSSEscape.changeCategoryName(multipartRequest.getParameter("documentName"));
-    			String categoryCode = XSSEscape.isNumber(multipartRequest.getParameter("categoryCode"));
-    			String clientCode = XSSEscape.isNumber(multipartRequest.getParameter("clientCode"));
-    			String fileContent = XSSEscape.escapeHtml(multipartRequest.getParameter("fileContent"));
-    			String originFileName = XSSEscape.changeCategoryName(multipartRequest.getParameter("originFileName"));
-    			String originCategoryCode = XSSEscape.isNumber(multipartRequest.getParameter("originCategoryCode"));
-    			String categoryRoot = documentDAO.getRoot(categoryCode);
+        		ClientDAO clientDAO = new ClientDAO();
+    			String fileTitle = XSSEscape.escapeHtml(multipartRequest.getParameter("documentName"));
                 String fileName = multipartRequest.getFilesystemName("fileName");
-                DocumentDTO originDocument = documentDAO.getInfo(originFileName, originCategoryCode);
+    			String fileContent = XSSEscape.escapeHtml(multipartRequest.getParameter("fileContent"));
+    			String clientCode = XSSEscape.isClientCode(multipartRequest.getParameter("clientCode"));
+    			String categoryCode = XSSEscape.isNumber(multipartRequest.getParameter("categoryCode"));
+    			String clientName = clientDAO.getClientName(clientCode);
+    			String originFileTitle = XSSEscape.escapeHtml(multipartRequest.getParameter("originFileTitle"));
+    			String originFileName = XSSEscape.changeCategoryName(multipartRequest.getParameter("originFileName"));
+    			String originClientCode = XSSEscape.isClientCode(multipartRequest.getParameter("originClientCode"));
+    			String originCategoryCode = XSSEscape.isNumber(multipartRequest.getParameter("originCategoryCode"));
+    			String originFileContent = XSSEscape.escapeHtml(multipartRequest.getParameter("originFileContent"));
+    			String originClientName = clientDAO.getClientName(originClientCode);
+    			String categoryRoot = documentDAO.getRoot(categoryCode);
     			
-
     			
     			//입력된 값이 이상할 경우 종료
     			if(fileTitle == null || categoryCode == null || originFileName == null || 
-    					originCategoryCode == null || categoryRoot == null || originDocument == null) {
+    					originCategoryCode == null || categoryRoot == null) {
     				deleteFile(multipartRequest.getFile("fileName"));
     		        request.setAttribute("errorMessage", "비정상적인 접근");
     			    request.getRequestDispatcher("Error.jsp").forward(request, response);
@@ -119,21 +123,15 @@ public class DocumentUpdateAction extends HttpServlet {
                 // 파일이 업로드되지 않은 경우의 처리 로직
                 if (fileName == null) {
                 	//변경된 값 아예 X
-                	if (originDocument.getFileTitle().equals(fileTitle) &&
-                			originDocument.getClientCode() == Integer.parseInt(clientCode) &&
-                			originDocument.getCategoryCode() == Integer.parseInt(categoryCode) && 
-                			originDocument.getFileContent().equals(fileContent)) {
+                	if (originFileTitle.equals(fileTitle) && isClientSame(originClientCode, clientCode) &&
+                			originCategoryCode.equals(categoryCode) && originFileContent.equals(fileContent)) {
         		        request.setAttribute("errorMessage", "변경된 사항이 없습니다.");
         			    request.getRequestDispatcher("Error.jsp").forward(request, response);
         				return;
                 	}
-                	//categoryCode 미변경 시
-                	if(originDocument.getCategoryCode() == Integer.parseInt(categoryCode)) {
-                		/* 사실상 제목, 고객사, 설명만 바뀐거
-                		 * 여기에다가 DAO 추가!
-                		 * DAO는 수정하는걸로
-                		 * */
-                		if (documentDAO.documentUpdate(fileTitle, originFileName, originCategoryCode, user.getUserCode(), clientCode, fileContent) == 1) {
+                	//위치가 변경이 없을 경우
+                	if(isClientSame(originClientCode, clientCode) && originCategoryCode.equals(categoryCode)) {
+                		if (documentDAO.documentUpdate(fileTitle, originFileName, categoryCode, user.getUserCode(), clientCode, fileContent) == 1) {
                             request.setAttribute("messageDocument", "문서 수정 성공!");
                     	    request.getRequestDispatcher("Message.jsp").forward(request, response);
                 		} else {
@@ -142,24 +140,28 @@ public class DocumentUpdateAction extends HttpServlet {
                 		}
         				return;
                 	}
-                	//categoryCode 변경 시
-                	//올라온 파일이 없기 떄문에 일단 경로부터 수정해야한다.
-                	String moveFolderPath = getServletContext().getRealPath(File.separator + categoryRoot + File.separator + originFileName);
-                	folderPath = getServletContext().getRealPath(File.separator + documentDAO.getRoot(originCategoryCode) + File.separator + originFileName);
 
-                	File uploadedFile = new File(folderPath);
-                	File moveFile = new File(moveFolderPath);
-
-                	//만약 파일이 제대로 올라가지 않았을 경우
-                	if (!uploadedFile.exists()) {
+                	//위치가 변경되었을 경우
+                	String movePath = getServletContext().getRealPath(File.separator + categoryRoot + File.separator + clientName + "/");
+                	folderPath = getServletContext().getRealPath(File.separator + documentDAO.getRoot(originCategoryCode) + File.separator + originClientName + File.separator + "/");
+                	File uploadedFile = new File(folderPath + originFileName);
+                	File moveFile = new File(movePath);
+                	File deleteFile = new File(folderPath);
+                		
+                	
+                	//만약 파일이 제대로 올라가지 않았을 경우, 옮길 위치에 폴더가 없으면 폴더를 만든다.
+                	if (!uploadedFile.exists() || (!moveFile.exists() && !moveFile.mkdir())) {
         		        request.setAttribute("errorMessage", "비정상적인 접근");
         			    request.getRequestDispatcher("Error.jsp").forward(request, response);
                 		return;
                 	}
                 	
+                	//다시 제대로된 파일을 지정
+                	moveFile = new File(movePath + originFileName);
+                	
                 	//1. 이동할 위치에 파일이 있는경우 -> 삭제 처리 (이미 클라이언트 측에 물어봄)
                 	if (moveFile.exists()) {
-                		if(documentDAO.documentDelete(originFileName, categoryCode, user.getUserCode()) == 1) {
+                		if(documentDAO.documentDelete(originFileName, categoryCode, clientCode, user.getUserCode()) == 1) {
                 			deleteFile(moveFile);
                 		} else {
             		        request.setAttribute("errorMessage", "문서 수정 실패!");
@@ -169,9 +171,12 @@ public class DocumentUpdateAction extends HttpServlet {
                 	}
                 	
                 	//2. 파일 이동시키고 DB 수정하기
-        			if (documentDAO.documentUpdate(fileTitle, originFileName, categoryCode, 
-        					originCategoryCode, user.getUserCode(), clientCode, fileContent) == 1){
-        				Files.move(Paths.get(folderPath), Paths.get(moveFolderPath));
+        			if (documentDAO.documentUpdate(fileTitle, originFileName, categoryCode, originCategoryCode,
+                			user.getUserCode(), clientCode, originClientCode, fileContent) == 1){
+        				Files.move(Paths.get(folderPath + originFileName), Paths.get(movePath + originFileName));
+        				if (deleteFile.isDirectory() && deleteFile.listFiles().length == 0) {
+        				    deleteFile.delete();
+        				}
                         request.setAttribute("messageDocument", "문서 수정 성공!");
                 	    request.getRequestDispatcher("Message.jsp").forward(request, response);
                 	    return;
@@ -186,21 +191,21 @@ public class DocumentUpdateAction extends HttpServlet {
                 // 파일이 정상적으로 업로드된 경우의 처리 로직
 
                 //문서 업로드 시 절차 과정
-                //1. 카테고리 코드 변경 확인
+                //1. 카테고리 코드, 고객사 변경 확인
                 //2. 파일명 변경 확인 -> 1,2번 둘중 하나라도 변경됬으면 3번 과정 진행
                 //3. 이동할 위치의 파일(move) 확인하고 DB 및 파일 삭제
                 //4. 원본(origin) 파일 삭제
                 //5. 올린(uploaded) 파일 이동
+            	String moveFolderPath = getServletContext().getRealPath(File.separator + categoryRoot + File.separator + clientName + "/");
+                String originFolderPath = getServletContext().getRealPath(File.separator + documentDAO.getRoot(originCategoryCode) + File.separator + originClientName + File.separator + "/");
                 
-            	String moveFolderPath = getServletContext().getRealPath(File.separator + categoryRoot + File.separator + fileName);
-                String originFolderPath = getServletContext().getRealPath(File.separator + documentDAO.getRoot(originCategoryCode) + File.separator + originFileName);
-                
+            	
                 
                 //1,2번 확인 후 3번 진행 코드 
-                if (!categoryCode.equals(originCategoryCode) || !fileName.equals(originFileName) ) {
-                	File moveFile = new File(moveFolderPath);
+                if (!categoryCode.equals(originCategoryCode) || !isClientSame(clientCode, originClientCode) || !fileName.equals(originFileName) ) {
+                	File moveFile = new File(moveFolderPath + fileName);
                 	if (moveFile.exists()) {
-                		if(documentDAO.documentDelete(fileName, categoryCode, user.getUserCode()) == 1) {
+                		if(documentDAO.documentDelete(fileName, categoryCode, clientCode, user.getUserCode()) == 1) {
                 			deleteFile(moveFile);
                 		} else {
             		        request.setAttribute("errorMessage", "문서 수정 실패!");
@@ -208,20 +213,29 @@ public class DocumentUpdateAction extends HttpServlet {
                     		return;
                 		}
                 	}
+                	moveFile = new File(moveFolderPath);
+                	if (!moveFile.exists() && !moveFile.mkdir()) {
+        		        request.setAttribute("errorMessage", "문서 수정 실패!");
+        			    request.getRequestDispatcher("Error.jsp").forward(request, response);
+                		return;
+                	}
                 }
                 
 
                 //4,5번 진행 코드
-                File originFile = new File(originFolderPath);
+                File originFile = new File(originFolderPath, originFileName);
                 File uploadedFile = new File(folderPath, fileName);
+                File deleteFile = new File(originFolderPath);
+                
                 
                 if (originFile.exists() && uploadedFile.exists()) {
-                	folderPath += fileName;
                 	if (documentDAO.documentUpdate(fileTitle, fileName, originFileName, categoryCode, 
-                			originCategoryCode, user.getUserCode(), clientCode, fileContent) == 1) {
+                			originCategoryCode, user.getUserCode(), clientCode, originClientCode, fileContent) == 1) {
                     	deleteFile(originFile);
-                    	
-                    	Files.move(Paths.get(folderPath), Paths.get(moveFolderPath));
+                    	Files.move(Paths.get(folderPath + fileName), Paths.get(moveFolderPath + fileName));
+        				if (deleteFile.isDirectory() && deleteFile.listFiles().length == 0) {
+        				    deleteFile.delete();
+        				}
                         request.setAttribute("messageDocument", "문서 수정 성공!");
                 	    request.getRequestDispatcher("Message.jsp").forward(request, response);
                 	    return;
@@ -233,6 +247,7 @@ public class DocumentUpdateAction extends HttpServlet {
         		return;
                 
     		} catch(Exception e) {
+    			e.printStackTrace();
 		        request.setAttribute("errorMessage", "그냥 에러");
 			    request.getRequestDispatcher("Error.jsp").forward(request, response);
 				return;
@@ -249,6 +264,7 @@ public class DocumentUpdateAction extends HttpServlet {
     		DocumentDAO documentDAO= new DocumentDAO();
     		String fileName = XSSEscape.changeCategoryName(request.getParameter("fileName"));
     		String categoryCode = XSSEscape.isNumber(request.getParameter("categoryCode"));
+    		String clientCode = XSSEscape.isClientCode(request.getParameter("clientCode"));
     		
     		if (fileName == null || categoryCode == null) {
     	        request.setAttribute("errorMessage", "비정상적인 접근");
@@ -258,7 +274,7 @@ public class DocumentUpdateAction extends HttpServlet {
     		
     		categoryList = categoryDAO.getList();
         	client = clientDAO.getList();
-        	document = documentDAO.getDocumentInfo(fileName, categoryCode);
+        	document = documentDAO.getDocumentInfo(fileName, categoryCode, clientCode);
         	
         	clientDAO.clientClose();
         	categoryDAO.categoryClose();
@@ -278,6 +294,16 @@ public class DocumentUpdateAction extends HttpServlet {
 	private void deleteFile(File file) {
         if (file != null)
         	file.delete();
+	}
+	
+	private boolean isClientSame(String client1, String client2) {
+		if (client1 == null) {
+			if (client2 == null)
+				return true;
+		} else {
+			return client1.equals(client2);
+		}
+		return false;
 	}
 
 }

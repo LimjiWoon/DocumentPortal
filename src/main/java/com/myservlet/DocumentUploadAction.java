@@ -92,7 +92,7 @@ public class DocumentUploadAction extends HttpServlet {
         		ClientDAO clientDAO= new ClientDAO();
     			String documentName = XSSEscape.changeCategoryName(multipartRequest.getParameter("documentName"));
     			String categoryCode = XSSEscape.isNumber(multipartRequest.getParameter("categoryCode"));
-    			String clientCode = XSSEscape.isNumber(multipartRequest.getParameter("clientCode"));
+    			String clientCode = XSSEscape.isClientCode(multipartRequest.getParameter("clientCode"));
     			String clientName = null;
     			String fileContent = XSSEscape.escapeHtml(multipartRequest.getParameter("fileContent"));
     			String categoryRoot = documentDAO.getRoot(categoryCode);
@@ -139,6 +139,8 @@ public class DocumentUploadAction extends HttpServlet {
     			//이제 실제 경로에 파일 같은 이름의 파일이 있는지 확인한다.
     			String movePath = getServletContext().getRealPath(File.separator + categoryRoot + File.separator + clientName + "/");
     			File folder = new File(movePath);
+    			
+    			//고객사명의 폴더가 없을 경우 만든다 -> 못만들었을 경우 에러
     			if(!folder.exists()) {
     				if(!folder.mkdir()) {
         				deleteFile(multipartRequest.getFile("fileName"));

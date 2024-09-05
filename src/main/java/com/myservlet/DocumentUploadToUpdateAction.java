@@ -1,7 +1,6 @@
 package com.myservlet;
 
 import java.io.IOException;
-import java.io.File;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -11,7 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
 import com.document.DocumentDAO;
-import com.client.*;
 import com.myclass.XSSEscape;
 
 
@@ -41,21 +39,21 @@ public class DocumentUploadToUpdateAction extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         
         DocumentDAO documentDAO = new DocumentDAO();
-        ClientDAO clientDAO = new ClientDAO();
         Part filePart = request.getPart("fileName");
 		String fileName = null;
 		if (filePart != null && filePart.getSize() >= 0) {
 		    fileName = XSSEscape.changeCategoryName(getFileName(filePart));
 		}
 		String categoryCode = XSSEscape.isNumber(request.getParameter("categoryCode"));
-		String originCategoryCode = XSSEscape.isNumber(request.getParameter("originCategoryCode"));
-		String clientCode = XSSEscape.isNumber(request.getParameter("clientCode"));
-		String originClientCode = XSSEscape.isNumber(request.getParameter("originClientCode"));
+		String clientCode = XSSEscape.isClientCode(request.getParameter("clientCode"));
 		String originFileName = XSSEscape.changeCategoryName(request.getParameter("originFileName"));
 		String fileNameToCheck = null;
-		String clientName = null;
-		String originCategoryName = null;
-		ClientDTO client;
+		boolean pass = false;
+		int result;
+		
+		if (request.getParameter("pass") != null) {
+			pass = request.getParameter("pass").equals("1");
+		}
 
 		// 1. 원본 파일명과 원본 카테고리 코드가 없을 경우 -> upload 에서 넘어옴
 		if (originFileName == null) {
@@ -70,56 +68,45 @@ public class DocumentUploadToUpdateAction extends HttpServlet {
 		    fileNameToCheck = fileName;
 		}
 
-		//clientCode 처리
-		if (clientCode != null) {
-			client = clientDAO.getClientInfo(Integer.parseInt(clientCode));
-			if (client != null) {
-				clientName = client.getClientName();
-			}
-		}
 		
-		//originClientCode 처리
-		if (originClientCode != null) {
-			client = clientDAO.getClientInfo(Integer.parseInt(originClientCode));
-			if (client != null) {
-				originCategoryName = client.getClientName();
-			}
-		}
-		
-		// 공통 처리: 파일 경로 설정 및 파일 존재 여부 확인
-		String filePath = getServletContext().getRealPath(File.separator + documentDAO.getRoot(categoryCode) + File.separator + clientName + File.separator + fileName);
-		String fileOriginalPath = getServletContext().getRealPath(File.separator + documentDAO.getRoot(originCategoryCode) + File.separator + originCategoryName + File.separator + fileNameToCheck);
-		File file = new File(filePath);
+		// 파일이 DB에 있는지 확인 -> 모든 파일은 등록과 동시에 DB에 기록된다.
+		result = documentDAO.documentUpdateCheck(categoryCode, clientCode, fileNameToCheck);
 
-		System.out.println("fileName: " + fileName);
-		System.out.println("categoryCode: " + categoryCode);
-		System.out.println("originCategoryCode: " + originCategoryCode);
-		System.out.println("clientCode: " + clientCode);
-		System.out.println("originClientCode: " + originClientCode);
-		System.out.println("originFileName: " + originFileName);
-		System.out.println("fileNameToCheck: " + fileNameToCheck);
-		System.out.println("clientName: " + clientName);
-		System.out.println("originCategoryName: " + originCategoryName);
-		System.out.println("filePath: " + filePath);
-		System.out.println("fileOriginalPath: " + fileOriginalPath);
+		//System.out.println("pass: " + pass);
+		//System.out.println("fileName: " + fileName);
+		//System.out.println("categoryCode: " + categoryCode);
+		//System.out.println("clientCode: " + clientCode);
+		//System.out.println("originFileName: " + originFileName);
+		//System.out.println("fileNameToCheck: " + fileNameToCheck);
 		
 		//각각 상황에 따른 덮어 쓰기 실행 여부 확인
-		if (filePath.equals(fileOriginalPath)) {
-			if(fileName == null) {
-			    response.getWriter().write("false");
-			} else {
-				if (originFileName.equals(fileName)) {
-				    response.getWriter().write("false");
-				} else if (file.exists()) {
-				    response.getWriter().write("true");
-				} else {
-				    response.getWriter().write("false");
-				}
-			}
-		} else if (file.exists()) {
-		    response.getWriter().write("true");
+		//업로드 업데이트 구분
+		if (originFileName == null) {
+			if (result == 1) {
+		        response.getWriter().write("true");
+		    } else {
+		        response.getWriter().write("false");
+		    }
 		} else {
-		    response.getWriter().write("false");
+			if (pass) {
+			    // 파일 위치를 변경하지 않고 파일을 올리거나 파일을 올리지 않은 경우
+			    if (fileName == null) {
+			        // 파일을 올리지 않았을 때
+			        response.getWriter().write("false");
+			    } else {
+			        // 파일을 올리려는 경우
+			        if (fileName.equals(originFileName)) {
+			            response.getWriter().write("false"); // 같은 파일명으로 덮어쓸 때
+			        } else {
+			            response.getWriter().write(result == 1 ? "true" : "false");
+			        }
+			    }
+			} else {
+			    // 파일 위치를 변경하는 경우
+			    response.getWriter().write(result == 1 ? "true" : "false");
+			}
+
+
 		}
 	}
 	

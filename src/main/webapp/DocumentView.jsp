@@ -213,12 +213,12 @@
   
   <form id="updateForm" action="DocumentUpdate" method="post">
     <input type="hidden" name="categoryCode" value="${document.categoryCode}" />
-    <input type="hidden" name="clientName" value="${document.clientName}" />
+    <input type="hidden" name="clientCode" value="${document.clientCode}" />
     <input type="hidden" name="fileName" value="${document.fileName}" />
   </form>
   <form id="deleteForm" action="DocumentDelete" method="post">
     <input type="hidden" name="categoryCode" value="${document.categoryCode}" />
-    <input type="hidden" name="clientName" value="${document.clientName}" />
+    <input type="hidden" name="clientCode" value="${document.clientCode}" />
     <input type="hidden" name="fileName" value="${document.fileName}" />
   </form>
 

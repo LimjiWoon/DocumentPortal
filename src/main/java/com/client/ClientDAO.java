@@ -233,6 +233,9 @@ public class ClientDAO {
 		return null;
 	}
 	
+	
+	
+	
 	public int clientUpdate(int clientCode, String clientName, String hiddenClientName, 
 			String clientContent, String hiddenClientContent, int userCode) {
 		String SQL = "UPDATE dbo.CLIENTS SET dateOfUpdate=GETDATE()";
@@ -277,6 +280,8 @@ public class ClientDAO {
 	
 	public String getClientName(int clientCode) {
 		String SQL = "SELECT clientName FROM dbo.CLIENTS WHERE clientCode=?;";
+		if (clientCode == 0)
+			return null;
 		
 		try {
 			pstmt = conn.prepareStatement(SQL);
@@ -291,7 +296,29 @@ public class ClientDAO {
 		}
 		
 		return null;
-	}	
+	}
+	
+
+	public String getClientName(String clientCode) {
+		String SQL = "SELECT clientName FROM dbo.CLIENTS WHERE clientCode=?;";
+		
+		if (clientCode == null)
+			return null;
+		
+		try {
+			pstmt = conn.prepareStatement(SQL);
+			pstmt.setInt(1, Integer.parseInt(clientCode));
+
+			rs = pstmt.executeQuery();
+			while (rs.next()) {
+				return rs.getString(1);
+			}	
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
 	
 	
 	public int logUpload(int logWho, String logWhat, String logWhere, String logHow, String logWhy) {

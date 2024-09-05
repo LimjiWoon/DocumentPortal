@@ -237,26 +237,19 @@
                       <input type="checkbox" name="checkedDocumentCode" value="${document.categoryCode}/${document.fileName}" />
                     </td>
                     <td>${document.fileTitle}</td>
-                    <c:choose>
-                      <c:when test="${empty document.clientName}">
-                        <td>X</td>
-                      </c:when>
-                      <c:otherwise>
-                        <td>${document.clientName}</td>
-                      </c:otherwise>
-                    </c:choose>
+                    <td>${document.clientName}</td>
                     <td>${document.categoryName}</td>
                     <td>${document.userName}</td>
                     <td>${document.dateOfUpdate}</td>
                     <td>
                       <button type="button" class="btn btn-outline-dark btn-xs" 
-                      onclick="submitForm('DocumentView', '${document.fileName}', '${document.categoryCode}')">
+                      onclick="submitForm('DocumentView', '${document.fileName}', '${document.categoryCode}', '${document.clientCode}')">
                         조회
                       </button>
                     </td>
                     <td>
                       <button type="button" class="btn btn-outline-dark btn-xs" 
-                      onclick="submitForm('DocumentUpdate', '${document.fileName}', '${document.categoryCode}')">
+                      onclick="submitForm('DocumentUpdate', '${document.fileName}', '${document.categoryCode}', '${document.clientCode}')">
                         수정
                       </button>
                     </td>

@@ -38,6 +38,8 @@ public class DocumentViewAction extends HttpServlet {
         
 		String fileName = XSSEscape.changeCategoryName(request.getParameter("fileName"));
 		String categoryCode = XSSEscape.isNumber(request.getParameter("categoryCode"));
+		String clientCode = XSSEscape.isClientCode(request.getParameter("clientCode"));
+		
 		
 		if (fileName == null || categoryCode== null) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
@@ -45,7 +47,7 @@ public class DocumentViewAction extends HttpServlet {
 			return;
 		}
 		
-		document = documentDAO.getDocumentInfo(fileName, categoryCode);
+		document = documentDAO.getDocumentInfo(fileName, categoryCode, clientCode);
 		
 		documentDAO.documentClose();
 		

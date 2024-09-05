@@ -41,6 +41,7 @@ public class DocumentDeleteAction extends HttpServlet {
 		UserDTO user = (UserDTO) session.getAttribute("user");
 		String categoryCode = XSSEscape.isNumber(request.getParameter("categoryCode"));
 		String clientName = XSSEscape.changeClientName(request.getParameter("clientName"));
+		String clientCode = XSSEscape.isClientCode(request.getParameter("clientCode"));
 		String fileName = XSSEscape.changeCategoryName(request.getParameter("fileName"));
 		
 		if (user == null || !user.isDocument() || categoryCode == null || fileName == null) {
@@ -53,7 +54,7 @@ public class DocumentDeleteAction extends HttpServlet {
 		String folderPath = getServletContext().getRealPath(File.separator + documentDAO.getRoot(categoryCode) + File.separator + clientName + "/");
         File file = new File(folderPath+ fileName);
 		
-        if (file.exists() && documentDAO.documentDelete(fileName, categoryCode, user.getUserCode()) == 1) {
+        if (file.exists() && documentDAO.documentDelete(fileName, categoryCode, clientCode,user.getUserCode()) == 1) {
             file.delete();
             file = new File(folderPath);
             if (isDirectoryEmpty(file)) {

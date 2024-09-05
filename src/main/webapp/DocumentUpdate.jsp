@@ -18,7 +18,6 @@
 
   <c:if test="${user == null or not user.isDocument or document == null}">
     <script>
-      alert("비정상적인 접근1");
       alert("비정상적인 접근");
       location.href = 'Main.jsp';
     </script>
@@ -265,7 +264,6 @@
   
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
-  <script src="js/client.modal.js"></script>
   <script src="js/document.js"></script>
 </body>
 </html>
