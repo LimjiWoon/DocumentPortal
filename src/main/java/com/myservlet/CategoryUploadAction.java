@@ -56,8 +56,6 @@ public class CategoryUploadAction extends HttpServlet {
 		
 		String folderPath = getServletContext().getRealPath(categoryRoot);
 		File folder = new File(folderPath);
-		System.out.println(categoryRoot);
-		System.out.println(folderPath);
 		try {
 
 			if (folder.exists()) {

@@ -283,8 +283,8 @@ public class XSSEscape {
 	    if (input.matches(".*[\\\\:*?\"<>|].*")) {
 	        return null;
 	    }
-	    if (!input.matches("^(?:[^/]*(/[^/]*)?)?$")) {
-	    	return null;
+	    if (!input.matches("^[^/]+/[^/]+/[^/]+$")) {
+	        return null;
 	    }
 	    String now = escapeHtml(input);
 	    

@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.client.ClientDAO;
 import com.document.DocumentDAO;
 import com.user.UserDTO;
 import com.myclass.XSSEscape;
@@ -43,16 +44,60 @@ public class DocumentDeleteAction extends HttpServlet {
 		String clientName = XSSEscape.changeClientName(request.getParameter("clientName"));
 		String clientCode = XSSEscape.isClientCode(request.getParameter("clientCode"));
 		String fileName = XSSEscape.changeCategoryName(request.getParameter("fileName"));
+		String folderPath;
+		String categoryRoot = "";
+		String[] checkedDocumentCodes = request.getParameterValues("checkedDocumentCode");
+        DocumentDAO documentDAO = new DocumentDAO();
 		
+		//유저의 권한 먼저 확인
+		if (user == null || !user.isDocument() ) {
+	        request.setAttribute("errorMessage", "비정상적인 접근");
+		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+			return;
+		}
+		
+		//일괄 삭제
+		if (checkedDocumentCodes != null) {
+			ClientDAO clientDAO = new ClientDAO();
+			String[] rootAndName;
+			File file;
+			for (String code: checkedDocumentCodes) {
+				rootAndName = XSSEscape.changeDocumentDownload(code);
+				if (rootAndName != null) {
+					categoryCode = XSSEscape.isNumber(rootAndName[0]);
+					clientName = XSSEscape.changeClientName(rootAndName[1]);
+					clientCode = XSSEscape.isClientCode(clientDAO.getClientCode(clientName));
+					fileName = XSSEscape.changeCategoryName(rootAndName[2]);
+					categoryRoot = documentDAO.getRoot(categoryCode);
+					folderPath = getServletContext().getRealPath(categoryRoot + File.separator + clientName + "/");
+					file = new File(folderPath + fileName);
+					
+					if(file.exists() && documentDAO.documentDelete(fileName, categoryCode, clientCode,user.getUserCode()) == 1) {
+						file.delete();
+			            file = new File(folderPath);
+			            if (isDirectoryEmpty(file)) {
+			            	file.delete();
+			            }
+					}
+				}
+			}
+			
+            request.setAttribute("messageDocument", "문서 삭제 성공!");
+            request.getRequestDispatcher("Message.jsp").forward(request, response);
+			
+			return;
+		}
+		
+		
+		//단일 삭제
 		if (user == null || !user.isDocument() || categoryCode == null || fileName == null) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
 		    request.getRequestDispatcher("Error.jsp").forward(request, response);
 			return;
 		}
 
-        DocumentDAO documentDAO = new DocumentDAO();
-		String folderPath = getServletContext().getRealPath(File.separator + documentDAO.getRoot(categoryCode) + File.separator + clientName + "/");
-        File file = new File(folderPath+ fileName);
+		folderPath = getServletContext().getRealPath(File.separator + documentDAO.getRoot(categoryCode) + File.separator + clientName + "/");
+        File file = new File(folderPath + fileName);
 		
         if (file.exists() && documentDAO.documentDelete(fileName, categoryCode, clientCode,user.getUserCode()) == 1) {
             file.delete();

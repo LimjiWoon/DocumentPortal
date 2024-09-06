@@ -49,6 +49,10 @@
           document.body.appendChild(form);
           form.submit();
         }
+        
+        if (!messageClient && !messageUser && !messageCategory && !messageDocument) {
+        	location.href = 'Main';
+        }
     };
   </script>
 </head>

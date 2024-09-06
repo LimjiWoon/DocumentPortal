@@ -11,7 +11,7 @@
   <c:if test="${empty user}">
     <script>
       alert("${errorMessage}");
-      location.href = "Login.jsp";
+      location.href = "Login";
     </script>
   </c:if>
   <c:if test="${not empty user}">

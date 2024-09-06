@@ -45,8 +45,7 @@ public class UserUploadAction extends HttpServlet {
 			//위 XSS를 어느 하나라도 통과하지 못했다면
 			if (userID == null || userName == null || userPassword == null 
 					|| isCategory == null || isClient == null || isDocument == null){
-	            request.setAttribute("errorMessage", "비정상적인 접근");
-	            request.getRequestDispatcher("Error.jsp").forward(request, response);
+                request.getRequestDispatcher("UserUpload.jsp").forward(request, response);
 			} //아이디 중복 체크
 			else if (userDAO.userIDCheck(userID) == 1) {
 				//아이디 등록 성공

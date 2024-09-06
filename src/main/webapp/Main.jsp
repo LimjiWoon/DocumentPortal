@@ -20,10 +20,10 @@
           </button>
 
           <div class="collapse navbar-collapse d-lg-flex" id="navbars">
-            <a class="navbar-brand col-lg-3 me-0" href="Main.jsp">루키스 문서 관리</a>
+            <a class="navbar-brand col-lg-3 me-0" href="Main">루키스 문서 관리</a>
               <ul class="navbar-nav col-lg-6 justify-content-lg-center">
                 <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="Main.jsp">홈</a>
+                  <a class="nav-link active" aria-current="page" href="Main">홈</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link disabled" aria-current="page" href="#">고객사 관리</a>
@@ -33,7 +33,7 @@
                 </li>
               </ul>
             <div class="d-lg-flex col-lg-3 justify-content-lg-end">
-              <a class="nav-link" href="Login.jsp">
+              <a class="nav-link" href="Login">
                 <button class="btn btn-primary">로그인</button>
               </a>
             </div>
@@ -49,10 +49,10 @@
           </button>
 
           <div class="collapse navbar-collapse d-lg-flex" id="navbars">
-            <a class="navbar-brand col-lg-3 me-0" href="Main.jsp">루키스 문서 관리</a>
+            <a class="navbar-brand col-lg-3 me-0" href="Main">루키스 문서 관리</a>
               <ul class="navbar-nav col-lg-6 justify-content-lg-center">
                 <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="Main.jsp">홈</a>
+                  <a class="nav-link active" aria-current="page" href="Main">홈</a>
                 </li>
                 <c:if test="${user.userCode == 0}">
                   <li class="nav-item dropdown">
@@ -63,7 +63,11 @@
                           <input type="submit" class="dropdown-item" value="사용자 조회" />
                         </form>
                       </li>
-                      <li><a class="dropdown-item" href="UserUpload.jsp">사용자 등록</a></li>
+                      <li>
+                        <form method="post" action="UserUpload">
+                          <input type="submit" class="dropdown-item" value="사용자 등록" />
+                        </form>
+                      </li>
                     </ul>
                   </li>
                 </c:if>
@@ -128,7 +132,12 @@
                 </c:if>
               </ul>
             <div class="d-lg-flex col-lg-3 justify-content-lg-end">
-              <a class="nav-link" href="LogoutAction.jsp">
+              <div class="me-4 d-flex align-items-center justify-content-center">
+                <c:if test="${not empty sessionScope.user}">
+                  사용자: &nbsp; <b><span style="color: gray;">${sessionScope.user.userName}</span></b>
+                </c:if>
+              </div>
+              <a class="nav-link" href="Logout">
                 <button class="btn btn-primary">로그아웃</button>
               </a>
             </div>
@@ -146,7 +155,7 @@
         <c:choose>
           <c:when test="${not empty sessionScope.user}">
             비밀번호는 3개월마다 변경해야합니다. <br>  <br>
-            <b><code>최근 비밀번호 변경일</code> : ${sessionScope.user.dateOfPassword}</b> <br>
+            <b><span style="color: crimson;">최근 비밀번호 변경일</span> : ${sessionScope.user.dateOfPassword}</b> <br>
           </c:when>
           <c:otherwise>
             <br> 로그인을 해주세요. <br> <br>
@@ -161,7 +170,7 @@
             </a>
           </c:when>
           <c:otherwise>
-            <button class="d-inline-flex align-items-center btn btn-outline-primary btn-lg px-4 rounded-pill" type="button" onclick="location.href='Login.jsp'">
+            <button class="d-inline-flex align-items-center btn btn-outline-primary btn-lg px-4 rounded-pill" type="button" onclick="location.href='Login'">
               로그인 
             </button>
           </c:otherwise>

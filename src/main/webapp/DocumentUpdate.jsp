@@ -19,7 +19,7 @@
   <c:if test="${user == null or not user.isDocument or document == null}">
     <script>
       alert("비정상적인 접근");
-      location.href = 'Main.jsp';
+      location.href = 'Main';
     </script>
   </c:if>
   
@@ -33,10 +33,10 @@
           </button>
 
           <div class="collapse navbar-collapse d-lg-flex" id="navbars">
-            <a class="navbar-brand col-lg-3 me-0" href="Main.jsp">루키스 문서 관리</a>
+            <a class="navbar-brand col-lg-3 me-0" href="Main">루키스 문서 관리</a>
               <ul class="navbar-nav col-lg-6 justify-content-lg-center">
                 <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="Main.jsp">홈</a>
+                  <a class="nav-link active" aria-current="page" href="Main">홈</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link disabled" aria-current="page" href="#">고객사 관리</a>
@@ -46,7 +46,7 @@
                 </li>
               </ul>
             <div class="d-lg-flex col-lg-3 justify-content-lg-end">
-              <a class="nav-link" href="Login.jsp">
+              <a class="nav-link" href="Login">
                 <button class="btn btn-primary">로그인</button>
               </a>
             </div>
@@ -62,10 +62,10 @@
           </button>
 
           <div class="collapse navbar-collapse d-lg-flex" id="navbars">
-            <a class="navbar-brand col-lg-3 me-0" href="Main.jsp">루키스 문서 관리</a>
+            <a class="navbar-brand col-lg-3 me-0" href="Main">루키스 문서 관리</a>
               <ul class="navbar-nav col-lg-6 justify-content-lg-center">
                 <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="Main.jsp">홈</a>
+                  <a class="nav-link active" aria-current="page" href="Main">홈</a>
                 </li>
                 <c:if test="${user.userCode == 0}">
                   <li class="nav-item dropdown">
@@ -76,7 +76,11 @@
                           <input type="submit" class="dropdown-item" value="사용자 조회" />
                         </form>
                       </li>
-                      <li><a class="dropdown-item" href="UserUpload.jsp">사용자 등록</a></li>
+                      <li>
+                        <form method="post" action="UserUpload">
+                          <input type="submit" class="dropdown-item" value="사용자 등록" />
+                        </form>
+                      </li>
                     </ul>
                   </li>
                 </c:if>
@@ -141,7 +145,12 @@
                 </c:if>
               </ul>
             <div class="d-lg-flex col-lg-3 justify-content-lg-end">
-              <a class="nav-link" href="LogoutAction.jsp">
+              <div class="me-4 d-flex align-items-center justify-content-center">
+                <c:if test="${not empty sessionScope.user}">
+                  사용자: &nbsp; <b><span style="color: gray;">${sessionScope.user.userName}</span></b>
+                </c:if>
+              </div>
+              <a class="nav-link" href="Logout">
                 <button class="btn btn-primary">로그아웃</button>
               </a>
             </div>
@@ -191,9 +200,9 @@
                 </td>
               </tr>
               <tr>
-                <td class="bg-gray col-1"><b>파일 등록</b></td>
+                <td class="bg-gray col-1"><b>등록된 파일</b></td>
                 <td class="col-2">
-                  <input type="file" id="fileName" name="fileName" class="form-control" required>
+                  <input type="text" class="form-control" id="originFileName" name="originFileName" value="${document.fileName}" readonly required>
                 </td>
                 <td class="bg-gray col-1"><b>문서 목록</b></td>
                 <td class="col-2">
@@ -203,6 +212,12 @@
                       <option value="${list.categoryCode}" ${list.categoryCode.equals(document.categoryCode) ? 'selected' : ''} >${list.categoryName}</option>
                     </c:forEach>
                   </select>
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-gray col-1"><b>파일 등록</b></td>
+                <td class="col-5" colspan="3">
+                  <input type="file" id="fileName" name="fileName" class="form-control" required>
                 </td>
               </tr>
               <tr>
@@ -221,8 +236,6 @@
         </div>
         <input type="hidden" class="form-control" id="originFileTitle" name="originFileTitle" 
             value="${document.fileTitle}" required readonly>
-        <input type="hidden" class="form-control" id="originFileName" name="originFileName" 
-            value="${document.fileName}" required readonly>
         <input type="hidden" class="form-control" id="originClientCode" name="originClientCode" 
             value="${document.clientCode}" required readonly>
         <input type="hidden" class="form-control" id="originCategoryCode" name="originCategoryCode" 

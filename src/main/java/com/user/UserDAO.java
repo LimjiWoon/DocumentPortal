@@ -588,15 +588,17 @@ public class UserDAO {
 	}
 	
 	public void userRetire(int userCode, String isRetire) {
-		String SQL = "UPDATE USERS SET isRetire=? FROM USERS WHERE userCode=?";
+		String SQL = "UPDATE USERS SET isRetire=?, isLock=? FROM USERS WHERE userCode=?";
 		try {
 			pstmt = conn.prepareStatement(SQL);
 			if ("1".equals(isRetire)) {
 				pstmt.setInt(1, 1);
+				pstmt.setInt(2, 1);
 			} else {
 				pstmt.setInt(1, 0);
+				pstmt.setInt(2, 0);
 			}
-			pstmt.setInt(2, userCode);
+			pstmt.setInt(3, userCode);
 			pstmt.executeUpdate();
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -28,15 +28,15 @@
             <script src="js/userID.js"></script>
             <div class="input-group mb-3">
               <span class="input-group-text" id="basic-addon1">기존 비밀번호</span>
-              <input type="password" class="form-control" placeholder="Now Password" name="nowPassword" autocomplete="new-password" minlength="10" maxlength="20" required />
+              <input type="password" class="form-control" placeholder="기존 비밀번호를 입력해주세요." name="nowPassword" autocomplete="new-password" minlength="10" maxlength="20" required />
             </div>
             <div class="input-group mb-3">
               <span class="input-group-text" id="basic-addon1">신규 비밀번호</span>
-              <input type="password" class="form-control" placeholder="New Password" name="newPassword" autocomplete="new-password" minlength="10"  maxlength="20" required />
+              <input type="password" class="form-control" placeholder="신규 비밀번호를 입력해주세요." name="newPassword" autocomplete="new-password" minlength="10"  maxlength="20" required />
             </div>
             <div class="input-group mb-3">
               <span class="input-group-text" id="basic-addon1">비밀번호 확인</span>
-              <input type="password" class="form-control" placeholder="Confirm New Password" name="confirmPassword" autocomplete="new-password" minlength="10" maxlength="20" required />
+              <input type="password" class="form-control" placeholder="신규 비밀번호를 다시 입력해주세요." name="confirmPassword" autocomplete="new-password" minlength="10" maxlength="20" required />
             </div>
             <input type="submit" class="btn btn-primary form-control" value="비밀번호 변경" />
           </div>

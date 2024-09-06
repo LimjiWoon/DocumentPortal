@@ -11,7 +11,7 @@
   <script>
     if("${LoginSuccess}" && "${errorMessage}"){
       alert("${errorMessage}");
-      opener.location.href='Login.jsp';
+      opener.location.href='Login';
       self.close();
     } else if("${errorMessage}"){
         alert("${errorMessage}");

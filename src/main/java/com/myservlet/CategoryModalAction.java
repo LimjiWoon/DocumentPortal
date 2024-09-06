@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.RequestDispatcher;
 import java.util.ArrayList;
 import com.category.*;
+import com.client.ClientDAO;
 import com.myclass.XSSEscape;
 
 /**
@@ -34,16 +35,27 @@ public class CategoryModalAction extends HttpServlet {
 		request.setCharacterEncoding("UTF-8"); 
         response.setContentType("text/html; charset=UTF-8");
 		
-        CategoryDAO categoryDAO = new CategoryDAO();
-        
+        ArrayList<String> list;
+        String selectType = XSSEscape.isNumber(request.getParameter("selectType"));
 		String dataType = XSSEscape.isNumber(request.getParameter("dataType"));
-        ArrayList<CategoryDTO> list = categoryDAO.getModal(dataType);
+        
+        if ("0".equals(selectType)) {
+            CategoryDAO categoryDAO = new CategoryDAO();
+            list = categoryDAO.getModal(dataType);
+            categoryDAO.categoryClose();
+        } else if ("1".equals(selectType)) {
+        	ClientDAO clientDAO = new ClientDAO();
+            list = clientDAO.getModal(dataType);
+            clientDAO.clientClose();
+        } else {
+        	list = null;
+        	return;
+        }
 
         // 데이터와 타입을 요청에 응답으로 전달
         request.setAttribute("list", list);
-        request.setAttribute("type", XSSEscape.isNumber(request.getParameter("selectType")));
+        request.setAttribute("selectType", selectType);
         
-        categoryDAO.categoryClose();
         
         // 모달의 HTML을 생성할 JSP 페이지를 통해 응답
         RequestDispatcher dispatcher = request.getRequestDispatcher("CategoryModal.jsp");

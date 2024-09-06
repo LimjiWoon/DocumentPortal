@@ -8,11 +8,17 @@ function selectAll(selectAll)  {
 }
 
 
-function submitCheckedDocuments() {
-    // 폼 객체 가져오기
+function submitCheckedDocuments(actionURL) {
     var form = document.getElementById('documentForm');
     
-    // 폼 제출
+	if (actionURL === 'DocumentDelete') {
+	    if (!confirm('정말 삭제하시겠습니까?')) {
+	        return;
+	    }
+	}
+	
+    form.action = actionURL;
+    
     form.submit();
 }
 

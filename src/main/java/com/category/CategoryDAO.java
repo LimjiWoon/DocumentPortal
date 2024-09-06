@@ -154,7 +154,8 @@ public class CategoryDAO {
 		return list;
 	}
 	
-	
+	/*
+	 * 기존 모달의 기능
 	public ArrayList<CategoryDTO> getModal(String categoryCode){
 		ArrayList<CategoryDTO> list = new ArrayList<CategoryDTO>();
 		
@@ -179,6 +180,36 @@ public class CategoryDAO {
 				category.setCategoryName(rs.getString(2));
 				category.setCategoryLv(rs.getInt(4));
 				list.add(category);
+            }
+        } catch (Exception e) {
+        	e.printStackTrace();
+        }
+		
+		return list;
+	}
+	*/
+	
+	public ArrayList<String> getModal(String categoryCode){
+		ArrayList<String> list = new ArrayList<String>();
+		
+        String SQL = "SELECT c.clientName "
+        		+ "FROM dbo.FILES f "
+        		+ "LEFT JOIN dbo.CLIENTS c ON f.clientCode = c.clientCode "
+        		+ "WHERE categoryCode=? "
+        		+ "GROUP BY f.clientCode, f.categoryCode, c.clientName;";
+        
+        if (categoryCode == null) {
+        	return list;
+        }
+
+        try {
+            pstmt = conn.prepareStatement(SQL);
+            pstmt.setInt(1, Integer.parseInt(categoryCode));
+
+            // 쿼리 실행
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+				list.add(rs.getString(1));
             }
         } catch (Exception e) {
         	e.printStackTrace();
@@ -268,6 +299,79 @@ public class CategoryDAO {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	
+	public String getCategoryName(int categoryCode) {
+		String SQL = "SELECT categoryName FROM dbo.CATEGORIES WHERE categoryCode = ?;";
+		
+		try {
+			pstmt = conn.prepareStatement(SQL);
+			pstmt.setInt(1, categoryCode);
+			
+			rs = pstmt.executeQuery();
+			while (rs.next()) {
+				return rs.getString(1);
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public int categoryUpdate(String categoryName, String originCategoryName,int categoryCode, int userCode) {
+		String SQL = "UPDATE dbo.CATEGORIES SET categoryName=? WHERE categoryCode=?;";
+		try {
+			pstmt = conn.prepareStatement(SQL);
+			pstmt.setString(1, categoryName);
+			pstmt.setInt(2, categoryCode);
+			pstmt.executeUpdate();
+			
+			logUpload(userCode, categoryName, "category", "update", categoryCode + ": " + originCategoryName + "->" + categoryName);
+			
+			return 1;
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		return -1;
+	}
+
+	public int documentDelte(String categoryName, int categoryCode, int userCode) {
+		String SQL = "DELETE dbo.FILES WHERE categoryCode=?;";
+		try {
+			pstmt = conn.prepareStatement(SQL);
+			pstmt.setInt(1, categoryCode);
+			pstmt.executeUpdate();
+			
+			logUpload(userCode, categoryName, "file", "delete", categoryCode + ": 문서 목록 내 파일 전부 삭제");
+			
+			return 1;
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		return -1;
+	}
+	
+	public int categoryDelte(String categoryName, int categoryCode, int userCode) {
+		String SQL = "DELETE CATEGORIES WHERE categoryCode=?;";
+		try {
+			pstmt = conn.prepareStatement(SQL);
+			pstmt.setInt(1, categoryCode);
+			pstmt.executeUpdate();
+			
+			logUpload(userCode, categoryName, "category", "delete", categoryCode + ": 문서 목록 삭제");
+			
+			return 1;
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		return -1;
 	}
 	
 	public int logUpload(int logWho, String logWhat, String logWhere, String logHow, String logWhy) {

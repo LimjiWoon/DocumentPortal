@@ -55,10 +55,11 @@ public class DocumentViewDownloadAction extends HttpServlet {
 				rootAndName = XSSEscape.changeDocumentDownload(code);
 				if (rootAndName != null) {
 					categoryCode = XSSEscape.isNumber(rootAndName[0]);
-					fileName = XSSEscape.changeCategoryName(rootAndName[1]);
+					clientName = XSSEscape.changeClientName(rootAndName[1]);
+					fileName = XSSEscape.changeCategoryName(rootAndName[2]);
 					categoryRoot = documentDAO.getRoot(categoryCode);
-					if(categoryCode != null && fileName != null && categoryRoot != null)
-						filePaths.add(folderPath + File.separator + categoryRoot + File.separator + fileName);
+					if(categoryCode != null && fileName != null && categoryRoot != null || clientName == null)
+						filePaths.add(folderPath + File.separator + categoryRoot + File.separator + clientName + File.separator + fileName);
 				}
 			}
 			

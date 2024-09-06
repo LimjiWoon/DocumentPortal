@@ -190,7 +190,7 @@ public class ClientDAO {
 		
 		return -1;
 	} 
-	
+
 	
 	public boolean clientUniqueName(String clientName) {
 		String SQL = "SELECT clientName FROM dbo.CLIENTS WHERE clientName=?;";
@@ -209,6 +209,27 @@ public class ClientDAO {
 
 		
 		return false;
+	}
+	
+	public String getClientCode(String clientName) {
+		String SQL = "SELECT clientCode FROM dbo.CLIENTS WHERE clientName=?;";
+		
+		if(clientName == null)
+			return null;
+		
+		try {
+			pstmt = conn.prepareStatement(SQL);
+			pstmt.setString(1, clientName);
+
+			rs = pstmt.executeQuery();
+			while (rs.next()) {
+				return rs.getString(1);
+			}	
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 	
 	public ClientDTO getClientInfo(int clientCode) {
@@ -318,6 +339,35 @@ public class ClientDAO {
 		}
 		
 		return null;
+	}
+	
+	public ArrayList<String> getModal(String clientCode){
+		ArrayList<String> list = new ArrayList<String>();
+		
+        String SQL = "SELECT c.categoryName "
+        		+ "FROM dbo.FILES f "
+        		+ "LEFT JOIN dbo.CATEGORIES c ON f.categoryCode = c.categoryCode "
+        		+ "WHERE clientCode=? "
+        		+ "GROUP BY f.clientCode, f.categoryCode, c.categoryName;";
+        
+        if (clientCode == null) {
+        	return list;
+        }
+
+        try {
+            pstmt = conn.prepareStatement(SQL);
+            pstmt.setInt(1, Integer.parseInt(clientCode));
+
+            // 쿼리 실행
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+				list.add(rs.getString(1));
+            }
+        } catch (Exception e) {
+        	e.printStackTrace();
+        }
+		
+		return list;
 	}
 	
 	

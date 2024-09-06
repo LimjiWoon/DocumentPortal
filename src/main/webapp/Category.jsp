@@ -19,7 +19,7 @@
   <c:if test="${user == null or not user.isCategory or list == null}">
     <script>
       alert("비정상적인 접근");
-      location.href = 'Main.jsp';
+      location.href = 'Main';
     </script>
   </c:if>
   
@@ -32,10 +32,10 @@
           </button>
 
           <div class="collapse navbar-collapse d-lg-flex" id="navbars">
-            <a class="navbar-brand col-lg-3 me-0" href="Main.jsp">루키스 문서 관리</a>
+            <a class="navbar-brand col-lg-3 me-0" href="Main">루키스 문서 관리</a>
               <ul class="navbar-nav col-lg-6 justify-content-lg-center">
                 <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="Main.jsp">홈</a>
+                  <a class="nav-link active" aria-current="page" href="Main">홈</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link disabled" aria-current="page" href="#">고객사 관리</a>
@@ -45,7 +45,7 @@
                 </li>
               </ul>
             <div class="d-lg-flex col-lg-3 justify-content-lg-end">
-              <a class="nav-link" href="Login.jsp">
+              <a class="nav-link" href="Login">
                 <button class="btn btn-primary">로그인</button>
               </a>
             </div>
@@ -61,10 +61,10 @@
           </button>
 
           <div class="collapse navbar-collapse d-lg-flex" id="navbars">
-            <a class="navbar-brand col-lg-3 me-0" href="Main.jsp">루키스 문서 관리</a>
+            <a class="navbar-brand col-lg-3 me-0" href="Main">루키스 문서 관리</a>
               <ul class="navbar-nav col-lg-6 justify-content-lg-center">
                 <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="Main.jsp">홈</a>
+                  <a class="nav-link active" aria-current="page" href="Main">홈</a>
                 </li>
                 <c:if test="${user.userCode == 0}">
                   <li class="nav-item dropdown">
@@ -75,7 +75,11 @@
                           <input type="submit" class="dropdown-item" value="사용자 조회" />
                         </form>
                       </li>
-                      <li><a class="dropdown-item" href="UserUpload.jsp">사용자 등록</a></li>
+                      <li>
+                        <form method="post" action="UserUpload">
+                          <input type="submit" class="dropdown-item" value="사용자 등록" />
+                        </form>
+                      </li>
                     </ul>
                   </li>
                 </c:if>
@@ -140,7 +144,12 @@
                 </c:if>
               </ul>
             <div class="d-lg-flex col-lg-3 justify-content-lg-end">
-              <a class="nav-link" href="LogoutAction.jsp">
+              <div class="me-4 d-flex align-items-center justify-content-center">
+                <c:if test="${not empty sessionScope.user}">
+                  사용자: &nbsp; <b><span style="color: gray;">${sessionScope.user.userName}</span></b>
+                </c:if>
+              </div>
+              <a class="nav-link" href="Logout">
                 <button class="btn btn-primary">로그아웃</button>
               </a>
             </div>
@@ -163,7 +172,7 @@
               <option value="" disabled ${empty searchField ? 'selected' : ''}>선택</option>
               <option value="1" ${'1'.equals(searchField) ? 'selected' : ''}>코드</option>
               <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>이름</option>
-              <option value="3" ${'3'.equals(searchField) ? 'selected' : ''}>만든 이</option>
+              <option value="3" ${'3'.equals(searchField) ? 'selected' : ''}>작성자</option>
               <option value="4" ${'4'.equals(searchField) ? 'selected' : ''}>생성일</option>
             </select>
             <select class="form-control f-90p" name="searchOrder" id="searchOrder" aria-label="searchOrder">
@@ -183,12 +192,13 @@
       <table class="table table-hover table-dark-line t-c">
         <thead class="table-dark">
           <tr>
-            <th scope="col" class="t-c w-7">목록</th>
-            <th scope="col" class="t-c w-12">코드</th>
+            <th scope="col" class="t-c w-10">코드</th>
             <th scope="col" class="t-c w-18">이름</th>
-            <th scope="col" class="t-c w-18">만든 이</th>
+            <th scope="col" class="t-c w-18">작성자</th>
             <th scope="col" class="t-c w-auto">최근 수정일</th>
-            <th scope="col" class="t-c w-7"></th>
+            <th scope="col" class="t-c w-10">고객사 목록</th>
+            <th scope="col" class="t-c w-10">문서 관리</th>
+            <th scope="col" class="t-c w-7">수정</th>
           </tr>
         </thead>
         <tbody>
@@ -199,18 +209,26 @@
             <c:otherwise>
               <c:forEach var="category" items="${list}">
                 <tr>
-                  <td>
-                    <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal" data-type="${category.categoryCode}" />
-                  </td>
                   <td scope="row">${category.categoryCode}</td>
                   <td>${category.categoryName}</td>
                   <td>${category.userName}</td>
                   <td>${category.dateOfCreate}</td>
                   <td>
+                    <button type="button" class="btn btn-outline-dark btn-xs" data-bs-toggle="modal" data-type="${category.categoryCode}">
+                      확인
+                    </button>
+                  </td>
+                  <td>
                     <form method="post" action="Document">
                       <input type="hidden" name="categoryCode" value="${category.categoryCode}" />
-                      <button type="submit" class="btn btn-outline-dark btn-xs">조회</button>
+                      <button type="submit" class="btn btn-outline-dark btn-xs">이동</button>
                     </form>
+                  </td>
+                  <td>
+                    <button type="button" class="btn btn-outline-dark btn-xs" data-bs-toggle="modal" data-category-name="${category.categoryName}"
+                    data-category-code="${category.categoryCode}" data-bs-target="#CategoryUpdateModal">
+                      수정
+                    </button>
                   </td>
                 </tr>
               </c:forEach>
@@ -384,20 +402,53 @@
               <table class="table table-dark-line t-c custom-table">
                 <tbody>
                   <tr>
-                  <tr>
                     <td class="t-c bg-gray"><b>문서 목록명</b></td>
                     <td><input type="text" class="form-control" id="categoryName" name="categoryName" required /></td>
-                  </tr>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
             <button type="submit" class="btn btn-secondary">등록</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal fade" id="CategoryUpdateModal" data-bs-backdrop="static" data-bs-keyboard="false" 
+  tabindex="-1" aria-labelledby="CategoryUpdateModallabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="CategoryUpdateModallabel">문서 목록 수정</h4>
+        </div>
+        <form id="categoryUpdateForm" action="CategoryUpdate" method="post">
+          <div class="modal-body">
+            <div class="container">
+              <table class="table table-dark-line t-c custom-table">
+                <tbody>
+                  <tr>
+                    <td class="t-c bg-gray"><b>문서 목록명</b></td>
+                    <td><input type="text" class="form-control" id="categoryName" name="categoryName" required /></td>
+                    <input type="hidden" class="form-control" id="hiddenCategoryCode" name="hiddenCategoryCode" required readonly>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </form>
+            
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="submitForm();">수정</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+          <form id="categoryDeleteForm" action="CategoryDelete" method="post" onsubmit="return confirm('정말 삭제하시겠습니까?')">
+            <input type="hidden" class="form-control" id="categoryCode" name="categoryCode" required readonly>
+            <button type="submit" class="btn btn-danger">삭제</button>
+          </form>
+        </div> 
       </div>
     </div>
   </div>
@@ -405,5 +456,6 @@
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/category.modal.js"></script>
+  <script src="js/category.js"></script>
 </body>
 </html>
