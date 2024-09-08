@@ -5,7 +5,6 @@ public class ClientDTO {
 	private int clientCode;
 	private String clientName;
 	private String clientContent;
-	private int categoryCode;
 	private int userCode;
 	private String dateOfUpdate;
 	private boolean isUse;

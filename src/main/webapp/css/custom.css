@@ -4,8 +4,17 @@
 	font-family : 'Nanum Gothic';
 }
 
+body {
+	background: linear-gradient(to right, #000000, #483D8B, #C0C0C0);
+}
+
 h1 {
-	font-family : 'Hanna'
+	font-family : 'Hanna';
+	color: white;
+}
+
+.c-b {
+	color: black;
 }
 
 textarea {
@@ -19,6 +28,13 @@ textarea {
 
 .modal-title {
     color: white;
+}
+
+.custom-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
 }
 
 .bg-gray {

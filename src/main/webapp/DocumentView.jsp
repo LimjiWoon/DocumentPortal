@@ -210,8 +210,8 @@
         </tbody>
       </table>
       <div class="btn-group" role="group" aria-label="buttonAction">
-        <button type="button" class="btn btn-primary" onclick="history.back()">목록</button>
-        <button type="button" class="btn btn-success" onclick="document.getElementById('updateForm').submit()">수정</button>
+        <button type="button" class="btn btn-secondary" onclick="history.back()">목록</button>
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('updateForm').submit()">수정</button>
         <button type="button" class="btn btn-danger" onclick="document.getElementById('deleteForm').submit()">삭제</button>
       </div>
 	</div>

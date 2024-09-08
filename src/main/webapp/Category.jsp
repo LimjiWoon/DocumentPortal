@@ -180,7 +180,7 @@
               <option value="2" ${'2'.equals(searchOrder) ? 'selected' : ''}>내림차순</option>
             </select>
             <input type="text" class="form-control f-1" name="searchText" id="searchText" value="${searchText}">
-            <button type="submit" class="btn btn-outline-secondary">검색</button>
+            <button type="submit" class="btn btn-secondary">검색</button>
           </div>
         </form>
       </div>
@@ -242,7 +242,7 @@
     <div class="row">
       <div class="col t-l w-20">
         <form method="post" action="Document">
-          <button type="submit" class="btn btn-dark btn-allow-left">전체 문서 조회</button>
+          <button type="submit" class="btn btn-secondary btn-allow-left">전체 문서 조회</button>
         </form>
       </div>
       <c:choose>

@@ -4,12 +4,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="css/bootstrap.min.css" >
-<link rel="stylesheet" href="css/custom.css">
-<link rel="stylesheet" href="css/custom-background.css">
-<title>Lucis 문서 관리 포탈</title>
+  <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/bootstrap.min.css" >
+  <link rel="stylesheet" href="css/custom.css">
+  <link rel="stylesheet" href="css/custom-background.css">
+  <title>Lucis 문서 관리 포탈</title>
 </head>
 <body>
   <% session.invalidate(); %>
@@ -42,27 +42,31 @@
   </nav>
 	
 
-  <div class="custom-container my-5 t-c">
-    <div class="col-lg-4"></div>
-    <div class="p-5 text-center bg-light rounded-3">
-      <div class="jumbotron">
-        <form method="post" action="Login">
-          <h3 class="t-c">로그인하십시오</h3>
-          <div class="input-group mb-3">
-            <span class="input-group-text t-c w-90p" id="basic-addon1">아이디</span>
-            <input type="text" class="form-control" pattern="[A-Za-z0-9]*" placeholder="아이디" aria-label="userID" aria-describedby="basic-addon1" name="userID" maxlength="20" required>
-          </div>
-          
-          <div class="input-group mb-3">
-            <span class="input-group-text t-c w-90p" id="basic-addon1">비밀번호</span>
-            <input type="password" class="form-control"  placeholder="비밀번호" aria-label="userPassword" aria-describedby="basic-addon1"  name="userPassword" maxlength="20" required>
-          </div>
-          
-          <input type="submit" class="btn btn-primary form-control" value="로그인">
-        </form>
-      </div>
+  <div class="center-container">
+    <div class="inner-container">
+      <form method="post" action="Login">
+        <table class="table table-dark-line t-c custom-table">
+          <thead class="table-dark">
+            <tr>
+              <td colspan="2"><h3 class="t-c"><b>로그인</b></h3>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="t-c bg-gray"><b>아이디</b></td>
+              <td><input type="text" class="form-control" pattern="[A-Za-z0-9]*" placeholder="아이디" 
+                aria-label="userID" name="userID" maxlength="20" required></td>
+            </tr>
+            <tr>
+              <td class="t-c bg-gray"><b>비밀번호</b></td>
+              <td><input type="password" class="form-control"  placeholder="비밀번호" 
+                aria-label="userPassword" name="userPassword" maxlength="20" required></td>
+            </tr>
+          </tbody>
+        </table>
+        <button type="submit" class="btn btn-secondary form-control">로그인</button>
+      </form>
     </div>
-    <div class="col-lg-4"></div>
   </div>
 
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>

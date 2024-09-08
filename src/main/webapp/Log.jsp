@@ -103,7 +103,7 @@
             <span class="input-group-text">~</span>
             <input type="date" class="form-control f-140p" id="endDate" name="endDate"
             value="${endDate}" min="2009-01-01" max="2039-12-31" />
-            <button type="submit" class="form-control f-90p btn btn-outline-secondary">조회</button>
+            <button type="submit" class="form-control f-90p btn btn-secondary">조회</button>
           </div>
         </form>
       </div>
@@ -171,7 +171,7 @@
       </table>
     </div>
 	
-
+	
     <div class="row">
       <c:choose>
         <c:when test="${not empty startDate and not empty endDate}"> 

@@ -43,6 +43,9 @@ public class ClientAction extends HttpServlet {
 	    String searchField = XSSEscape.changeClientField(request.getParameter("searchField"));
 	    String searchOrder = XSSEscape.changeOrder(request.getParameter("searchOrder"));
 	    String searchText = XSSEscape.changeText(request.getParameter("searchText"));
+	    String startDate = XSSEscape.checkDate(request.getParameter("startDate"));
+	    String endDate = XSSEscape.checkDate(request.getParameter("endDate"));
+	    String isUse = XSSEscape.changePermisson(request.getParameter("isUse"));
 	    String message = (String) request.getSession().getAttribute("message");
 	    ArrayList<ClientDTO> list = new ArrayList<ClientDTO>();
 	    
@@ -51,6 +54,14 @@ public class ClientAction extends HttpServlet {
 		     request.setAttribute("message", message);
 		     request.getSession().removeAttribute("message");
 		 }
+		 
+		 System.out.println("searchField: " + searchField);
+		 System.out.println("searchOrder: " + searchOrder);
+		 System.out.println("searchText: " + searchText);
+		 System.out.println("startDate: " + startDate);
+		 System.out.println("endDate: " + endDate);
+		 System.out.println("isUse: " + isUse);
+		 System.out.println("message: " + message);
 	    
 		//nowPage XSS 검증 및 값 처리
 		//startPage, endPage, totalPages 값 계산
@@ -97,6 +108,9 @@ public class ClientAction extends HttpServlet {
         request.setAttribute("searchField", XSSEscape.restoreClientField(searchField));
         request.setAttribute("searchOrder", XSSEscape.restoreOrder(searchOrder));
         request.setAttribute("searchText", searchText);
+        request.setAttribute("startDate", startDate);
+        request.setAttribute("endDate", endDate);
+        request.setAttribute("isUse", isUse);
         request.setAttribute("startPage", startPage);
         request.setAttribute("nowPage", nowPage);
         request.setAttribute("endPage", endPage);

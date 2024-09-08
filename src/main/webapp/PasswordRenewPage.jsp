@@ -9,7 +9,9 @@
 </head>
 <body>
   <script>
-    if("${LoginSuccess}" && "${errorMessage}"){
+    if ("${ID}"){
+      createAndSubmitForm("${ID}")
+    } else if("${LoginSuccess}" && "${errorMessage}"){
       alert("${errorMessage}");
       opener.location.href='Login';
       self.close();

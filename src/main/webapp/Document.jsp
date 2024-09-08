@@ -185,7 +185,7 @@
               <option value="2" ${'2'.equals(searchOrder) ? 'selected' : ''}>내림차순</option>
             </select>
             <input type="text" class="form-control f-1" name="searchText" id="searchText" value="${searchText}">
-            <button type="submit" class="btn btn-outline-secondary">검색</button>
+            <button type="submit" class="btn btn-secondary">검색</button>
           </div>
         </form>
       </div>
@@ -275,7 +275,7 @@
         <button class="btn btn-secondary btn-allow-left" onclick="submitCheckedDocuments('DocumentViewDownload');">
           다운로드
         </button>
-        <button class="btn btn-dark btn-allow-left" onclick="submitCheckedDocuments('DocumentDelete');">
+        <button class="btn btn-secondary btn-allow-left" onclick="submitCheckedDocuments('DocumentDelete');">
           삭제
         </button>
       </div>

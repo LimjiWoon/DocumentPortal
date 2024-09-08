@@ -178,12 +178,8 @@ public class XSSEscape {
 			return "c.clientCode";
 		case "2":
 			return "c.clientName";
-		case "4":
+		case "3":
 			return "u.userName";
-		case "5":
-			return "c.isUse";
-		case "6":
-			return "c.dateOfUpdate";
 		default:
 			return null;
 		}
@@ -198,11 +194,7 @@ public class XSSEscape {
 		case "c.clientName":
 			return "2";
 		case "u.userName":
-			return "4";
-		case "c.isUse":
-			return "5";
-		case "c.dateOfUpdate":
-			return "6";
+			return "3";
 		default:
 			return null;
 		}

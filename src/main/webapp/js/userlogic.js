@@ -1,24 +1,37 @@
 function PasswordChange(){
-  sessionStorage.setItem('check', '1');
-  var popup = window.open('PasswordRenew.jsp', '비밀번호 변경', 'toolbar=no, location=no, menubar=no, width=600, height=350');
+  var popup = window.open('PasswordRenew', '비밀번호 변경', 'toolbar=no, location=no, menubar=no, width=600, height=370');
   var checkWindowClosed = setInterval(function() { 
     if (popup.closed) { 
       clearInterval(checkWindowClosed);
-      sessionStorage.removeItem('check');
     } 
   }, 500);
 }
 
 function passwordChange(){
-  sessionStorage.setItem('check', '1');
-  var popup = window.open('PasswordRenew.jsp', '비밀번호 변경', 'toolbar=no, location=no, menubar=no, width=600, height=350');
+  var popup = window.open('PasswordRenew', '비밀번호 변경', 'toolbar=no, location=no, menubar=no, width=600, height=370');
   var checkWindowClosed = setInterval(function() { 
     if (popup.closed) { 
       clearInterval(checkWindowClosed);
-      sessionStorage.removeItem('check');
 	  history.back();
     } 
   }, 500);
+}
+
+function createAndSubmitForm(item) {
+  var form = document.createElement("form");
+  form.setAttribute("method", "post");
+  form.setAttribute("action", "UpPwd");
+
+  var input = document.createElement("input");
+  input.setAttribute("type", "hidden"); // 숨겨진 input으로 사용
+  input.setAttribute("id", "item");
+  input.setAttribute("name", "item");
+  input.setAttribute("value", item); // item 값을 설정
+
+  form.appendChild(input);
+
+  document.body.appendChild(form);
+  form.submit();
 }
 
 
