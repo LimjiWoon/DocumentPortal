@@ -1,21 +1,6 @@
-function getCurrentDate() {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-}
-
 const startDateInput = document.getElementById('startDate');
 const endDateInput = document.getElementById('endDate');
 
-if (!startDateInput.value) { 
-    startDateInput.value = getCurrentDate();
-}
-
-if (!endDateInput.value) {  
-    endDateInput.value = getCurrentDate();
-}
 
 // 날짜 입력 시 유효성 검사
 startDateInput.addEventListener('change', validateDates);

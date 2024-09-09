@@ -57,6 +57,7 @@ public class UserRetireAction extends HttpServlet {
             request.setAttribute("errorMessage", "오류");
             request.getRequestDispatcher("Error.jsp").forward(request, response);
         }
+        userDAO.userClose();
 
     }
 

@@ -98,6 +98,7 @@ public class DocumentViewDownloadAction extends HttpServlet {
 	            // 에러 처리
 	            e.printStackTrace();
 	        }
+	        documentDAO.documentClose();
 			return;
 	    }
 			
@@ -108,6 +109,7 @@ public class DocumentViewDownloadAction extends HttpServlet {
 		if (fileName == null || categoryCode== null || categoryRoot == null || clientName == null) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
 		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+	        documentDAO.documentClose();
 			return;
 		}
 		
@@ -116,6 +118,7 @@ public class DocumentViewDownloadAction extends HttpServlet {
 		if (!file.exists()) {
 	        request.setAttribute("errorMessage", "파일이 없습니다.");
 		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+	        documentDAO.documentClose();
 			return;
         }
 		
@@ -143,7 +146,8 @@ public class DocumentViewDownloadAction extends HttpServlet {
 		while ((data = (fileInputStream.read(b, 0, b.length))) != -1) {
 			servletOutputStream.write(b, 0, data);
 		}
-		
+
+        documentDAO.documentClose();
 		servletOutputStream.flush();
 		servletOutputStream.close();
 		fileInputStream.close();

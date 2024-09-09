@@ -28,9 +28,38 @@ public class CategoryDAO {
 	}
 	
 	
+	private String filterSQL(String SQL, String startDate, String endDate, String searchField, String searchText) {
+		//그 어떠한 값도 들어오지 않은 경우
+		if (startDate == null && endDate == null && searchField == null && searchText == null) {
+			return SQL;
+		} 
+
+		StringBuilder query = new StringBuilder(SQL);
+		ArrayList<String> conditions = new ArrayList<String>();
+		
+		if (startDate != null && endDate != null) {
+			conditions.add(" AND  dateOfCreate BETWEEN '"+startDate+"' AND DATEADD(day, 1, '"+endDate+"') ");
+		} else if (startDate != null) {
+			conditions.add(" AND  dateOfCreate > '"+startDate+"' ");
+		} else if (endDate != null) {
+			conditions.add(" AND  dateOfCreate < DATEADD(day, 1, '"+endDate+"') ");
+		}
+		
+		if (searchField != null && searchText != null) {
+			conditions.add(" AND " + searchField.trim() + " LIKE '%" + searchText.trim() + "%' ");
+		}
+
+		if (!conditions.isEmpty()) {
+		    query.append(String.join("", conditions));
+		}
+		
+		return query.toString();
+	}
 	
-	public int maxPage() { //최대 페이지 수 가져오기
-		String SQL = "SELECT COUNT(*) AS cnt FROM dbo.CATEGORIES WHERE categoryLv=1;";
+	public int maxPage(String startDate, String endDate) { //최대 페이지 수 가져오기
+		String SQL = "SELECT COUNT(*) AS cnt FROM dbo.CATEGORIES  WHERE categoryLv=1 ";
+		SQL = filterSQL(SQL, startDate, endDate, null, null);
+
 		try {
 			pstmt = conn.prepareStatement(SQL);
 			rs = pstmt.executeQuery();
@@ -43,11 +72,15 @@ public class CategoryDAO {
 		return -1; //DB 오류
 	}
 	
-	public int maxPage(String searchField, String searchText) { 
+	public int maxPage(String startDate, String endDate, String searchField, String searchText) { 
 		String SQL = "SELECT COUNT(*) AS cnt FROM dbo.CATEGORIES cat "
-				+ "LEFT JOIN dbo.USERS u ON u.userCode = cat.userCode ";
-		if (searchText.trim() != "")
-				SQL += "WHERE " + searchField.trim() + " LIKE '%" + searchText.trim() + "%'";
+				+ "LEFT JOIN dbo.USERS u ON u.userCode = cat.userCode "
+				+ "WHERE categoryLv=1 ";
+		if (searchText.trim() != ""){
+			SQL = filterSQL(SQL, startDate, endDate, searchField, searchText);
+		} else {
+			SQL = filterSQL(SQL, startDate, endDate, null, null);
+		}
 		
 		try {
 			pstmt = conn.prepareStatement(SQL);
@@ -87,12 +120,14 @@ public class CategoryDAO {
 	}
 	
 	
-	public ArrayList<CategoryDTO> getList(String nowPage){
+	public ArrayList<CategoryDTO> getList(String startDate, String endDate, String nowPage){
 		String SQL = "SELECT cat.categoryCode, cat.categoryName, u.userName, cat.dateOfCreate "
 				+ "FROM dbo.CATEGORIES cat "
 				+ "LEFT JOIN dbo.USERS u ON u.userCode = cat.userCode "
-				+ "WHERE categoryLv=1 "
-				+ "ORDER BY cat.categoryCode ASC OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
+				+ "WHERE categoryLv=1 ";
+
+		SQL = filterSQL(SQL, startDate, endDate, null, null);
+		SQL += "ORDER BY cat.categoryCode ASC OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
 		ArrayList<CategoryDTO> list = new ArrayList<CategoryDTO>();
 		
 		try {
@@ -121,12 +156,18 @@ public class CategoryDAO {
 	
 	
 	
-	public ArrayList<CategoryDTO> getSearch(String nowPage, String searchField, String searchOrder, String searchText){
+	public ArrayList<CategoryDTO> getSearch(String startDate, String endDate, String nowPage, String searchField, String searchOrder, String searchText){
 		String SQL = "SELECT cat.categoryCode, cat.categoryName, u.userName, cat.dateOfCreate "
 				+ "FROM dbo.CATEGORIES cat "
-				+ "LEFT JOIN dbo.USERS u ON u.userCode = cat.userCode ";
-		if (searchText.trim() != "")
-			SQL += " WHERE " + searchField.trim() + " LIKE '%" + searchText.trim() + "%'";
+				+ "LEFT JOIN dbo.USERS u ON u.userCode = cat.userCode "
+				+ "WHERE categoryLv=1 ";
+		
+		if (searchText.trim() != ""){
+			SQL = filterSQL(SQL, startDate, endDate, searchField, searchText);
+		} else {
+			SQL = filterSQL(SQL, startDate, endDate, null, null);
+		}
+		
 		SQL += "ORDER BY " + searchField.trim() + " " + searchOrder +" OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
 		ArrayList<CategoryDTO> list = new ArrayList<CategoryDTO>();
 		

@@ -56,6 +56,7 @@ public class UserLockAction extends HttpServlet {
             e.printStackTrace();
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "서버 에러");
         }
+        userDAO.userClose();
 	}
 
 }

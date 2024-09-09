@@ -131,6 +131,8 @@ public class UserAction extends HttpServlet {
 	    }
 
 
+        userDAO.userClose();
+        
 	    //값 반환
         request.setAttribute("isRetire", isRetire);
         request.setAttribute("ChangeDate", ChangeDate);

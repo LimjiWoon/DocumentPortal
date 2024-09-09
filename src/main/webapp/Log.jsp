@@ -69,7 +69,7 @@
               </ul>
             </li>
             <li class="nav-item">
-              <form method="post" action="Log">
+              <form method="post" action="Log" id="reset" name="reset" >
                 <input type="submit" class="nav-link active" value="로그" />
               </form>
             </li>
@@ -97,13 +97,14 @@
       <div class="col">
         <form class="my-3" method="post" name="search" id="search" action="Log?page=1">
           <div class="input-group mb-3 d-f">
+            <select class="form-control f-110p" name="searchField" id="searchField" aria-label="searchField" required>
+              <option value="" disabled ${empty searchField ? 'selected' : ''}>선택</option>
+              <option value="1" ${'1'.equals(searchField) ? 'selected' : ''}>사번</option>
+              <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>이름</option>
+            </select>
             <input type="text" class="form-control f-1" name="searchText" id="searchText" value="${searchText}" placeholder="사번 및 이름" >
-            <input type="date" class="form-control f-140p" id="startDate" name="startDate"
-            value="${startDate}" min="2009-01-01" max="2039-12-31" />
-            <span class="input-group-text">~</span>
-            <input type="date" class="form-control f-140p" id="endDate" name="endDate"
-            value="${endDate}" min="2009-01-01" max="2039-12-31" />
             <button type="submit" class="form-control f-90p btn btn-secondary">조회</button>
+            <button type="button" class="form-control f-90p btn btn-secondary" data-bs-toggle="modal" data-bs-target="#SearchFilterModal">필터</button>
           </div>
         </form>
       </div>
@@ -115,53 +116,35 @@
           <tr>
             <th scope="col" class="t-c w-5">사번</th>
             <th scope="col" class="t-c w-7">사용자</th>
-            <th scope="col" class="t-c w-7">
-              <form method="post" action="Log">
-                <select class="select-dark-custom" name="logWhere" id="logWhere" aria-label="logWhere" onchange="this.form.submit()">
-                  <option ${empty logWhere ? 'selected' : ''}>페이지</option>
-                  <option value="1" ${'1'.equals(logWhere) ? 'selected' : ''}>고객사</option>
-                  <option value="2" ${'2'.equals(logWhere) ? 'selected' : ''}>문서 목록</option>
-                  <option value="3" ${'3'.equals(logWhere) ? 'selected' : ''}>문서</option>
-                </select>
-                <input type="hidden" name="searchText" value="${searchText}">
-                <input type="hidden" name="startDate" value="${startDate}">
-                <input type="hidden" name="endDate" value="${endDate}">
-                <input type="hidden" name="logHow" value="${logHow}">
-              </form>
-            </th>
-            <th scope="col" class="t-c w-25">시간</th>
+            <th scope="col" class="t-c w-10">페이지</th>
+            <th scope="col" class="t-c w-19">시간</th>
             <th scope="col" class="t-c w-12">대상</th>
-            <th scope="col" class="t-c w-7">
-              <form method="post" action="Log">
-                <select class="select-dark-custom" name="logHow" id="logHow" aria-label="logHow" onchange="this.form.submit()">
-                  <option ${empty logHow ? 'selected' : ''}>행동</option>
-                  <option value="1" ${'1'.equals(logHow) ? 'selected' : ''}>등록</option>
-                  <option value="2" ${'2'.equals(logHow) ? 'selected' : ''}>갱신</option>
-                  <option value="3" ${'3'.equals(logHow) ? 'selected' : ''}>삭제</option>
-                </select>
-                <input type="hidden" name="searchText" value="${searchText}">
-                <input type="hidden" name="startDate" value="${startDate}">
-                <input type="hidden" name="endDate" value="${endDate}">
-                <input type="hidden" name="logWhere" value="${logWhere}">
-              </form>
-            </th>
+            <th scope="col" class="t-c w-7">행동</th>
             <th scope="col" class="t-c w-auto">설명</th>
           </tr>
         </thead>
         <tbody>
           <c:choose>
             <c:when test="${empty list}">
-              <tr><td colspan="9" rowspan="4"><h1>결과 없음</h1></td></tr>
+              <tr><td colspan="9" rowspan="4"><h1 class="c-b">결과 없음</h1></td></tr>
             </c:when>
             <c:otherwise>
               <c:forEach var="log" items="${list}">
                 <tr>
                   <td scope="row">${log.logWho}</td>
                   <td>${log.logWhoName}</td>
-                  <td>${log.logWhere}</td>
+                  <td>
+                    ${log.logWhere == 'client' ? '고객사' :
+                      log.logWhere == 'file' ? '문서' :
+                      log.logWhere == 'category' ? '문서 목록' : log.logWhere}
+                  </td>
                   <td>${log.logWhen}</td>
                   <td>${log.logWhat}</td>
-                  <td>${log.logHow}</td>
+                  <td>
+                    ${log.logHow == 'create' ? '등록' :
+                      log.logHow == 'update' ? '갱신' :
+                      log.logHow == 'delete' ? '삭제' : log.logHow}
+                  </td>
                   <td>${log.logWhy}</td>
                 </tr>
               </c:forEach>
@@ -184,6 +167,7 @@
                   <c:if test="${totalPages > 5}">
                     <li class="page-item">
                       <form method="post" tabindex="-1" aria-disabled="true" action="Log?page=1" class="d-i">
+                        <input type="hidden" name="searchField" value="${searchField}">
                         <input type="hidden" name="searchText" value="${searchText}">
                         <input type="hidden" name="startDate" value="${startDate}">
                         <input type="hidden" name="endDate" value="${endDate}">
@@ -194,6 +178,7 @@
                     </li>
                     <li class="page-item w-55p" >
                       <form method="post" tabindex="-1" aria-disabled="true" action="Log?page=${(endPage < 6) ? 1 : startPage - 1}" class="d-i">
+                        <input type="hidden" name="searchField" value="${searchField}">
                         <input type="hidden" name="searchText" value="${searchText}">
                         <input type="hidden" name="startDate" value="${startDate}">
                         <input type="hidden" name="endDate" value="${endDate}">
@@ -209,6 +194,7 @@
                       <c:when test="${i == nowPage or (empty nowPage and i == 1)}">
                         <li class="page-item active">
                           <form method="post" tabindex="-1" aria-disabled="true" action="Log?page=${i}" class="d-i">
+                            <input type="hidden" name="searchField" value="${searchField}">
                             <input type="hidden" name="searchText" value="${searchText}">
                             <input type="hidden" name="startDate" value="${startDate}">
                             <input type="hidden" name="endDate" value="${endDate}">
@@ -221,6 +207,7 @@
                       <c:otherwise>
                         <li class="page-item">
                           <form method="post" tabindex="-1" aria-disabled="true" action="Log?page=${i}" class="d-i">
+                            <input type="hidden" name="searchField" value="${searchField}">
                             <input type="hidden" name="searchText" value="${searchText}">
                             <input type="hidden" name="startDate" value="${startDate}">
                             <input type="hidden" name="endDate" value="${endDate}">
@@ -236,6 +223,7 @@
                   <c:if test="${totalPages > 5}">
                     <li class="page-item w-55p" >
                       <form method="post" tabindex="-1" aria-disabled="true" action="Log?page=${(endPage == totalPages)?totalPages : endPage + 1}" class="d-i">
+                        <input type="hidden" name="searchField" value="${searchField}">
                         <input type="hidden" name="searchText" value="${searchText}">
                         <input type="hidden" name="startDate" value="${startDate}">
                         <input type="hidden" name="endDate" value="${endDate}">
@@ -247,6 +235,7 @@
 
                     <li class="page-item">
                       <form method="post" tabindex="-1" aria-disabled="true" action="Log?page=${totalPages}" class="d-i">
+                        <input type="hidden" name="searchField" value="${searchField}">
                         <input type="hidden" name="searchText" value="${searchText}">
                         <input type="hidden" name="startDate" value="${startDate}">
                         <input type="hidden" name="endDate" value="${endDate}">
@@ -270,6 +259,8 @@
               <c:if test="${totalPages > 5}">
                 <li class="page-item">
                   <form method="post" action="Log?page=1"  class="d-i"">
+                    <input type="hidden" name="startDate" value="${startDate}">
+                    <input type="hidden" name="endDate" value="${endDate}">
                     <input type="hidden" name="logWhere" value="${logWhere}">
                     <input type="hidden" name="logHow" value="${logHow}">
                     <button type="submit" class="page-link">«</button>
@@ -277,6 +268,8 @@
                 </li>
                 <li class="page-item w-55p" >
                   <form method="post" action="Log?page=${(endPage < 6) ? 1 : startPage - 1}" class="d-i">
+                    <input type="hidden" name="startDate" value="${startDate}">
+                    <input type="hidden" name="endDate" value="${endDate}">
                     <input type="hidden" name="logWhere" value="${logWhere}">
                     <input type="hidden" name="logHow" value="${logHow}">
                     <button type="submit" class="page-link">이전</button>
@@ -289,6 +282,8 @@
                   <c:when test="${i == nowPage or (empty nowPage and i == 1)}">
                     <li class="page-item active">
                       <form method="post" action="Log?page=${i}" class="d-i">
+                        <input type="hidden" name="startDate" value="${startDate}">
+                        <input type="hidden" name="endDate" value="${endDate}">
                         <input type="hidden" name="logWhere" value="${logWhere}">
                         <input type="hidden" name="logHow" value="${logHow}">
                         <button type="submit" class="page-link active">${i}</button>
@@ -298,6 +293,8 @@
                   <c:otherwise>
                     <li class="page-item">
                       <form method="post" action="Log?page=${i}" class="d-i">
+                        <input type="hidden" name="startDate" value="${startDate}">
+                        <input type="hidden" name="endDate" value="${endDate}">
                         <input type="hidden" name="logWhere" value="${logWhere}">
                         <input type="hidden" name="logHow" value="${logHow}">
                         <button type="submit" class="page-link">${i}</button>
@@ -310,6 +307,8 @@
               <c:if test="${totalPages > 5}">
                 <li class="page-item w-55p">
                   <form method="post" action="Log?page=${(endPage == totalPages)?totalPages : endPage + 1}" class="d-i">
+                    <input type="hidden" name="startDate" value="${startDate}">
+                    <input type="hidden" name="endDate" value="${endDate}">
                     <input type="hidden" name="logWhere" value="${logWhere}">
                     <input type="hidden" name="logHow" value="${logHow}">
                     <button type="submit" class="page-link">다음</button>
@@ -317,6 +316,8 @@
                 </li>
                 <li class="page-item">
                   <form method="post" action="Log?page=${totalPages}" class="d-i">
+                    <input type="hidden" name="startDate" value="${startDate}">
+                    <input type="hidden" name="endDate" value="${endDate}">
                     <input type="hidden" name="logWhere" value="${logWhere}">
                     <input type="hidden" name="logHow" value="${logHow}">
                     <button type="submit" class="page-link">»</button>
@@ -330,7 +331,78 @@
       <div class="col t-r w-20"></div>
     </div>
   </div>
-
+  
+  
+  <div class="modal fade" id="SearchFilterModal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="SearchFilterModallabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="SearchFilterModallabel">검색 필터</h4>
+        </div>
+        <form id="LogFilter" method="post" name="LogFilter" action="Log">
+          <div class="modal-body">
+            <div class="container">
+              <table class="table table-dark-line t-c custom-table">
+                <tbody>
+                  <tr>
+                    <td class="bg-gray">
+                      <select class="form-control select-gray-custom" name="searchField" id="searchField" aria-label="searchField">
+                        <option value="" disabled ${empty searchField ? 'selected' : ''}><b>선택</b></option>
+                        <option value="1" ${'1'.equals(searchField) ? 'selected' : ''}><b>사번</b></option>
+                        <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}><b>이름</b></option>
+                      </select>
+                    </td>
+                    <td colspan="3">
+                      <input type="text" class="form-control f-1" name="searchText" id="searchText" value="${searchText}" placeholder="사번 및 이름" >
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="bg-gray col-3"><b>시간</b></td>
+                    <td class="col-3">
+                      <input type="date" class="form-control" id="startDate" name="startDate"
+                        value="${startDate}" min="2009-01-01" max="2039-12-31" />
+                    </td>
+                    <td class="bg-gray col-1"><b>-</b></td>
+                    <td class="col-3">
+                      <input type="date" class="form-control" id="endDate" name="endDate"
+                        value="${endDate}" min="2009-01-01" max="2039-12-31" />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="bg-gray"><b>페이지</b></td>
+                    <td colspan="3">
+                      <select class="form-select" name="logWhere" id="logWhere" aria-label="logWhere">
+                        <option ${empty logWhere ? 'selected' : ''}>페이지</option>
+                        <option value="1" ${'1'.equals(logWhere) ? 'selected' : ''}>고객사</option>
+                        <option value="2" ${'2'.equals(logWhere) ? 'selected' : ''}>문서 목록</option>
+                        <option value="3" ${'3'.equals(logWhere) ? 'selected' : ''}>문서</option>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="bg-gray"><b>행동</b></td>
+                    <td colspan="3">
+                      <select class="form-select" name="logHow" id="logHow" aria-label="logHow">
+                        <option ${empty logHow ? 'selected' : ''}>행동 선택</option>
+                        <option value="1" ${'1'.equals(logHow) ? 'selected' : ''}>등록</option>
+                        <option value="2" ${'2'.equals(logHow) ? 'selected' : ''}>갱신</option>
+                        <option value="3" ${'3'.equals(logHow) ? 'selected' : ''}>삭제</option>
+                      </select>
+                    </td>
+                  </tr> 
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-secondary">적용</button>
+            <button type="button" class="btn btn-secondary" onclick=" document.getElementById('reset').submit();">검색/필터 초기화</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
 
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>

@@ -104,7 +104,7 @@
                       <ul class="dropdown-menu">
                         <c:choose>
                           <c:when test="${user.isCategory}">
-                            <form method="post" action="Category">
+                            <form method="post" action="Category" id="reset" name="reset">
                               <input type="submit" class="dropdown-item" value="문서 목록" />
                             </form>
                           </c:when>
@@ -167,13 +167,14 @@
       </div>
       <div class="col">
         <form class="my-3" method="post" name="search" id="search" action="Category?page=1">
+          <input type="hidden" name="startDate" value="${startDate}">
+          <input type="hidden" name="endDate" value="${endDate}">
           <div class="input-group d-f mb-3">
             <select class="form-control f-110p" name="searchField" id="searchField" aria-label="searchField" required>
               <option value="" disabled ${empty searchField ? 'selected' : ''}>선택</option>
               <option value="1" ${'1'.equals(searchField) ? 'selected' : ''}>코드</option>
               <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>이름</option>
               <option value="3" ${'3'.equals(searchField) ? 'selected' : ''}>작성자</option>
-              <option value="4" ${'4'.equals(searchField) ? 'selected' : ''}>생성일</option>
             </select>
             <select class="form-control f-90p" name="searchOrder" id="searchOrder" aria-label="searchOrder">
               <option value="1" ${'1'.equals(searchOrder) ? 'selected' : ''}>오름차순</option>
@@ -181,6 +182,7 @@
             </select>
             <input type="text" class="form-control f-1" name="searchText" id="searchText" value="${searchText}">
             <button type="submit" class="btn btn-secondary">검색</button>
+            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#SearchFilterModal">필터</button>
           </div>
         </form>
       </div>
@@ -195,7 +197,7 @@
             <th scope="col" class="t-c w-10">코드</th>
             <th scope="col" class="t-c w-18">이름</th>
             <th scope="col" class="t-c w-18">작성자</th>
-            <th scope="col" class="t-c w-auto">최근 수정일</th>
+            <th scope="col" class="t-c w-auto">생성일</th>
             <th scope="col" class="t-c w-10">고객사 목록</th>
             <th scope="col" class="t-c w-10">문서 관리</th>
             <th scope="col" class="t-c w-7">수정</th>
@@ -204,7 +206,7 @@
         <tbody>
           <c:choose>
             <c:when test="${empty list}">
-              <tr><td colspan="9" rowspan="4"><h1>결과 없음</h1></td></tr>
+              <tr><td colspan="9" rowspan="4"><h1 class="c-b">결과 없음</h1></td></tr>
             </c:when>
             <c:otherwise>
               <c:forEach var="category" items="${list}">
@@ -220,7 +222,7 @@
                   </td>
                   <td>
                     <form method="post" action="Document">
-                      <input type="hidden" name="categoryCode" value="${category.categoryCode}" />
+                      <input type="hidden" name="filterCategory" value="${category.categoryCode}" />
                       <button type="submit" class="btn btn-outline-dark btn-xs">이동</button>
                     </form>
                   </td>
@@ -258,6 +260,8 @@
                         <input type="hidden" name="searchField" value="${searchField}">
                         <input type="hidden" name="searchText" value="${searchText}">
                         <input type="hidden" name="searchOrder" value="${searchOrder}">
+                        <input type="hidden" name="startDate" value="${startDate}">
+                        <input type="hidden" name="endDate" value="${endDate}">
                         <button type="submit" class="page-link">«</button>
                       </form>
                     </li>
@@ -266,6 +270,8 @@
                         <input type="hidden" name="searchField" value="${searchField}">
                         <input type="hidden" name="searchText" value="${searchText}">
                         <input type="hidden" name="searchOrder" value="${searchOrder}">
+                        <input type="hidden" name="startDate" value="${startDate}">
+                        <input type="hidden" name="endDate" value="${endDate}">
                         <button type="submit" class="page-link">이전</button>
                       </form>
                     </li>
@@ -279,6 +285,8 @@
                             <input type="hidden" name="searchField" value="${searchField}">
                             <input type="hidden" name="searchText" value="${searchText}">
                             <input type="hidden" name="searchOrder" value="${searchOrder}">
+                            <input type="hidden" name="startDate" value="${startDate}">
+                            <input type="hidden" name="endDate" value="${endDate}">
                             <button type="submit" class="page-link active">${i}</button>
                           </form>
                         </li>
@@ -289,6 +297,8 @@
                             <input type="hidden" name="searchField" value="${searchField}">
                             <input type="hidden" name="searchText" value="${searchText}">
                             <input type="hidden" name="searchOrder" value="${searchOrder}">
+                            <input type="hidden" name="startDate" value="${startDate}">
+                            <input type="hidden" name="endDate" value="${endDate}">
                             <button type="submit" class="page-link">${i}</button>
                           </form>
                         </li>
@@ -302,6 +312,8 @@
                         <input type="hidden" name="searchField" value="${searchField}">
                         <input type="hidden" name="searchText" value="${searchText}">
                         <input type="hidden" name="searchOrder" value="${searchOrder}">
+                        <input type="hidden" name="startDate" value="${startDate}">
+                        <input type="hidden" name="endDate" value="${endDate}">
                         <button type="submit" class="page-link">다음</button>
                       </form>
                     </li>
@@ -310,6 +322,8 @@
                         <input type="hidden" name="searchField" value="${searchField}">
                         <input type="hidden" name="searchText" value="${searchText}">
                         <input type="hidden" name="searchOrder" value="${searchOrder}">
+                        <input type="hidden" name="startDate" value="${startDate}">
+                        <input type="hidden" name="endDate" value="${endDate}">
                         <button type="submit" class="page-link">»</button>
                       </form>
                     </li>
@@ -328,11 +342,15 @@
                 <li class="page-item">
                   <form method="post" action="Category?page=1"  class="d-i"">
                     <button type="submit" class="page-link">«</button>
+                    <input type="hidden" name="startDate" value="${startDate}">
+                    <input type="hidden" name="endDate" value="${endDate}">
                   </form>
                 </li>
                 <li class="page-item w-55p" >
                   <form method="post" action="Category?page=${(endPage < 6) ? 1 : startPage - 1}" class="d-i">
                     <button type="submit" class="page-link">이전</button>
+                    <input type="hidden" name="startDate" value="${startDate}">
+                    <input type="hidden" name="endDate" value="${endDate}">
                   </form>
                 </li>
               </c:if>
@@ -343,6 +361,8 @@
                     <li class="page-item active">
                       <form method="post" action="Category?page=${i}" class="d-i">
                         <button type="submit" class="page-link active">${i}</button>
+                        <input type="hidden" name="startDate" value="${startDate}">
+                        <input type="hidden" name="endDate" value="${endDate}">
                       </form>
                     </li>
                   </c:when>
@@ -350,6 +370,8 @@
                     <li class="page-item">
                       <form method="post" action="Category?page=${i}" class="d-i">
                         <button type="submit" class="page-link">${i}</button>
+                        <input type="hidden" name="startDate" value="${startDate}">
+                        <input type="hidden" name="endDate" value="${endDate}">
                       </form>
                     </li>
                   </c:otherwise>
@@ -360,11 +382,15 @@
                 <li class="page-item w-55p">
                   <form method="post" action="Category?page=${(endPage == totalPages)?totalPages : endPage + 1}" class="d-i">
                     <button type="submit" class="page-link">다음</button>
+                    <input type="hidden" name="startDate" value="${startDate}">
+                    <input type="hidden" name="endDate" value="${endDate}">
                   </form>
                 </li>
                 <li class="page-item">
                   <form method="post" action="Category?page=${totalPages}" class="d-i">
                     <button type="submit" class="page-link">»</button>
+                    <input type="hidden" name="startDate" value="${startDate}">
+                    <input type="hidden" name="endDate" value="${endDate}">
                   </form>
                 </li>
               </c:if>
@@ -379,8 +405,6 @@
       </div>
     </div>
   </div>
-
-  <div id="modalContainer"></div>
   
   <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function() {
@@ -453,9 +477,74 @@
     </div>
   </div>
   
+  
+    
+  <div class="modal fade" id="SearchFilterModal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="SearchFilterModallabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="SearchFilterModallabel">검색 필터</h4>
+        </div>
+        <form id="CategoryFilter" method="post" name="CategoryFilter" action="Category">
+          <div class="modal-body">
+            <div class="container">
+              <table class="table table-dark-line t-c custom-table">
+                <tbody>
+                  <tr>
+                    <td class="bg-gray">
+                      <select class="form-control select-gray-custom" name="searchField" id="searchField" aria-label="searchField">
+                        <option value="" disabled ${empty searchField ? 'selected' : ''}>선택</option>
+                        <option value="1" ${'1'.equals(searchField) ? 'selected' : ''}>코드</option>
+                        <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>이름</option>
+                        <option value="3" ${'3'.equals(searchField) ? 'selected' : ''}>작성자</option>
+                      </select>
+                    </td>
+                    <td colspan="3">
+                      <input type="text" class="form-control f-1" name="searchText" id="searchText" value="${searchText}">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="bg-gray"><b>정렬</b></td>
+                    <td colspan="3">
+                      <select class="form-control" name="searchOrder" id="searchOrder" aria-label="searchOrder">
+                        <option value="1" ${'1'.equals(searchOrder) ? 'selected' : ''}>오름차순</option>
+                        <option value="2" ${'2'.equals(searchOrder) ? 'selected' : ''}>내림차순</option>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="bg-gray col-3"><b>생성일</b></td>
+                    <td class="col-3">
+                      <input type="date" class="form-control" id="startDate" name="startDate"
+                        value="${startDate}" min="2009-01-01" max="2039-12-31" />
+                    </td>
+                    <td class="bg-gray col-1"><b>-</b></td>
+                    <td class="col-3">
+                      <input type="date" class="form-control" id="endDate" name="endDate"
+                        value="${endDate}" min="2009-01-01" max="2039-12-31" />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-secondary">적용</button>
+            <button type="button" class="btn btn-secondary" onclick=" document.getElementById('reset').submit();">검색/필터 초기화</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+
+  <div id="modalContainer"></div>
+  
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/category.modal.js"></script>
   <script src="js/category.js"></script>
+  <script src="js/log.js"></script>
 </body>
 </html>

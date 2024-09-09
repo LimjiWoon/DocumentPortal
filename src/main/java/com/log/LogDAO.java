@@ -5,7 +5,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import com.myclass.XSSEscape;
 
 
 public class LogDAO {
@@ -25,50 +24,53 @@ public class LogDAO {
 			e.printStackTrace();
 		}
 	}
-	
-	public int maxPage(String logWhere, String logHow) {
-		String SQL = "SELECT COUNT(*) AS cnt FROM dbo.LOGS ";
-		if (logWhere != null && logHow != null) {
-			SQL += "WHERE logWhere = '"+logWhere+"' AND logHow='" + logHow +"';";
-		} else if (logWhere != null) {
-			SQL += "WHERE logWhere = '"+logWhere+"';";
-		} else if (logHow != null) {
-			SQL += "WHERE logHow='" + logHow +"';";
-		} else {
-			SQL += ";";
+
+	private String filterSQL(String SQL, String startDate, String endDate, String logWhere, 
+			String logHow, String searchField, String searchText) {
+		//그 어떠한 값도 들어오지 않은 경우
+		if (startDate == null && endDate == null && logWhere == null && 
+				logHow == null && searchField == null && searchText == null) {
+			return SQL;
 		}
 		
-		try {
-			pstmt = conn.prepareStatement(SQL);
-			rs = pstmt.executeQuery();
-			if(rs.next()) {
-				return (rs.getInt(1)-1) / 10 + 1;
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
+		StringBuilder query = new StringBuilder(SQL);
+		ArrayList<String> conditions = new ArrayList<String>();
+		
+		if (startDate != null && endDate != null) {
+			conditions.add(" l.logWhen BETWEEN '"+startDate+"' AND DATEADD(day, 1, '"+endDate+"') ");
+		} else if (startDate != null) {
+			conditions.add(" l.logWhen > '"+startDate+"' ");
+		} else if (endDate != null) {
+			conditions.add(" l.logWhen < DATEADD(day, 1, '"+endDate+"') ");
 		}
-		return -1; //DB 오류
-	}	
 
+		if (logWhere != null) {
+			conditions.add(" l.logWhere ='"+logWhere+"' ");
+		}
+
+		if (logHow != null) {
+			conditions.add(" l.logHow ='"+logHow+"' ");
+		}
+		
+		if (searchField != null && searchText != null) {
+			conditions.add(" " + searchField.trim() + " LIKE '%" + searchText.trim() + "%' ");
+		}
+		
+		if (!conditions.isEmpty()) {
+		    query.append(" WHERE ").append(String.join(" AND ", conditions));
+		}
+		
+		return query.toString();
+	}
+	
 	
 	public int maxPage(String startDate, String endDate, String logWhere, String logHow) {
 		String SQL = "SELECT COUNT(*) AS cnt "
-				+ "FROM dbo.LOGS "
-				+ "WHERE logWhen BETWEEN ? AND DATEADD(day, 1, ?) ";
-		if (logWhere != null && logHow != null) {
-			SQL += "AND logWhere = '"+logWhere+"' AND logHow='" + logHow +"';";
-		} else if (logWhere != null) {
-			SQL += "AND logWhere = '"+logWhere+"';";
-		} else if (logHow != null) {
-			SQL += "AND logHow='" + logHow +"';";
-		} else {
-			SQL += ";";
-		}
+				+ "FROM dbo.LOGS l ";
+		SQL = filterSQL(SQL, startDate, endDate, logWhere, logHow, null, null);
 		
 		try {
 			pstmt = conn.prepareStatement(SQL);
-			pstmt.setString(1, startDate);
-			pstmt.setString(2, endDate);
 			rs = pstmt.executeQuery();
 			if(rs.next()) {
 				return (rs.getInt(1)-1) / 10 + 1;
@@ -79,38 +81,19 @@ public class LogDAO {
 		return -1; //DB 오류
 	}	
 
-	public int maxPage(String searchText, String startDate, String endDate, String logWhere, String logHow) {
-		boolean isNumber = XSSEscape.isNumber(searchText) != null;
+	public int maxPage(String startDate, String endDate, String logWhere, String logHow, String searchField, String searchText) {
 		String SQL = "SELECT COUNT(*) AS cnt "
 				+ "FROM dbo.LOGS l "
 				+ "LEFT JOIN dbo.USERS u ON u.userCode = l.logWho ";
-		
-		if (isNumber) {
-			SQL += "WHERE l.logWho = ? ";
+
+		if (searchText.trim() != ""){
+			SQL = filterSQL(SQL, startDate, endDate, logWhere, logHow, searchField, searchText);
 		} else {
-			SQL += "WHERE u.userName = ? ";
-		}
-		
-		SQL += "AND l.logWhen BETWEEN ? AND DATEADD(day, 1, ?) ";
-		if (logWhere != null && logHow != null) {
-			SQL += "AND logWhere = '"+logWhere+"' AND logHow='" + logHow +"';";
-		} else if (logWhere != null) {
-			SQL += "AND logWhere = '"+logWhere+"';";
-		} else if (logHow != null) {
-			SQL += "AND logHow='" + logHow +"';";
-		} else {
-			SQL += ";";
+			SQL = filterSQL(SQL, startDate, endDate, logWhere, logHow, null, null);
 		}
 		
 		try {
 			pstmt = conn.prepareStatement(SQL);
-			if (isNumber) {
-				pstmt.setInt(1, Integer.parseInt(searchText));
-			} else {
-				pstmt.setString(1, searchText);
-			}
-			pstmt.setString(2, startDate);
-			pstmt.setString(3, endDate);
 			rs = pstmt.executeQuery();
 			if(rs.next()) {
 				return (rs.getInt(1)-1) / 10 + 1;
@@ -122,20 +105,13 @@ public class LogDAO {
 	}	
 	
 
-	public ArrayList<LogDTO> getList(String nowPage, String logWhere, String logHow){
+	public ArrayList<LogDTO> getList(String startDate, String endDate, String logWhere, String logHow, String nowPage){
 		String SQL = "SELECT l.logWho, u.userName, l.logWhat, l.logWhere, l.logWhen, l.logHow, l.logwhy "
 				+ "FROM dbo.LOGS l "
 				+ "LEFT JOIN dbo.USERS u ON u.userCode = l.logWho ";
+		SQL = filterSQL(SQL, startDate, endDate, logWhere, logHow, null, null);
 				
-		if (logWhere != null && logHow != null) {
-			SQL += "WHERE l.logWhere = '"+logWhere+"' AND l.logHow='" + logHow +"' ";
-		} else if (logWhere != null) {
-			SQL += "WHERE l.logWhere = '"+logWhere+"' ";
-		} else if (logHow != null) {
-			SQL += "WHERE l.logHow='" + logHow +"' ";
-		}
-				
-		SQL += "ORDER BY l.logWhen ASC OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
+		SQL += " ORDER BY l.logWhen ASC OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
 		ArrayList<LogDTO> list = new ArrayList<LogDTO>();
 		
 		try {
@@ -165,36 +141,27 @@ public class LogDAO {
 		return list;
 	}
 
-	public ArrayList<LogDTO> getSearch(String nowPage, String startDate, String endDate, String logWhere, String logHow){
+	public ArrayList<LogDTO> getSearch(String startDate, String endDate, String logWhere, String logHow, String nowPage, String searchField, String searchText){
 		String SQL = "SELECT l.logWho, u.userName, l.logWhat, l.logWhere, l.logWhen, l.logHow, l.logwhy "
 				+ "FROM dbo.LOGS l "
-				+ "LEFT JOIN dbo.USERS u ON u.userCode = l.logWho "
-				+ "WHERE l.logWhen BETWEEN ? AND DATEADD(day, 1, ?) ";
-		
-		if (logWhere != null && logHow != null) {
-			SQL += "AND logWhere = '"+logWhere+"' AND logHow='" + logHow +"' ";
-		} else if (logWhere != null) {
-			SQL += "AND logWhere = '"+logWhere+"' ";
-		} else if (logHow != null) {
-			SQL += "AND logHow='" + logHow +"' ";
+				+ "LEFT JOIN dbo.USERS u ON u.userCode = l.logWho ";
+
+		if (searchText.trim() != ""){
+			SQL = filterSQL(SQL, startDate, endDate, logWhere, logHow, searchField, searchText);
+		} else {
+			SQL = filterSQL(SQL, startDate, endDate, logWhere, logHow, null, null);
 		}
 		
-		SQL += "ORDER BY l.logWhen ASC OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
+		SQL += " ORDER BY l.logWhen ASC OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
 		ArrayList<LogDTO> list = new ArrayList<LogDTO>();
-		
-		if (startDate == null || endDate == null) {
-			return list;
-		}
 		
 		try {
 			pstmt = conn.prepareStatement(SQL);
-			pstmt.setString(1, startDate);
-			pstmt.setString(2, endDate);
 			
 			if (nowPage == null) {
-				pstmt.setInt(3, 0);
+				pstmt.setInt(1, 0);
 			} else {
-				pstmt.setInt(3, (Integer.parseInt(nowPage) -1) * 10);
+				pstmt.setInt(1, (Integer.parseInt(nowPage) -1) * 10);
 			}
 			
 			rs = pstmt.executeQuery();
@@ -217,67 +184,6 @@ public class LogDAO {
 		return list;
 	}
 
-	public ArrayList<LogDTO> getSearch(String nowPage, String searchText, String startDate, String endDate, String logWhere, String logHow){
-		ArrayList<LogDTO> list = new ArrayList<LogDTO>();
-		String SQL = "SELECT l.logWho, u.userName, l.logWhat, l.logWhere, l.logWhen, l.logHow, l.logwhy "
-				+ "FROM dbo.LOGS l "
-				+ "LEFT JOIN dbo.USERS u ON u.userCode = l.logWho ";
-		boolean isNumber = XSSEscape.isNumber(searchText) != null;
-		
-		if (startDate == null || endDate == null || searchText == null) {
-			return list;
-		}
-		
-		if (isNumber) {
-			SQL += "WHERE l.logWho = ? ";
-		} else {
-			SQL += "WHERE u.userName = ? ";
-		}
-		
-		SQL += "AND l.logWhen BETWEEN ? AND DATEADD(day, 1, ?) ";
-		if (logWhere != null && logHow != null) {
-			SQL += "AND logWhere = '"+logWhere+"' AND logHow='" + logHow +"' ";
-		} else if (logWhere != null) {
-			SQL += "AND logWhere = '"+logWhere+"' ";
-		} else if (logHow != null) {
-			SQL += "AND logHow='" + logHow +"' ";
-		}
-		SQL += "ORDER BY l.logWhen ASC OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
-		
-		try {
-			pstmt = conn.prepareStatement(SQL);
-			if (isNumber) {
-				pstmt.setInt(1, Integer.parseInt(searchText));
-			} else {
-				pstmt.setString(1, searchText);
-			}
-			pstmt.setString(2, startDate);
-			pstmt.setString(3, endDate);
-			
-			if (nowPage == null) {
-				pstmt.setInt(4, 0);
-			} else {
-				pstmt.setInt(4, (Integer.parseInt(nowPage) -1) * 10);
-			}
-			
-			rs = pstmt.executeQuery();
-			while (rs.next()) {
-				log = new LogDTO();
-				log.setLogWho(rs.getInt(1));
-				log.setLogWhoName(rs.getString(2));
-				log.setLogWhat(rs.getString(3));
-				log.setLogWhere(rs.getString(4));
-				log.setLogWhen(rs.getString(5));
-				log.setLogHow(rs.getString(6));
-				log.setLogWhy(rs.getString(7));
-				list.add(log);
-			}			
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-		return list;
-	}
 	
 	public int logUpload(int logWho, String logWhat, String logWhere, String logHow, String logWhy) {
 		String SQL = "INSERT INTO dbo.LOGS (logWho, logWhat, logWhere, logHow, logWhy) "

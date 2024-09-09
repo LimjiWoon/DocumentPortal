@@ -53,6 +53,7 @@ public class DocumentDeleteAction extends HttpServlet {
 		if (user == null || !user.isDocument() ) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
 		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    documentDAO.documentClose();
 			return;
 		}
 		
@@ -84,7 +85,7 @@ public class DocumentDeleteAction extends HttpServlet {
 			
             request.setAttribute("messageDocument", "문서 삭제 성공!");
             request.getRequestDispatcher("Message.jsp").forward(request, response);
-			
+		    documentDAO.documentClose();
 			return;
 		}
 		
@@ -93,6 +94,7 @@ public class DocumentDeleteAction extends HttpServlet {
 		if (user == null || !user.isDocument() || categoryCode == null || fileName == null) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
 		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    documentDAO.documentClose();
 			return;
 		}
 
@@ -111,6 +113,7 @@ public class DocumentDeleteAction extends HttpServlet {
             request.setAttribute("errorMessage", "비정상적인 접근");
             request.getRequestDispatcher("Error.jsp").forward(request, response);
         }
+	    documentDAO.documentClose();
 
 	}
 	

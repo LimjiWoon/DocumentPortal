@@ -516,6 +516,28 @@
               <table class="table table-dark-line t-c custom-table">
                 <tbody>
                   <tr>
+                    <td class="bg-gray">
+                      <select class="form-control select-gray-custom" name="searchField" id="searchField" aria-label="searchField">
+                        <option value="" disabled ${empty searchField ? 'selected' : ''}>선택</option>
+                        <option value="1" ${'1'.equals(searchField) ? 'selected' : ''}>코드</option>
+                        <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>고객사명</option>
+                        <option value="3" ${'3'.equals(searchField) ? 'selected' : ''}>작성자</option>
+                      </select>
+                    </td>
+                    <td colspan="3">
+                      <input type="text" class="form-control f-1" name="searchText" id="searchText" value="${searchText}">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="bg-gray"><b>정렬</b></td>
+                    <td colspan="3">
+                      <select class="form-control" name="searchOrder" id="searchOrder" aria-label="searchOrder">
+                        <option value="1" ${'1'.equals(searchOrder) ? 'selected' : ''}>오름차순</option>
+                        <option value="2" ${'2'.equals(searchOrder) ? 'selected' : ''}>내림차순</option>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
                     <td class="bg-gray col-3"><b>수정일</b></td>
                     <td class="col-3">
                       <input type="date" class="form-control" id="startDate" name="startDate"
@@ -534,17 +556,14 @@
                         <input type="radio" class="btn-check" name="isUse" id="isUseNone" ${empty isUse ? 'checked' : ''} >
                         <label class="btn btn-outline-dark" for="isUseNone">미선택</label>
                         <input type="radio" class="btn-check" name="isUse" id="isUseO" value="1" ${'1'.equals(isUse) ? 'checked' : ''} >
-                        <label class="btn btn-outline-dark" for="isUseO">권한 O</label>
+                        <label class="btn btn-outline-dark" for="isUseO">사용 O</label>
                         <input type="radio" class="btn-check" name="isUse" id="isUseX"  value="0" ${'0'.equals(isUse) ? 'checked' : ''} >
-                        <label class="btn btn-outline-dark" for="isUseX">권한 X</label>
+                        <label class="btn btn-outline-dark" for="isUseX">사용 X</label>
                       </div>
                     </td>
                   </tr>
                 </tbody>
               </table>
-              <input type="hidden" name="searchField" value="${searchField}" />
-              <input type="hidden" name="searchText" value="${searchText}" />
-              <input type="hidden" name="searchOrder" value="${searchOrder}" />
             </div>
           </div>
           <div class="modal-footer">

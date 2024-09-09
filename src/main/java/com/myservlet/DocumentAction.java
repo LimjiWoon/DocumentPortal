@@ -12,6 +12,7 @@ import javax.servlet.http.HttpSession;
 
 import com.document.*;
 import com.category.*;
+import com.client.*;
 import com.myclass.XSSEscape;
 import com.user.UserDTO;
 
@@ -44,30 +45,29 @@ public class DocumentAction extends HttpServlet {
 		
 		//권한을 검증하는 블럭
 		if (user == null || !user.isDocument()) {
-			if (user.isCategory()) {
-		        request.setAttribute("errorMessage", "문서에 대한 접근 권한이 없습니다.");
-			    request.getRequestDispatcher("Error.jsp").forward(request, response);
-				return;
-			} else {
-		        request.setAttribute("errorMessage", "비정상적인 접근");
-			    request.getRequestDispatcher("Error.jsp").forward(request, response);
-				return;
-			}
-		}
+	        request.setAttribute("errorMessage", "비정상적인 접근");
+		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+			return;
+		}	
 
     	DocumentDAO documentDAO = new DocumentDAO();
     	CategoryDAO categoryDAO = new CategoryDAO();
+    	ClientDAO clientDAO = new ClientDAO();
 
 	    int startPage;
 	    int endPage;
 	    int totalPages;
 	    String nowPage = request.getParameter("page");
-	    String categoryCode = XSSEscape.isNumber(request.getParameter("categoryCode"));
 	    String searchField = XSSEscape.changeDocumentField(request.getParameter("searchField"));
 	    String searchOrder = XSSEscape.changeOrder(request.getParameter("searchOrder"));
 	    String searchText = XSSEscape.changeText(request.getParameter("searchText"));
+	    String startDate = XSSEscape.checkDate(request.getParameter("startDate"));
+	    String endDate = XSSEscape.checkDate(request.getParameter("endDate"));
+	    String filterCategory = XSSEscape.isNumber(request.getParameter("filterCategory"));
+	    String filterClient = XSSEscape.isNumber(request.getParameter("filterClient"));
 	    CategoryDTO category = new CategoryDTO();
-	    ArrayList<CategoryDTO> selectList = new ArrayList<CategoryDTO>();
+	    ArrayList<CategoryDTO> categoryList = new ArrayList<CategoryDTO>();
+	    ArrayList<ClientDTO> clientList = new ArrayList<ClientDTO>();
 	    ArrayList<DocumentDTO> list = new ArrayList<DocumentDTO>();
 	    
 
@@ -85,24 +85,8 @@ public class DocumentAction extends HttpServlet {
 	      }
 	    }
 	    
-	    //문서 목록 기반 문서 리스트 반환
-	    if (categoryCode != null) {
-	    	category = categoryDAO.getCategoryInfo(Integer.parseInt(categoryCode));
-	    	searchField = null;
-	    	searchText = null;
-	    	searchOrder = null;
-	    	totalPages = Math.max(documentDAO.maxPage(categoryCode), 1);
-	    	
-		    endPage = Math.min(startPage + 4, totalPages);
-
-		    if (endPage - startPage < 4) {
-		      startPage = Math.max(endPage - 4, 1);
-		    }
-		    
-		    list = documentDAO.getList(nowPage, categoryCode);
-	    } //검색 기반 문서 리스트 반환
-	    else if (searchField != null && searchText != null && searchOrder != null){
-			totalPages = Math.max(documentDAO.maxPage(searchField, searchText), 1);
+	    if (searchField != null && searchText != null && searchOrder != null){
+			totalPages = Math.max(documentDAO.maxPage(startDate, endDate, filterCategory, filterClient, searchField, searchText), 1);
 			
 		    endPage = Math.min(startPage + 4, totalPages);
 
@@ -110,14 +94,14 @@ public class DocumentAction extends HttpServlet {
 		      startPage = Math.max(endPage - 4, 1);
 		    }
 		    
-		    list = documentDAO.getSearch(nowPage, searchField, searchOrder, searchText);
+		    list = documentDAO.getSearch(startDate, endDate, filterCategory, filterClient, nowPage, searchField, searchOrder, searchText);
 		    
 	    } //전체 문서 리스트 반환
 	    else {
 	    	searchField = null;
 	    	searchText = null;
 	    	searchOrder = null;
-	    	totalPages = Math.max(documentDAO.maxPage(), 1);
+	    	totalPages = Math.max(documentDAO.maxPage(startDate, endDate, filterCategory, filterClient), 1);
 	    	
 		    endPage = Math.min(startPage + 4, totalPages);
 
@@ -125,16 +109,26 @@ public class DocumentAction extends HttpServlet {
 		      startPage = Math.max(endPage - 4, 1);
 		    }
 		    
-		    list = documentDAO.getList(nowPage);
+		    list = documentDAO.getList(startDate, endDate, filterCategory, filterClient, nowPage);
 	    }
 	    
-	    selectList = categoryDAO.getList();
+	    categoryList = categoryDAO.getList();
+	    clientList = clientDAO.getList();
+	    
+	    categoryDAO.categoryClose();
+	    clientDAO.clientClose();
+	    documentDAO.documentClose();
 
 	    //값 반환
-	    request.setAttribute("selectList", selectList);
+	    request.setAttribute("categoryList", categoryList);
+	    request.setAttribute("clientList", clientList);
+	    request.setAttribute("filterCategory", filterCategory);
+	    request.setAttribute("filterClient", filterClient);
         request.setAttribute("searchField", XSSEscape.restoreDocumentField(searchField));
         request.setAttribute("searchOrder", XSSEscape.restoreOrder(searchOrder));
         request.setAttribute("searchText", searchText);
+        request.setAttribute("startDate", startDate);
+        request.setAttribute("endDate", endDate);
         request.setAttribute("startPage", startPage);
         request.setAttribute("nowPage", nowPage);
         request.setAttribute("endPage", endPage);

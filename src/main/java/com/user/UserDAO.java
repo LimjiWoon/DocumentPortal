@@ -31,6 +31,44 @@ public class UserDAO {
 		}
 	}
 	
+	private String filterSQL(String SQL, String startDate, String endDate, String filterCategory, 
+			String filterClient, String searchField, String searchText) {
+		//그 어떠한 값도 들어오지 않은 경우
+		if (startDate == null && endDate == null && filterCategory == null && 
+				filterClient == null && searchField == null && searchText == null) {
+			return SQL;
+		}
+		
+		StringBuilder query = new StringBuilder(SQL);
+		ArrayList<String> conditions = new ArrayList<String>();
+		
+		if (startDate != null && endDate != null) {
+			conditions.add(" f.dateOfUpdate BETWEEN '"+startDate+"' AND DATEADD(day, 1, '"+endDate+"') ");
+		} else if (startDate != null) {
+			conditions.add(" f.dateOfUpdate > '"+startDate+"' ");
+		} else if (endDate != null) {
+			conditions.add(" f.dateOfUpdate < DATEADD(day, 1, '"+endDate+"') ");
+		}
+
+		if (filterCategory != null) {
+			conditions.add(" f.categoryCode ="+filterCategory+" ");
+		}
+
+		if (filterClient != null) {
+			conditions.add(" f.clientCode ="+filterClient+" ");
+		}
+		
+		if (searchField != null && searchText != null) {
+			conditions.add(" " + searchField.trim() + " LIKE '%" + searchText.trim() + "%' ");
+		}
+		
+		if (!conditions.isEmpty()) {
+		    query.append(" WHERE ").append(String.join(" AND ", conditions));
+		}
+		
+		return query.toString();
+	}
+	
 	public int login(String userID, String userPassword) {
 		String SQL = "SELECT userPassword,failOfPassword FROM USERS WHERE userID = ?";
 		try {

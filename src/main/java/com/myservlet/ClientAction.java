@@ -8,8 +8,10 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.myclass.XSSEscape;
+import com.user.UserDTO;
 import com.client.*;
 
 /**
@@ -34,6 +36,16 @@ public class ClientAction extends HttpServlet {
 		request.setCharacterEncoding("UTF-8"); 
         response.setContentType("text/html; charset=UTF-8");
         
+
+        //세션에 로그인 정보가 있는지 확인부터 한다.
+		HttpSession session = request.getSession();
+		UserDTO user = (UserDTO) session.getAttribute("user");
+		if (user == null || !user.isClient()) {
+	        request.setAttribute("errorMessage", "비정상적인 접근");
+		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+			return;
+		}
+        
     	ClientDAO clientDAO = new ClientDAO();
 
 	    int startPage;
@@ -55,14 +67,6 @@ public class ClientAction extends HttpServlet {
 		     request.getSession().removeAttribute("message");
 		 }
 		 
-		 System.out.println("searchField: " + searchField);
-		 System.out.println("searchOrder: " + searchOrder);
-		 System.out.println("searchText: " + searchText);
-		 System.out.println("startDate: " + startDate);
-		 System.out.println("endDate: " + endDate);
-		 System.out.println("isUse: " + isUse);
-		 System.out.println("message: " + message);
-	    
 		//nowPage XSS 검증 및 값 처리
 		//startPage, endPage, totalPages 값 계산
 		//위의 검증 된 값들로 사용자 list, DB에서 가져오기
@@ -79,7 +83,7 @@ public class ClientAction extends HttpServlet {
 	    
 	    //검색 기록이 있는가 없는 가에 따라 반환하는 사용자 list가 다름
 	    if (searchField != null && searchText != null && searchOrder != null){
-			totalPages = Math.max(clientDAO.maxPage(searchField, searchText), 1);
+			totalPages = Math.max(clientDAO.maxPage(startDate, endDate, isUse, searchField, searchText), 1);
 			
 		    endPage = Math.min(startPage + 4, totalPages);
 
@@ -87,13 +91,13 @@ public class ClientAction extends HttpServlet {
 		      startPage = Math.max(endPage - 4, 1);
 		    }
 		    
-		    list = clientDAO.getSearch(nowPage, searchField, searchOrder, searchText);
+		    list = clientDAO.getSearch(startDate, endDate, isUse, nowPage, searchField, searchOrder, searchText);
 		    
 	    } else {
 	    	searchField = null;
 	    	searchText = null;
 	    	searchOrder = null;
-	    	totalPages = Math.max(clientDAO.maxPage(), 1);
+	    	totalPages = Math.max(clientDAO.maxPage(startDate, endDate, isUse), 1);
 	    	
 		    endPage = Math.min(startPage + 4, totalPages);
 
@@ -101,8 +105,10 @@ public class ClientAction extends HttpServlet {
 		      startPage = Math.max(endPage - 4, 1);
 		    }
 		    
-		    list = clientDAO.getList(nowPage);
+		    list = clientDAO.getList(startDate, endDate, isUse, nowPage);
 	    }
+	    
+	    clientDAO.clientClose();
 
 	    //값 반환
         request.setAttribute("searchField", XSSEscape.restoreClientField(searchField));

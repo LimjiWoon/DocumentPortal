@@ -101,6 +101,9 @@ public class PasswordRenewAction extends HttpServlet {
         } catch (Exception e) {
         	message = "에러";
         }
+
+        userDAO.userClose();
+        
         request.setAttribute("errorMessage", message);
         request.setAttribute("user", message);
         request.getRequestDispatcher("Error.jsp").forward(request, response);

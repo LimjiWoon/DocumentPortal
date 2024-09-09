@@ -23,47 +23,74 @@ public class DocumentDAO {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}	
-	
-	public int maxPage() { //최대 페이지 수 가져오기
-		String SQL = "SELECT COUNT(*) AS cnt FROM dbo.FILES;";
-		try {
-			pstmt = conn.prepareStatement(SQL);
-			rs = pstmt.executeQuery();
-			if(rs.next()) {
-				return (rs.getInt(1)-1) / 10 + 1;
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		return -1; //DB 오류
-	}	
-	
-	public int maxPage(String categoryCode) { //최대 페이지 수 가져오기
-		String SQL = "SELECT COUNT(*) AS cnt FROM dbo.FILES "
-				+ "WHERE categoryCode = ?;";
-		if (categoryCode == null)
-			return 1;
-		try {
-			pstmt = conn.prepareStatement(SQL);
-			pstmt.setInt(1, Integer.parseInt(categoryCode));
-			rs = pstmt.executeQuery();
-			if(rs.next()) {
-				return (rs.getInt(1)-1) / 10 + 1;
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		return -1; //DB 오류
 	}
 	
-	public int maxPage(String searchField, String searchText) { 
+	private String filterSQL(String SQL, String startDate, String endDate, String filterCategory, 
+			String filterClient, String searchField, String searchText) {
+		//그 어떠한 값도 들어오지 않은 경우
+		if (startDate == null && endDate == null && filterCategory == null && 
+				filterClient == null && searchField == null && searchText == null) {
+			return SQL;
+		}
+		
+		StringBuilder query = new StringBuilder(SQL);
+		ArrayList<String> conditions = new ArrayList<String>();
+		
+		if (startDate != null && endDate != null) {
+			conditions.add(" f.dateOfUpdate BETWEEN '"+startDate+"' AND DATEADD(day, 1, '"+endDate+"') ");
+		} else if (startDate != null) {
+			conditions.add(" f.dateOfUpdate > '"+startDate+"' ");
+		} else if (endDate != null) {
+			conditions.add(" f.dateOfUpdate < DATEADD(day, 1, '"+endDate+"') ");
+		}
+
+		if (filterCategory != null) {
+			conditions.add(" f.categoryCode ="+filterCategory+" ");
+		}
+
+		if (filterClient != null) {
+			conditions.add(" f.clientCode ="+filterClient+" ");
+		}
+		
+		if (searchField != null && searchText != null) {
+			conditions.add(" " + searchField.trim() + " LIKE '%" + searchText.trim() + "%' ");
+		}
+		
+		if (!conditions.isEmpty()) {
+		    query.append(" WHERE ").append(String.join(" AND ", conditions));
+		}
+		
+		return query.toString();
+	}
+
+	
+	public int maxPage(String startDate, String endDate, String filterCategory, String filterClient) {
+		String SQL = "SELECT COUNT(*) AS cnt FROM dbo.FILES f ";
+		SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, null, null);
+		try {
+			pstmt = conn.prepareStatement(SQL);
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				return (rs.getInt(1)-1) / 10 + 1;
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		return -1; //DB 오류
+	}	
+	
+	
+	public int maxPage(String startDate, String endDate, String filterCategory, 
+			String filterClient, String searchField, String searchText) { 
 		String SQL = "SELECT COUNT(*) AS cnt FROM dbo.FILES f "
 				+ "LEFT JOIN dbo.CATEGORIES cat ON cat.categoryCode = f.categoryCode "
 				+ "LEFT JOIN dbo.USERS u ON u.userCode = f.userCode "
 				+ "LEFT JOIN dbo.CLIENTS c ON c.clientCode = f.clientCode ";
-		if (searchText.trim() != "")
-				SQL += "WHERE " + searchField.trim() + " LIKE '%" + searchText.trim() + "%'";
+		if (searchText.trim() != ""){
+			SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, searchField, searchText);
+		} else {
+			SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, null, null);
+		}
 		
 		try {
 			pstmt = conn.prepareStatement(SQL);
@@ -77,13 +104,15 @@ public class DocumentDAO {
 		return -1; //DB 오류
 	}
 	
-	public ArrayList<DocumentDTO> getList(String nowPage){
+	public ArrayList<DocumentDTO> getList(String startDate, String endDate, String filterCategory, String filterClient, String nowPage){
 		String SQL = "SELECT f.fileTitle, c.clientName, cat.categoryName, u.userName, f.dateOfUpdate, f.fileName, f.categoryCode, f.clientCode "
 				+ "FROM dbo.FILES f "
 				+ "LEFT JOIN dbo.CATEGORIES cat ON cat.categoryCode = f.categoryCode "
 				+ "LEFT JOIN dbo.USERS u ON u.userCode = f.userCode "
-				+ "LEFT JOIN dbo.CLIENTS c ON c.clientCode = f.clientCode "
-				+ "ORDER BY f.dateOfCreate ASC OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
+				+ "LEFT JOIN dbo.CLIENTS c ON c.clientCode = f.clientCode ";
+		
+		SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, null, null);
+		SQL += "ORDER BY f.dateOfCreate ASC OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
 		ArrayList<DocumentDTO> list = new ArrayList<DocumentDTO>();
 		
 		try {
@@ -114,59 +143,21 @@ public class DocumentDAO {
 		return list;
 	}
 	
-	public ArrayList<DocumentDTO> getList(String nowPage, String categoryCode){
-		String SQL = "SELECT f.fileTitle, c.clientName, cat.categoryName, u.userName, f.dateOfUpdate, f.fileName, f.categoryCode, f.clientCode "
-				+ "FROM dbo.FILES f "
-				+ "LEFT JOIN dbo.CATEGORIES cat ON cat.categoryCode = f.categoryCode "
-				+ "LEFT JOIN dbo.USERS u ON u.userCode = f.userCode "
-				+ "LEFT JOIN dbo.CLIENTS c ON c.clientCode = f.clientCode "
-				+ "WHERE cat.categoryCode = ? "
-				+ "ORDER BY f.dateOfCreate ASC OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
-		ArrayList<DocumentDTO> list = new ArrayList<DocumentDTO>();
-		
-		try {
-			pstmt = conn.prepareStatement(SQL);
-			if (categoryCode == null) {
-				return list;
-			} else {
-				pstmt.setInt(1, Integer.parseInt(categoryCode));
-			}
-			if (nowPage == null) {
-				pstmt.setInt(2, 0);
-			} else {
-				pstmt.setInt(2, (Integer.parseInt(nowPage) -1) * 10);
-			}
-			
-			rs = pstmt.executeQuery();
-			while (rs.next()) {
-				document = new DocumentDTO();
-				document.setFileTitle(rs.getString(1));
-				document.setClientName(rs.getString(2));
-				document.setCategoryName(rs.getString(3));
-				document.setUserName(rs.getString(4));
-				document.setDateOfUpdate(rs.getString(5));
-				document.setFileName(rs.getString(6));
-				document.setCategoryCode(rs.getInt(7));
-				document.setClientCode(rs.getInt(8));
-				list.add(document);
-			}			
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-		return list;
-	}
 	
-	
-	public ArrayList<DocumentDTO> getSearch(String nowPage, String searchField, String searchOrder, String searchText){
+	public ArrayList<DocumentDTO> getSearch(String startDate, String endDate, String filterCategory, String filterClient, 
+			String nowPage, String searchField, String searchOrder, String searchText){
 		String SQL = "SELECT f.fileTitle, c.clientName, cat.categoryName, u.userName, f.dateOfUpdate, f.fileName, f.categoryCode, f.clientCode "
 				+ "FROM dbo.FILES f "
 				+ "LEFT JOIN dbo.CATEGORIES cat ON cat.categoryCode = f.categoryCode "
 				+ "LEFT JOIN dbo.USERS u ON u.userCode = f.userCode "
 				+ "LEFT JOIN dbo.CLIENTS c ON c.clientCode = f.clientCode ";
 		if (searchText.trim() != "")
-			SQL += " WHERE " + searchField.trim() + " LIKE '%" + searchText.trim() + "%'";
-		SQL += "ORDER BY " + searchField.trim() + " " + searchOrder +" OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
+			if (searchText.trim() != ""){
+				SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, searchField, searchText);
+			} else {
+				SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, null, null);
+			}
+		SQL += " ORDER BY " + searchField.trim() + " " + searchOrder +" OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
 		ArrayList<DocumentDTO> list = new ArrayList<DocumentDTO>();
 		
 		try {

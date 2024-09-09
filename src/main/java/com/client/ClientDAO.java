@@ -26,9 +26,43 @@ public class ClientDAO {
 		}
 	}
 	
+	private String filterSQL(String SQL, String startDate, String endDate, String isUse, String searchField, String searchText) {
+		//그 어떠한 값도 들어오지 않은 경우
+		if (startDate == null && endDate == null && isUse == null && searchField == null && searchText == null) {
+			return SQL;
+		} 
 
-	public int maxPage() { //다음 글 가지고 오기
-		String SQL = "SELECT COUNT(*) AS cnt FROM dbo.CLIENTS;";
+		StringBuilder query = new StringBuilder(SQL);
+		ArrayList<String> conditions = new ArrayList<String>();
+		
+		if (startDate != null && endDate != null) {
+			conditions.add(" dateOfUpdate BETWEEN '"+startDate+"' AND DATEADD(day, 1, '"+endDate+"') ");
+		} else if (startDate != null) {
+			conditions.add(" dateOfUpdate > '"+startDate+"' ");
+		} else if (endDate != null) {
+			conditions.add(" dateOfUpdate < DATEADD(day, 1, '"+endDate+"') ");
+		}
+		
+		if ("0".equals(isUse)) {
+			conditions.add(" isUse = 0 ");
+		} else if ("1".equals(isUse)) {
+			conditions.add(" isUse = 1 ");
+		}
+		
+		if (searchField != null && searchText != null) {
+			conditions.add(" " + searchField.trim() + " LIKE '%" + searchText.trim() + "%' ");
+		}
+		
+		if (!conditions.isEmpty()) {
+		    query.append(" WHERE ").append(String.join(" AND ", conditions));
+		}
+		
+		return query.toString();
+	}
+
+	public int maxPage(String startDate, String endDate, String isUse) {
+		String SQL = "SELECT COUNT(*) AS cnt FROM dbo.CLIENTS ";
+		SQL = filterSQL(SQL, startDate, endDate, isUse, null, null);
 		try {
 			pstmt = conn.prepareStatement(SQL);
 			rs = pstmt.executeQuery();
@@ -41,12 +75,15 @@ public class ClientDAO {
 		return -1; //DB 오류
 	}
 	
-	public int maxPage(String searchField, String searchText) { //다음 글 가지고 오기
+	public int maxPage(String startDate, String endDate, String isUse, String searchField, String searchText) { //다음 글 가지고 오기
 		String SQL = "SELECT COUNT(*) AS cnt "
 				+ "FROM  dbo.CLIENTS c "
 				+ "LEFT JOIN dbo.USERS u ON c.userCode = u.userCode ";
-		if (searchText.trim() != "")
-				SQL += "WHERE " + searchField.trim() + " LIKE '%" + searchText.trim() + "%'";
+		if (searchText.trim() != ""){
+			SQL = filterSQL(SQL, startDate, endDate, isUse, searchField, searchText);
+		} else {
+			SQL = filterSQL(SQL, startDate, endDate, isUse, null, null);
+		}
 		
 		try {
 			pstmt = conn.prepareStatement(SQL);
@@ -84,11 +121,13 @@ public class ClientDAO {
 	}
 	
 
-	public ArrayList<ClientDTO> getList(String nowPage){
+	public ArrayList<ClientDTO> getList(String startDate, String endDate, String isUse, String nowPage){
 		String SQL = "SELECT c.clientCode, c.clientName, u.userName, c.dateOfUpdate, c.isUse, c.clientContent "
 				+ "FROM  dbo.CLIENTS c "
-				+ "LEFT JOIN dbo.USERS u ON c.userCode = u.userCode "
-				+ "ORDER BY c.clientCode DESC OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
+				+ "LEFT JOIN dbo.USERS u ON c.userCode = u.userCode ";
+				
+		SQL = filterSQL(SQL, startDate, endDate, isUse, null, null);
+		SQL += " ORDER BY c.clientCode DESC OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
 		ArrayList<ClientDTO> list = new ArrayList<ClientDTO>();
 		
 		try {
@@ -117,12 +156,15 @@ public class ClientDAO {
 		return list;
 	}
 	
-	public ArrayList<ClientDTO> getSearch(String nowPage, String searchField, String searchOrder, String searchText){
+	public ArrayList<ClientDTO> getSearch(String startDate, String endDate, String isUse, String nowPage, String searchField, String searchOrder, String searchText){
 		String SQL = "SELECT c.clientCode, c.clientName, u.userName, c.dateOfUpdate, c.isUse, c.clientContent "
 				+ "FROM  dbo.CLIENTS c "
 				+ "LEFT JOIN dbo.USERS u ON c.userCode = u.userCode ";
-		if (searchText.trim() != "")
-			SQL += " WHERE " + searchField.trim() + " LIKE '%" + searchText.trim() + "%'";
+		if (searchText.trim() != ""){
+			SQL = filterSQL(SQL, startDate, endDate, isUse, searchField, searchText);
+		} else {
+			SQL = filterSQL(SQL, startDate, endDate, isUse, null, null);
+		}
 		SQL += "ORDER BY " + searchField.trim() + " " + searchOrder +" OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
 		ArrayList<ClientDTO> list = new ArrayList<ClientDTO>();
 		

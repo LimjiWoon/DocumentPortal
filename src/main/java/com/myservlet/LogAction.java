@@ -7,8 +7,10 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.myclass.XSSEscape;
+import com.user.UserDTO;
 import com.log.*;
 
 /**
@@ -35,12 +37,23 @@ public class LogAction extends HttpServlet {
 		response.setContentType("text/html; charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
 		
+
+        //세션에 로그인 정보가 있는지 확인부터 한다.
+		HttpSession session = request.getSession();
+		UserDTO user = (UserDTO) session.getAttribute("user");
+		if (user == null || user.getUserCode() != 0) {
+	        request.setAttribute("errorMessage", "비정상적인 접근");
+		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+			return;
+		}
+        
 	    int startPage;
 	    int endPage;
 	    int totalPages;
 	    String nowPage = request.getParameter("page");
 	    String startDate = XSSEscape.checkDate(request.getParameter("startDate"));
 	    String endDate = XSSEscape.checkDate(request.getParameter("endDate"));
+	    String searchField = XSSEscape.changeLogField(request.getParameter("searchField"));
 	    String searchText = XSSEscape.changeUserName(request.getParameter("searchText"));
 	    String logWhere = XSSEscape.changeLogWhere(request.getParameter("logWhere"));
 	    String logHow = XSSEscape.changeLogHow(request.getParameter("logHow"));
@@ -60,9 +73,9 @@ public class LogAction extends HttpServlet {
 	    }
 	    
 	    
-	    //검색 했을 때의 로딩
-	    if (searchText != null && startDate != null && endDate != null){
-	    	totalPages = Math.max(logDAO.maxPage(searchText, startDate, endDate, logWhere, logHow), 1);
+	    
+	    if (searchText != null && searchField != null){
+	    	totalPages = Math.max(logDAO.maxPage(startDate, endDate, logWhere, logHow, searchText, searchField), 1);
 			
 		    endPage = Math.min(startPage + 4, totalPages);
 
@@ -70,24 +83,13 @@ public class LogAction extends HttpServlet {
 		      startPage = Math.max(endPage - 4, 1);
 		    }
 		    
-		    list = logDAO.getSearch(nowPage, searchText, startDate, endDate, logWhere, logHow);
-	    } //날짜만 필터링 할 경우
-	    else if (searchText == null && startDate != null && endDate != null){
-			totalPages = Math.max(logDAO.maxPage(startDate, endDate, logWhere, logHow), 1);
-			
-		    endPage = Math.min(startPage + 4, totalPages);
-
-		    if (endPage - startPage < 4) {
-		      startPage = Math.max(endPage - 4, 1);
-		    }
-		    
-		    list = logDAO.getSearch(nowPage, startDate, endDate, logWhere, logHow);
-	    } //전체 리스트 반환
-	    else{
+		    list = logDAO.getSearch(startDate, endDate, logWhere, logHow, nowPage, searchText, searchField);
+	    } else{
 	    	startDate = null;
 	    	endDate = null;
 	    	searchText = null;
-	    	totalPages = Math.max(logDAO.maxPage(logWhere, logHow), 1);
+	    	searchField = null;
+	    	totalPages = Math.max(logDAO.maxPage(startDate, endDate, logWhere, logHow), 1);
 	    	
 		    endPage = Math.min(startPage + 4, totalPages);
 
@@ -95,14 +97,16 @@ public class LogAction extends HttpServlet {
 		      startPage = Math.max(endPage - 4, 1);
 		    }
 		    
-		    list = logDAO.getList(nowPage, logWhere, logHow);
+		    list = logDAO.getList(startDate, endDate, logWhere, logHow, nowPage);
 	    }
-
+	    
+	    logDAO.logClose();
 
 	    //값 반환
         request.setAttribute("startDate", startDate);
         request.setAttribute("endDate", endDate);
         request.setAttribute("searchText", searchText);
+        request.setAttribute("searchField", XSSEscape.restoreLogField(searchField));
         request.setAttribute("startPage", startPage);
         request.setAttribute("nowPage", nowPage);
         request.setAttribute("endPage", endPage);

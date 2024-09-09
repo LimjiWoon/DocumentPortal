@@ -220,8 +220,6 @@ public class XSSEscape {
 			return "cat.categoryName";
 		case "3":
 			return "u.userName";
-		case "4":
-			return "cat.dateOfCreate";
 		default:
 			return null;
 		}
@@ -237,8 +235,6 @@ public class XSSEscape {
 			return "2";
 		case "u.userName":
 			return "3";
-		case "cat.dateOfCreate":
-			return "4";
 		default:
 			return null;
 		}
@@ -335,6 +331,32 @@ public class XSSEscape {
 	    
 	    return input;
 	}
+	
+	public static String changeLogField(String input) {
+        if (input == null) return null;
+
+		switch(input) {
+		case "1":
+			return "u.userCode";
+		case "2":
+			return "u.userName";
+		default:
+			return null;
+		}
+    }
+	
+	public static String restoreLogField(String input) {
+        if (input == null) return null;
+
+		switch(input) {
+		case "u.userCode":
+			return "1";
+		case "u.userName":
+			return "2";
+		default:
+			return null;
+		}
+    }
 	
 	public static String changeLogHow(String input) {
         if (input == null) return null;

@@ -104,6 +104,8 @@ public class DocumentUploadAction extends HttpServlet {
     				deleteFile(multipartRequest.getFile("fileName"));
     		        request.setAttribute("errorMessage", "비정상적인 접근");
     			    request.getRequestDispatcher("Error.jsp").forward(request, response);
+            		clientDAO.clientClose();
+            		documentDAO.documentClose();
     				return;
     			}
     			
@@ -132,6 +134,8 @@ public class DocumentUploadAction extends HttpServlet {
     				deleteFile(multipartRequest.getFile("fileName"));
     		        request.setAttribute("errorMessage", "업로드에 문제가 생겼습니다.");
     			    request.getRequestDispatcher("Error.jsp").forward(request, response);
+            		clientDAO.clientClose();
+            		documentDAO.documentClose();
     				return;
     			}
 
@@ -146,6 +150,8 @@ public class DocumentUploadAction extends HttpServlet {
         				deleteFile(multipartRequest.getFile("fileName"));
         		        request.setAttribute("errorMessage", "비정상적인 접근");
         			    request.getRequestDispatcher("Error.jsp").forward(request, response);
+                		clientDAO.clientClose();
+                		documentDAO.documentClose();
     					return;
     				}
     			}
@@ -165,16 +171,22 @@ public class DocumentUploadAction extends HttpServlet {
     				Files.move(Paths.get(folderPath), Paths.get(movePath));
                     request.setAttribute("messageDocument", "문서 덮어쓰기 성공!");
             	    request.getRequestDispatcher("Message.jsp").forward(request, response);
+            		clientDAO.clientClose();
+            		documentDAO.documentClose();
             	    return;
     			} else if (result == 1){
     				Files.move(Paths.get(folderPath), Paths.get(movePath));
                     request.setAttribute("messageDocument", "문서 등록 성공!");
             	    request.getRequestDispatcher("Message.jsp").forward(request, response);
+            		clientDAO.clientClose();
+            		documentDAO.documentClose();
             	    return;
     			} else {
     				deleteFile(multipartRequest.getFile("fileName"));
                     request.setAttribute("messageDocument", "문서 등록 실패!");
             	    request.getRequestDispatcher("Message.jsp").forward(request, response);
+            		clientDAO.clientClose();
+            		documentDAO.documentClose();
             	    return;
     			}
 

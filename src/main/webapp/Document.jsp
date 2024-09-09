@@ -116,7 +116,7 @@
                         </c:choose>
                         <c:choose>
                           <c:when test="${user.isDocument}">
-                            <form method="post" action="Document">
+                            <form method="post" action="Document" id="reset" name="reset" >
                               <input type="submit" class="dropdown-item" value="문서 조회" />
                             </form>
                             <form method="post" action="DocumentUpload">
@@ -171,14 +171,21 @@
       
       <div class="col">
         <form class="my-3" method="post" name="search" id="search" action="Document?page=1">
+          <input type="hidden" name="startDate" value="${startDate}">
+          <input type="hidden" name="endDate" value="${endDate}">
+          <input type="hidden" name="filterClient" value="${filterClient}">
+          <input type="hidden" name="filterCategory" value="${filterCategory}">
           <div class="input-group d-f mb-3">
             <select class="form-control f-110p" name="searchField" id="searchField" aria-label="searchField" required>
               <option value="" disabled ${empty searchField ? 'selected' : ''}>선택</option>
               <option value="1" ${'1'.equals(searchField) ? 'selected' : ''}>문서 제목</option>
-              <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>고객사</option>
-              <option value="3" ${'3'.equals(searchField) ? 'selected' : ''}>문서 위치</option>
+              <c:if test="${empty filterClient}">
+                <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>고객사</option>
+              </c:if>
+              <c:if test="${empty filterCategory}">
+                <option value="3" ${'3'.equals(searchField) ? 'selected' : ''}>문서 위치</option>
+              </c:if>
               <option value="4" ${'4'.equals(searchField) ? 'selected' : ''}>작성자</option>
-              <option value="5" ${'5'.equals(searchField) ? 'selected' : ''}>최근 수정일</option>
             </select>
             <select class="form-control f-90p" name="searchOrder" id="searchOrder" aria-label="searchOrder">
               <option value="1" ${'1'.equals(searchOrder) ? 'selected' : ''}>오름차순</option>
@@ -186,34 +193,12 @@
             </select>
             <input type="text" class="form-control f-1" name="searchText" id="searchText" value="${searchText}">
             <button type="submit" class="btn btn-secondary">검색</button>
+            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#SearchFilterModal">필터</button>
           </div>
         </form>
       </div>
     </div>
     
-
-            
-    <div class="input-group mb-3">
-      <span class="input-group-text">현재 문서 경로</span>
-      <c:choose>
-        <c:when test="${not empty category.categoryRoot}">
-          <input type="text" class="form-control w-50" aria-label="categoryRoot" value="${fn:replace(category.categoryRoot, 'root/', '')}" readonly>
-        </c:when>
-        <c:when test="${not empty searchField}">
-          <input type="text" class="form-control w-50" aria-label="categoryRoot" value="검색 중" readonly>
-        </c:when>
-        <c:otherwise>
-          <input type="text" class="form-control w-50" aria-label="categoryRoot" value="전체 문서 탐색 중" readonly>
-        </c:otherwise>
-      </c:choose>
-      <select class="form-select" title="ChangeSelect" id="ChangeSelect" name="ChangeSelect" required>
-        <option value="" disabled selected>문서 경로 이동</option>
-        <c:forEach var="list" items="${selectList}">
-          <option value="${list.categoryCode}">${list.categoryName}</option>
-        </c:forEach>
-      </select>
-    </div>
-
 	
     <form id="documentForm" action="#" method="POST">
       <div class="row">
@@ -235,7 +220,7 @@
     	    <tbody>
             <c:choose>
               <c:when test="${empty list}">
-                <tr><td colspan="8" rowspan="4"><h1>문서 없음</h1></td></tr>
+                <tr><td colspan="8" rowspan="4"><h1 class="c-b">문서 없음</h1></td></tr>
               </c:when>
               <c:otherwise>
                 <c:forEach var="document" items="${list}">
@@ -280,66 +265,6 @@
         </button>
       </div>
       <c:choose>
-      
-        <c:when test="${not empty category.categoryRoot}">
-  
-          <nav class="col t-c w-80" aria-label="Page navigation">
-            <ul class="pagination justify-content-center">
-              <c:if test="${totalPages > 5}">
-                <li class="page-item">
-                  <form method="post" action="Document?page=1"  class="d-i"">
-                    <input type="hidden" name="categoryCode" value="${category.categoryCode}">
-                    <button type="submit" class="page-link">«</button>
-                  </form>
-                </li>
-                <li class="page-item w-55p" >
-                  <form method="post" action="Document?page=${(endPage < 6) ? 1 : startPage - 1}" class="d-i">
-                    <input type="hidden" name="categoryCode" value="${category.categoryCode}">
-                    <button type="submit" class="page-link">이전</button>
-                  </form>
-                </li>
-              </c:if>
-    
-              <c:forEach var="i" begin="${startPage}" end="${endPage}">
-                <c:choose>
-                  <c:when test="${i == nowPage or (empty nowPage and i == 1)}">
-                    <li class="page-item active">
-                      <form method="post" action="Document?page=${i}" class="d-i">
-                        <input type="hidden" name="categoryCode" value="${category.categoryCode}">
-                        <button type="submit" class="page-link active">${i}</button>
-                      </form>
-                    </li>
-                  </c:when>
-                  <c:otherwise>
-                    <li class="page-item">
-                      <form method="post" action="Document?page=${i}" class="d-i">
-                        <input type="hidden" name="categoryCode" value="${category.categoryCode}">
-                        <button type="submit" class="page-link">${i}</button>
-                      </form>
-                    </li>
-                  </c:otherwise>
-                </c:choose>
-              </c:forEach>
-                
-              <c:if test="${totalPages > 5}">
-                <li class="page-item w-55p">
-                  <form method="post" action="Document?page=${(endPage == totalPages)?totalPages : endPage + 1}" class="d-i">
-                    <input type="hidden" name="categoryCode" value="${category.categoryCode}">
-                    <button type="submit" class="page-link">다음</button>
-                  </form>
-                </li>
-                <li class="page-item">
-                  <form method="post" action="Document?page=${totalPages}" class="d-i">
-                    <input type="hidden" name="categoryCode" value="${category.categoryCode}">
-                    <button type="submit" class="page-link">»</button>
-                  </form>
-                </li>
-              </c:if>
-            </ul>
-          </nav>
-        </c:when>
-      
-      
         <c:when test="${not empty searchField and searchText != null and not empty searchOrder}">
           <c:choose>
             <c:when test="${empty list}"></c:when>
@@ -352,6 +277,10 @@
                         <input type="hidden" name="searchField" value="${searchField}">
                         <input type="hidden" name="searchText" value="${searchText}">
                         <input type="hidden" name="searchOrder" value="${searchOrder}">
+                        <input type="hidden" name="endDate" value="${endDate}">
+                        <input type="hidden" name="isUse" value="${isUse}">
+                        <input type="hidden" name="filterCategory" value="${filterCategory}">
+                        <input type="hidden" name="filterClient" value="${filterClient}">
                         <button type="submit" class="page-link">«</button>
                       </form>
                     </li>
@@ -360,6 +289,10 @@
                         <input type="hidden" name="searchField" value="${searchField}">
                         <input type="hidden" name="searchText" value="${searchText}">
                         <input type="hidden" name="searchOrder" value="${searchOrder}">
+                        <input type="hidden" name="endDate" value="${endDate}">
+                        <input type="hidden" name="isUse" value="${isUse}">
+                        <input type="hidden" name="filterCategory" value="${filterCategory}">
+                        <input type="hidden" name="filterClient" value="${filterClient}">
                         <button type="submit" class="page-link">이전</button>
                       </form>
                     </li>
@@ -373,6 +306,10 @@
                             <input type="hidden" name="searchField" value="${searchField}">
                             <input type="hidden" name="searchText" value="${searchText}">
                             <input type="hidden" name="searchOrder" value="${searchOrder}">
+                            <input type="hidden" name="endDate" value="${endDate}">
+                            <input type="hidden" name="isUse" value="${isUse}">
+                            <input type="hidden" name="filterCategory" value="${filterCategory}">
+                            <input type="hidden" name="filterClient" value="${filterClient}">
                             <button type="submit" class="page-link active">${i}</button>
                           </form>
                         </li>
@@ -383,6 +320,10 @@
                             <input type="hidden" name="searchField" value="${searchField}">
                             <input type="hidden" name="searchText" value="${searchText}">
                             <input type="hidden" name="searchOrder" value="${searchOrder}">
+                            <input type="hidden" name="endDate" value="${endDate}">
+                            <input type="hidden" name="isUse" value="${isUse}">
+                            <input type="hidden" name="filterCategory" value="${filterCategory}">
+                            <input type="hidden" name="filterClient" value="${filterClient}">
                             <button type="submit" class="page-link">${i}</button>
                           </form>
                         </li>
@@ -396,6 +337,10 @@
                         <input type="hidden" name="searchField" value="${searchField}">
                         <input type="hidden" name="searchText" value="${searchText}">
                         <input type="hidden" name="searchOrder" value="${searchOrder}">
+                        <input type="hidden" name="endDate" value="${endDate}">
+                        <input type="hidden" name="isUse" value="${isUse}">
+                        <input type="hidden" name="filterCategory" value="${filterCategory}">
+                        <input type="hidden" name="filterClient" value="${filterClient}">
                         <button type="submit" class="page-link">다음</button>
                       </form>
                     </li>
@@ -404,6 +349,10 @@
                         <input type="hidden" name="searchField" value="${searchField}">
                         <input type="hidden" name="searchText" value="${searchText}">
                         <input type="hidden" name="searchOrder" value="${searchOrder}">
+                        <input type="hidden" name="endDate" value="${endDate}">
+                        <input type="hidden" name="isUse" value="${isUse}">
+                        <input type="hidden" name="filterCategory" value="${filterCategory}">
+                        <input type="hidden" name="filterClient" value="${filterClient}">
                         <button type="submit" class="page-link">»</button>
                       </form>
                     </li>
@@ -422,11 +371,19 @@
                 <li class="page-item">
                   <form method="post" action="Document?page=1"  class="d-i"">
                     <button type="submit" class="page-link">«</button>
+                    <input type="hidden" name="endDate" value="${endDate}">
+                    <input type="hidden" name="isUse" value="${isUse}">
+                    <input type="hidden" name="filterCategory" value="${filterCategory}">
+                    <input type="hidden" name="filterClient" value="${filterClient}">
                   </form>
                 </li>
                 <li class="page-item w-55p" >
                   <form method="post" action="Document?page=${(endPage < 6) ? 1 : startPage - 1}" class="d-i">
                     <button type="submit" class="page-link">이전</button>
+                    <input type="hidden" name="endDate" value="${endDate}">
+                    <input type="hidden" name="isUse" value="${isUse}">
+                    <input type="hidden" name="filterCategory" value="${filterCategory}">
+                    <input type="hidden" name="filterClient" value="${filterClient}">
                   </form>
                 </li>
               </c:if>
@@ -437,6 +394,10 @@
                     <li class="page-item active">
                       <form method="post" action="Document?page=${i}" class="d-i">
                         <button type="submit" class="page-link active">${i}</button>
+                        <input type="hidden" name="endDate" value="${endDate}">
+                        <input type="hidden" name="isUse" value="${isUse}">
+                        <input type="hidden" name="filterCategory" value="${filterCategory}">
+                        <input type="hidden" name="filterClient" value="${filterClient}">
                       </form>
                     </li>
                   </c:when>
@@ -444,6 +405,10 @@
                     <li class="page-item">
                       <form method="post" action="Document?page=${i}" class="d-i">
                         <button type="submit" class="page-link">${i}</button>
+                        <input type="hidden" name="endDate" value="${endDate}">
+                        <input type="hidden" name="isUse" value="${isUse}">
+                        <input type="hidden" name="filterCategory" value="${filterCategory}">
+                        <input type="hidden" name="filterClient" value="${filterClient}">
                       </form>
                     </li>
                   </c:otherwise>
@@ -454,11 +419,19 @@
                 <li class="page-item w-55p">
                   <form method="post" action="Document?page=${(endPage == totalPages)?totalPages : endPage + 1}" class="d-i">
                     <button type="submit" class="page-link">다음</button>
+                    <input type="hidden" name="endDate" value="${endDate}">
+                    <input type="hidden" name="isUse" value="${isUse}">
+                    <input type="hidden" name="filterCategory" value="${filterCategory}">
+                    <input type="hidden" name="filterClient" value="${filterClient}">
                   </form>
                 </li>
                 <li class="page-item">
                   <form method="post" action="Document?page=${totalPages}" class="d-i">
                     <button type="submit" class="page-link">»</button>
+                    <input type="hidden" name="endDate" value="${endDate}">
+                    <input type="hidden" name="isUse" value="${isUse}">
+                    <input type="hidden" name="filterCategory" value="${filterCategory}">
+                    <input type="hidden" name="filterClient" value="${filterClient}">
                   </form>
                 </li>
               </c:if>
@@ -474,13 +447,103 @@
     </div>
   </div>
   
-  <div id="modalContainer"></div>
   
+  
+  <div class="modal fade" id="SearchFilterModal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="SearchFilterModallabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="SearchFilterModallabel">검색 필터</h4>
+        </div>
+        <form id="DocumentFilter" method="post" name="DocumentFilter" action="Document">
+          <div class="modal-body">
+            <div class="container">
+              <table class="table table-dark-line t-c custom-table">
+                <tbody>
+                  <tr>
+                    <td class="bg-gray">
+                      <select class="form-control select-gray-custom" name="searchField" id="searchField" aria-label="searchField">
+                        <option value="" disabled ${empty searchField ? 'selected' : ''}>선택</option>
+                        <option value="1" ${'1'.equals(searchField) ? 'selected' : ''}>문서 제목</option>
+                        <c:if test="${empty filterClient}">
+                          <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>고객사</option>
+                        </c:if>
+                        <c:if test="${empty filterCategory}">
+                          <option value="3" ${'3'.equals(searchField) ? 'selected' : ''}>문서 위치</option>
+                        </c:if>
+                        <option value="4" ${'4'.equals(searchField) ? 'selected' : ''}>작성자</option>
+                      </select>
+                    </td>
+                    <td colspan="3">
+                      <input type="text" class="form-control f-1" name="searchText" id="searchText" value="${searchText}">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="bg-gray"><b>정렬</b></td>
+                    <td colspan="3">
+                      <select class="form-control" name="searchOrder" id="searchOrder" aria-label="searchOrder">
+                        <option value="1" ${'1'.equals(searchOrder) ? 'selected' : ''}>오름차순</option>
+                        <option value="2" ${'2'.equals(searchOrder) ? 'selected' : ''}>내림차순</option>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="bg-gray col-3"><b>수정일</b></td>
+                    <td class="col-3">
+                      <input type="date" class="form-control" id="startDate" name="startDate"
+                        value="${startDate}" min="2009-01-01" max="2039-12-31" />
+                    </td>
+                    <td class="bg-gray col-1"><b>-</b></td>
+                    <td class="col-3">
+                      <input type="date" class="form-control" id="endDate" name="endDate"
+                        value="${endDate}" min="2009-01-01" max="2039-12-31" />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="bg-gray"><b>문서 위치</b></td>
+                    <td colspan="3">
+                      <select class="form-select" title="filterCategory" id="filterCategory" name="filterCategory" required>
+                        <option ${empty filterCategory ? 'selected' : ''} >문서 위치 선택</option>
+                        <c:forEach var="list" items="${categoryList}">
+                          <option value="${list.categoryCode}" ${(list.categoryCode == filterCategory) ? 'selected' : ''} >${list.categoryName}</option>
+                        </c:forEach>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="bg-gray"><b>고객사</b></td>
+                    <td colspan="3">
+                      <select class="form-select" title="filterClient" id="filterClient" name="filterClient" required>
+                        <option ${empty filterClient ? 'selected' : ''} >고객사 선택</option>
+                        <c:forEach var="list" items="${clientList}">
+                          <option value="${list.clientCode}" ${(list.clientCode == filterClient) ? 'selected' : ''} >${list.clientName}</option>
+                        </c:forEach>
+                      </select>
+                    </td>
+                  </tr>
+                  
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-secondary">적용</button>
+            <button type="button" class="btn btn-secondary" onclick=" document.getElementById('reset').submit();">검색/필터 초기화</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  
+  
+  <div id="modalContainer"></div>
 
 
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/document.js"></script>
-  <script src="js/document.modal.js"></script>
+  <script src="js/log.js"></script>
 </body>
 </html>

@@ -51,6 +51,7 @@ public class CategoryUploadAction extends HttpServlet {
 		if (categoryName == null) {
             request.setAttribute("errorMessage", "비정상적인 접근");
             request.getRequestDispatcher("Error.jsp").forward(request, response);
+            categoryDAO.categoryClose();
 			return;
 		}
 		
@@ -61,6 +62,7 @@ public class CategoryUploadAction extends HttpServlet {
 			if (folder.exists()) {
                 request.setAttribute("errorMessage", "해당 목록이 이미 존재합니다.");
                 request.getRequestDispatcher("Error.jsp").forward(request, response);
+	            categoryDAO.categoryClose();
                 return;
 			}
 			

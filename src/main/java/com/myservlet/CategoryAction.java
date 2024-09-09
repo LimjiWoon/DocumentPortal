@@ -54,6 +54,8 @@ public class CategoryAction extends HttpServlet {
 	    String searchField = XSSEscape.changeCategoryField(request.getParameter("searchField"));
 	    String searchOrder = XSSEscape.changeOrder(request.getParameter("searchOrder"));
 	    String searchText = XSSEscape.changeText(request.getParameter("searchText"));
+	    String startDate = XSSEscape.checkDate(request.getParameter("startDate"));
+	    String endDate = XSSEscape.checkDate(request.getParameter("endDate"));
 	    ArrayList<CategoryDTO> list = new ArrayList<CategoryDTO>();
 	    
 	    
@@ -73,7 +75,7 @@ public class CategoryAction extends HttpServlet {
 	    
 	    //검색 기록이 있는가 없는 가에 따라 반환하는 사용자 list가 다름
 	    if (searchField != null && searchText != null && searchOrder != null){
-			totalPages = Math.max(categoryDAO.maxPage(searchField, searchText), 1);
+			totalPages = Math.max(categoryDAO.maxPage(startDate, endDate, searchField, searchText), 1);
 			
 		    endPage = Math.min(startPage + 4, totalPages);
 
@@ -81,13 +83,13 @@ public class CategoryAction extends HttpServlet {
 		      startPage = Math.max(endPage - 4, 1);
 		    }
 		    
-		    list = categoryDAO.getSearch(nowPage, searchField, searchOrder, searchText);
+		    list = categoryDAO.getSearch(startDate, endDate, nowPage, searchField, searchOrder, searchText);
 		    
 	    } else {
 	    	searchField = null;
 	    	searchText = null;
 	    	searchOrder = null;
-	    	totalPages = Math.max(categoryDAO.maxPage(), 1);
+	    	totalPages = Math.max(categoryDAO.maxPage(startDate, endDate), 1);
 	    	
 		    endPage = Math.min(startPage + 4, totalPages);
 
@@ -95,8 +97,9 @@ public class CategoryAction extends HttpServlet {
 		      startPage = Math.max(endPage - 4, 1);
 		    }
 		    
-		    list = categoryDAO.getList(nowPage);
+		    list = categoryDAO.getList(startDate, endDate, nowPage);
 	    }
+	    
 	    
 	    categoryDAO.categoryClose();
 	    
@@ -104,6 +107,8 @@ public class CategoryAction extends HttpServlet {
         request.setAttribute("searchField", XSSEscape.restoreCategoryField(searchField));
         request.setAttribute("searchOrder", XSSEscape.restoreOrder(searchOrder));
         request.setAttribute("searchText", searchText);
+        request.setAttribute("startDate", startDate);
+        request.setAttribute("endDate", endDate);
         request.setAttribute("startPage", startPage);
         request.setAttribute("nowPage", nowPage);
         request.setAttribute("endPage", endPage);

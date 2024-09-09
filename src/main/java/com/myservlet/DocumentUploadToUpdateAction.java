@@ -71,7 +71,7 @@ public class DocumentUploadToUpdateAction extends HttpServlet {
 		
 		// 파일이 DB에 있는지 확인 -> 모든 파일은 등록과 동시에 DB에 기록된다.
 		result = documentDAO.documentUpdateCheck(categoryCode, clientCode, fileNameToCheck);
-
+        documentDAO.documentClose();
 		//System.out.println("pass: " + pass);
 		//System.out.println("fileName: " + fileName);
 		//System.out.println("categoryCode: " + categoryCode);
@@ -108,6 +108,7 @@ public class DocumentUploadToUpdateAction extends HttpServlet {
 
 
 		}
+		
 	}
 	
     // 파일명 추출 헬퍼 메서드
