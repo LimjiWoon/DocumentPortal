@@ -35,27 +35,18 @@ public class UserAction extends HttpServlet {
         
     	UserDAO userDAO = new UserDAO();
     	
-	    int isRetire = 0;
 	    int startPage;
 	    int endPage;
 	    int totalPages;
 	    String nowPage = request.getParameter("page");
+	    String dateOfPassword = XSSEscape.changeChangeDate(request.getParameter("dateOfPassword"));
 	    String searchField = XSSEscape.changeUserField(request.getParameter("searchField"));
-	    String ChangeDate = XSSEscape.changeChangeDate(request.getParameter("ChangeDate"));
 	    String searchOrder = XSSEscape.changeOrder(request.getParameter("searchOrder"));
 	    String searchText = XSSEscape.changeText(request.getParameter("searchText"));
+	    String isRetire = XSSEscape.changePermisson(request.getParameter("isRetire"));
+	    String isLock = XSSEscape.changePermisson(request.getParameter("isLock"));
 	    ArrayList<UserDTO> list = new ArrayList<UserDTO>();
 
-	    //isRetire XSS 검증 및 값 처리
-	    if("1".equals(request.getParameter("isRetire"))) {
-	    	isRetire = 1;
-	    	if(request.getParameter("userCode") != null) 
-	    		isRetire = 0;
-	    } else {
-	    	isRetire = 0;
-	    	if(request.getParameter("userCode") != null && request.getAttribute("message") == null)
-	    		isRetire = 1;
-	    }
 	    
 		//nowPage XSS 검증 및 값 처리
 		//startPage, endPage, totalPages 값 계산
@@ -71,63 +62,32 @@ public class UserAction extends HttpServlet {
 	      }
 	    }
 	    
-	    //비밀번호 변경일 필터에 따른 출력
-	    //아래는 필터 X 버전의 출력
-	    if ("0".equals(ChangeDate)) {
-		    //검색 기록이 있는가 없는 가에 따라 반환하는 사용자 list가 다름
-		    if (searchField != null && searchText != null && searchOrder != null){
-				totalPages = Math.max(userDAO.maxPage(isRetire, searchField, searchText), 1);
-				
-			    endPage = Math.min(startPage + 4, totalPages);
 
-			    if (endPage - startPage < 4) {
-			      startPage = Math.max(endPage - 4, 1);
-			    }
-			    
-			    list = userDAO.getSearch(nowPage, isRetire, searchField, searchOrder, searchText);
-			    
-		    } else {
-		    	searchField = null;
-		    	searchText = null;
-		    	searchOrder = null;
-		    	totalPages = Math.max(userDAO.maxPage(isRetire), 1);
-		    	
-			    endPage = Math.min(startPage + 4, totalPages);
+	    //검색 기록이 있는가 없는 가에 따라 반환하는 사용자 list가 다름
+	    if (searchField != null && searchText != null && searchOrder != null){
+			totalPages = Math.max(userDAO.maxPage(dateOfPassword, isLock, isRetire, searchField, searchText), 1);
+			
+		    endPage = Math.min(startPage + 4, totalPages);
 
-			    if (endPage - startPage < 4) {
-			      startPage = Math.max(endPage - 4, 1);
-			    }
-			    
-			    list = userDAO.getList(nowPage, isRetire);
+		    if (endPage - startPage < 4) {
+		      startPage = Math.max(endPage - 4, 1);
 		    }
-	    } //비밀번호 변경일 필터에 따른 추력 
-	    else {
-		    //검색 기록이 있는가 없는 가에 따라 반환하는 사용자 list가 다름
-		    if (searchField != null && searchText != null && searchOrder != null){
-				totalPages = Math.max(userDAO.maxPage(isRetire, ChangeDate, searchField, searchText), 1);
-				
-			    endPage = Math.min(startPage + 4, totalPages);
+		    
+		    list = userDAO.getSearch(dateOfPassword, isLock, isRetire,nowPage, searchField, searchOrder, searchText);
+		    
+	    } else {
+	    	searchField = null;
+	    	searchText = null;
+	    	searchOrder = null;
+	    	totalPages = Math.max(userDAO.maxPage(dateOfPassword, isLock, isRetire), 1);
+	    	
+		    endPage = Math.min(startPage + 4, totalPages);
 
-			    if (endPage - startPage < 4) {
-			      startPage = Math.max(endPage - 4, 1);
-			    }
-			    
-			    list = userDAO.getSearch(nowPage, isRetire, ChangeDate, searchField, searchOrder, searchText);
-			    
-		    } else {
-		    	searchField = null;
-		    	searchText = null;
-		    	searchOrder = null;
-		    	totalPages = Math.max(userDAO.maxPage(isRetire, ChangeDate), 1);
-		    	
-			    endPage = Math.min(startPage + 4, totalPages);
-
-			    if (endPage - startPage < 4) {
-			      startPage = Math.max(endPage - 4, 1);
-			    }
-			    
-			    list = userDAO.getList(nowPage, isRetire, ChangeDate);
+		    if (endPage - startPage < 4) {
+		      startPage = Math.max(endPage - 4, 1);
 		    }
+		    
+		    list = userDAO.getList(dateOfPassword, isLock, isRetire, nowPage);
 	    }
 
 
@@ -135,7 +95,8 @@ public class UserAction extends HttpServlet {
         
 	    //값 반환
         request.setAttribute("isRetire", isRetire);
-        request.setAttribute("ChangeDate", ChangeDate);
+        request.setAttribute("isLock", isLock);
+        request.setAttribute("dateOfPassword", dateOfPassword);
         request.setAttribute("searchField", XSSEscape.restoreUserField(searchField));
         request.setAttribute("searchOrder", XSSEscape.restoreOrder(searchOrder));
         request.setAttribute("searchText", searchText);

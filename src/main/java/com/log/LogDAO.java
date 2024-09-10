@@ -91,7 +91,6 @@ public class LogDAO {
 		} else {
 			SQL = filterSQL(SQL, startDate, endDate, logWhere, logHow, null, null);
 		}
-		
 		try {
 			pstmt = conn.prepareStatement(SQL);
 			rs = pstmt.executeQuery();
@@ -163,6 +162,47 @@ public class LogDAO {
 			} else {
 				pstmt.setInt(1, (Integer.parseInt(nowPage) -1) * 10);
 			}
+			
+			rs = pstmt.executeQuery();
+			
+			while (rs.next()) {
+				log = new LogDTO();
+				log.setLogWho(rs.getInt(1));
+				log.setLogWhoName(rs.getString(2));
+				log.setLogWhat(rs.getString(3));
+				log.setLogWhere(rs.getString(4));
+				log.setLogWhen(rs.getString(5));
+				log.setLogHow(rs.getString(6));
+				log.setLogWhy(rs.getString(7));
+				list.add(log);
+			}			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return list;
+	}
+
+	public ArrayList<LogDTO> getExcel(String startDate, String endDate, String logWhere, String logHow, String searchField, String searchText){
+		String SQL = "SELECT l.logWho, u.userName, l.logWhat, l.logWhere, l.logWhen, l.logHow, l.logwhy "
+				+ "FROM dbo.LOGS l "
+				+ "LEFT JOIN dbo.USERS u ON u.userCode = l.logWho ";
+		
+		if (searchField != null && searchText != null) {
+			if (searchText.trim() != ""){
+				SQL = filterSQL(SQL, startDate, endDate, logWhere, logHow, searchField, searchText);
+			} else {
+				SQL = filterSQL(SQL, startDate, endDate, logWhere, logHow, null, null);
+			}
+		} else {
+			SQL = filterSQL(SQL, startDate, endDate, logWhere, logHow, null, null);
+		}
+		
+		SQL += " ORDER BY l.logWhen ASC;";
+		ArrayList<LogDTO> list = new ArrayList<LogDTO>();
+		
+		try {
+			pstmt = conn.prepareStatement(SQL);
 			
 			rs = pstmt.executeQuery();
 			

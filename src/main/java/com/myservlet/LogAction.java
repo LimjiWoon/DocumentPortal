@@ -75,7 +75,7 @@ public class LogAction extends HttpServlet {
 	    
 	    
 	    if (searchText != null && searchField != null){
-	    	totalPages = Math.max(logDAO.maxPage(startDate, endDate, logWhere, logHow, searchText, searchField), 1);
+	    	totalPages = Math.max(logDAO.maxPage(startDate, endDate, logWhere, logHow, searchField, searchText), 1);
 			
 		    endPage = Math.min(startPage + 4, totalPages);
 
@@ -83,7 +83,7 @@ public class LogAction extends HttpServlet {
 		      startPage = Math.max(endPage - 4, 1);
 		    }
 		    
-		    list = logDAO.getSearch(startDate, endDate, logWhere, logHow, nowPage, searchText, searchField);
+		    list = logDAO.getSearch(startDate, endDate, logWhere, logHow, nowPage, searchField, searchText);
 	    } else{
 	    	startDate = null;
 	    	endDate = null;

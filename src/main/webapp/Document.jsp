@@ -179,13 +179,13 @@
             <select class="form-control f-110p" name="searchField" id="searchField" aria-label="searchField" required>
               <option value="" disabled ${empty searchField ? 'selected' : ''}>선택</option>
               <option value="1" ${'1'.equals(searchField) ? 'selected' : ''}>문서 제목</option>
+              <option value="4" ${'4'.equals(searchField) ? 'selected' : ''}>작성자</option>
               <c:if test="${empty filterClient}">
                 <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>고객사</option>
               </c:if>
               <c:if test="${empty filterCategory}">
                 <option value="3" ${'3'.equals(searchField) ? 'selected' : ''}>문서 위치</option>
               </c:if>
-              <option value="4" ${'4'.equals(searchField) ? 'selected' : ''}>작성자</option>
             </select>
             <select class="form-control f-90p" name="searchOrder" id="searchOrder" aria-label="searchOrder">
               <option value="1" ${'1'.equals(searchOrder) ? 'selected' : ''}>오름차순</option>
@@ -209,9 +209,9 @@
                 <input type='checkbox' onclick='selectAll(this)'/>
               </th>
               <th scope="col" class="t-c w-25">문서 제목</th>
+              <th scope="col" class="t-c w-12">작성자</th>
               <th scope="col" class="t-c w-12">고객사</th>
               <th scope="col" class="t-c w-12">문서 위치</th>
-              <th scope="col" class="t-c w-12">작성자</th>
               <th scope="col" class="t-c w-auto">최근 수정일</th>
               <th scope="col" class="t-c w-7"></th>
               <th scope="col" class="t-c w-7"></th>
@@ -229,9 +229,9 @@
                       <input type="checkbox" name="checkedDocumentCode" value="${document.categoryCode}/${document.clientName}/${document.fileName}" />
                     </td>
                     <td>${document.fileTitle}</td>
+                    <td>${document.userName}</td>
                     <td>${document.clientName}</td>
                     <td>${document.categoryName}</td>
-                    <td>${document.userName}</td>
                     <td>${document.dateOfUpdate}</td>
                     <td>
                       <button type="button" class="btn btn-outline-dark btn-xs" 
@@ -265,173 +265,93 @@
         </button>
       </div>
       <c:choose>
-        <c:when test="${not empty searchField and searchText != null and not empty searchOrder}">
-          <c:choose>
-            <c:when test="${empty list}"></c:when>
-            <c:otherwise>
-              <nav class="col t-c w-80" aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
-                  <c:if test="${totalPages > 5}">
-                    <li class="page-item">
-                      <form method="post" tabindex="-1" aria-disabled="true" action="Document?page=1" class="d-i">
-                        <input type="hidden" name="searchField" value="${searchField}">
-                        <input type="hidden" name="searchText" value="${searchText}">
-                        <input type="hidden" name="searchOrder" value="${searchOrder}">
-                        <input type="hidden" name="endDate" value="${endDate}">
-                        <input type="hidden" name="isUse" value="${isUse}">
-                        <input type="hidden" name="filterCategory" value="${filterCategory}">
-                        <input type="hidden" name="filterClient" value="${filterClient}">
-                        <button type="submit" class="page-link">«</button>
-                      </form>
-                    </li>
-                    <li class="page-item w-55p" >
-                      <form method="post" tabindex="-1" aria-disabled="true" action="Document?page=${(endPage < 6) ? 1 : startPage - 1}" class="d-i">
-                        <input type="hidden" name="searchField" value="${searchField}">
-                        <input type="hidden" name="searchText" value="${searchText}">
-                        <input type="hidden" name="searchOrder" value="${searchOrder}">
-                        <input type="hidden" name="endDate" value="${endDate}">
-                        <input type="hidden" name="isUse" value="${isUse}">
-                        <input type="hidden" name="filterCategory" value="${filterCategory}">
-                        <input type="hidden" name="filterClient" value="${filterClient}">
-                        <button type="submit" class="page-link">이전</button>
-                      </form>
-                    </li>
-                  </c:if>
-                  
-                  <c:forEach var="i" begin="${startPage}" end="${endPage}">
-                    <c:choose>
-                      <c:when test="${i == nowPage or (empty nowPage and i == 1)}">
-                        <li class="page-item active">
-                          <form method="post" tabindex="-1" aria-disabled="true" action="Document?page=${i}" class="d-i">
-                            <input type="hidden" name="searchField" value="${searchField}">
-                            <input type="hidden" name="searchText" value="${searchText}">
-                            <input type="hidden" name="searchOrder" value="${searchOrder}">
-                            <input type="hidden" name="endDate" value="${endDate}">
-                            <input type="hidden" name="isUse" value="${isUse}">
-                            <input type="hidden" name="filterCategory" value="${filterCategory}">
-                            <input type="hidden" name="filterClient" value="${filterClient}">
-                            <button type="submit" class="page-link active">${i}</button>
-                          </form>
-                        </li>
-                      </c:when>
-                      <c:otherwise>
-                        <li class="page-item">
-                          <form method="post" tabindex="-1" aria-disabled="true" action="Document?page=${i}" class="d-i">
-                            <input type="hidden" name="searchField" value="${searchField}">
-                            <input type="hidden" name="searchText" value="${searchText}">
-                            <input type="hidden" name="searchOrder" value="${searchOrder}">
-                            <input type="hidden" name="endDate" value="${endDate}">
-                            <input type="hidden" name="isUse" value="${isUse}">
-                            <input type="hidden" name="filterCategory" value="${filterCategory}">
-                            <input type="hidden" name="filterClient" value="${filterClient}">
-                            <button type="submit" class="page-link">${i}</button>
-                          </form>
-                        </li>
-                      </c:otherwise>
-                    </c:choose>
-                  </c:forEach>
-              
-                  <c:if test="${totalPages > 5}">
-                    <li class="page-item w-55p" >
-                      <form method="post" tabindex="-1" aria-disabled="true" action="Document?page=${(endPage == totalPages)?totalPages : endPage + 1}" class="d-i">
-                        <input type="hidden" name="searchField" value="${searchField}">
-                        <input type="hidden" name="searchText" value="${searchText}">
-                        <input type="hidden" name="searchOrder" value="${searchOrder}">
-                        <input type="hidden" name="endDate" value="${endDate}">
-                        <input type="hidden" name="isUse" value="${isUse}">
-                        <input type="hidden" name="filterCategory" value="${filterCategory}">
-                        <input type="hidden" name="filterClient" value="${filterClient}">
-                        <button type="submit" class="page-link">다음</button>
-                      </form>
-                    </li>
-                    <li class="page-item">
-                      <form method="post" tabindex="-1" aria-disabled="true" action="Document?page=${totalPages}" class="d-i">
-                        <input type="hidden" name="searchField" value="${searchField}">
-                        <input type="hidden" name="searchText" value="${searchText}">
-                        <input type="hidden" name="searchOrder" value="${searchOrder}">
-                        <input type="hidden" name="endDate" value="${endDate}">
-                        <input type="hidden" name="isUse" value="${isUse}">
-                        <input type="hidden" name="filterCategory" value="${filterCategory}">
-                        <input type="hidden" name="filterClient" value="${filterClient}">
-                        <button type="submit" class="page-link">»</button>
-                      </form>
-                    </li>
-                  </c:if>
-                </ul>
-              </nav>
-            </c:otherwise>
-          </c:choose>
-                      
-        </c:when>
+        <c:when test="${empty list}"></c:when>
         <c:otherwise>
-  
           <nav class="col t-c w-80" aria-label="Page navigation">
             <ul class="pagination justify-content-center">
               <c:if test="${totalPages > 5}">
                 <li class="page-item">
-                  <form method="post" action="Document?page=1"  class="d-i"">
-                    <button type="submit" class="page-link">«</button>
+                  <form method="post" tabindex="-1" aria-disabled="true" action="Document?page=1" class="d-i">
+                    <input type="hidden" name="searchField" value="${searchField}">
+                    <input type="hidden" name="searchText" value="${searchText}">
+                    <input type="hidden" name="searchOrder" value="${searchOrder}">
                     <input type="hidden" name="endDate" value="${endDate}">
                     <input type="hidden" name="isUse" value="${isUse}">
                     <input type="hidden" name="filterCategory" value="${filterCategory}">
                     <input type="hidden" name="filterClient" value="${filterClient}">
+                    <button type="submit" class="page-link">«</button>
                   </form>
                 </li>
                 <li class="page-item w-55p" >
-                  <form method="post" action="Document?page=${(endPage < 6) ? 1 : startPage - 1}" class="d-i">
-                    <button type="submit" class="page-link">이전</button>
+                  <form method="post" tabindex="-1" aria-disabled="true" action="Document?page=${(endPage < 6) ? 1 : startPage - 1}" class="d-i">
+                    <input type="hidden" name="searchField" value="${searchField}">
+                    <input type="hidden" name="searchText" value="${searchText}">
+                    <input type="hidden" name="searchOrder" value="${searchOrder}">
                     <input type="hidden" name="endDate" value="${endDate}">
                     <input type="hidden" name="isUse" value="${isUse}">
                     <input type="hidden" name="filterCategory" value="${filterCategory}">
                     <input type="hidden" name="filterClient" value="${filterClient}">
+                    <button type="submit" class="page-link">이전</button>
                   </form>
                 </li>
               </c:if>
-    
+              
               <c:forEach var="i" begin="${startPage}" end="${endPage}">
                 <c:choose>
                   <c:when test="${i == nowPage or (empty nowPage and i == 1)}">
                     <li class="page-item active">
-                      <form method="post" action="Document?page=${i}" class="d-i">
-                        <button type="submit" class="page-link active">${i}</button>
+                      <form method="post" tabindex="-1" aria-disabled="true" action="Document?page=${i}" class="d-i">
+                        <input type="hidden" name="searchField" value="${searchField}">
+                        <input type="hidden" name="searchText" value="${searchText}">
+                        <input type="hidden" name="searchOrder" value="${searchOrder}">
                         <input type="hidden" name="endDate" value="${endDate}">
                         <input type="hidden" name="isUse" value="${isUse}">
                         <input type="hidden" name="filterCategory" value="${filterCategory}">
                         <input type="hidden" name="filterClient" value="${filterClient}">
+                        <button type="submit" class="page-link active">${i}</button>
                       </form>
                     </li>
                   </c:when>
                   <c:otherwise>
                     <li class="page-item">
-                      <form method="post" action="Document?page=${i}" class="d-i">
-                        <button type="submit" class="page-link">${i}</button>
+                      <form method="post" tabindex="-1" aria-disabled="true" action="Document?page=${i}" class="d-i">
+                        <input type="hidden" name="searchField" value="${searchField}">
+                        <input type="hidden" name="searchText" value="${searchText}">
+                        <input type="hidden" name="searchOrder" value="${searchOrder}">
                         <input type="hidden" name="endDate" value="${endDate}">
                         <input type="hidden" name="isUse" value="${isUse}">
                         <input type="hidden" name="filterCategory" value="${filterCategory}">
                         <input type="hidden" name="filterClient" value="${filterClient}">
+                        <button type="submit" class="page-link">${i}</button>
                       </form>
                     </li>
                   </c:otherwise>
                 </c:choose>
               </c:forEach>
-                
+          
               <c:if test="${totalPages > 5}">
-                <li class="page-item w-55p">
-                  <form method="post" action="Document?page=${(endPage == totalPages)?totalPages : endPage + 1}" class="d-i">
-                    <button type="submit" class="page-link">다음</button>
+                <li class="page-item w-55p" >
+                  <form method="post" tabindex="-1" aria-disabled="true" action="Document?page=${(endPage == totalPages)?totalPages : endPage + 1}" class="d-i">
+                    <input type="hidden" name="searchField" value="${searchField}">
+                    <input type="hidden" name="searchText" value="${searchText}">
+                    <input type="hidden" name="searchOrder" value="${searchOrder}">
                     <input type="hidden" name="endDate" value="${endDate}">
                     <input type="hidden" name="isUse" value="${isUse}">
                     <input type="hidden" name="filterCategory" value="${filterCategory}">
                     <input type="hidden" name="filterClient" value="${filterClient}">
+                    <button type="submit" class="page-link">다음</button>
                   </form>
                 </li>
                 <li class="page-item">
-                  <form method="post" action="Document?page=${totalPages}" class="d-i">
-                    <button type="submit" class="page-link">»</button>
+                  <form method="post" tabindex="-1" aria-disabled="true" action="Document?page=${totalPages}" class="d-i">
+                    <input type="hidden" name="searchField" value="${searchField}">
+                    <input type="hidden" name="searchText" value="${searchText}">
+                    <input type="hidden" name="searchOrder" value="${searchOrder}">
                     <input type="hidden" name="endDate" value="${endDate}">
                     <input type="hidden" name="isUse" value="${isUse}">
                     <input type="hidden" name="filterCategory" value="${filterCategory}">
                     <input type="hidden" name="filterClient" value="${filterClient}">
+                    <button type="submit" class="page-link">»</button>
                   </form>
                 </li>
               </c:if>
@@ -439,6 +359,7 @@
           </nav>
         </c:otherwise>
       </c:choose>
+
       <div class="col t-r w-20">
         <form method="post" action="DocumentUpload">
           <input type="submit" class="btn btn-dark btn-allow-left" value="등록" />
@@ -465,13 +386,13 @@
                       <select class="form-control select-gray-custom" name="searchField" id="searchField" aria-label="searchField">
                         <option value="" disabled ${empty searchField ? 'selected' : ''}>선택</option>
                         <option value="1" ${'1'.equals(searchField) ? 'selected' : ''}>문서 제목</option>
+                        <option value="4" ${'4'.equals(searchField) ? 'selected' : ''}>작성자</option>
                         <c:if test="${empty filterClient}">
                           <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>고객사</option>
                         </c:if>
                         <c:if test="${empty filterCategory}">
                           <option value="3" ${'3'.equals(searchField) ? 'selected' : ''}>문서 위치</option>
                         </c:if>
-                        <option value="4" ${'4'.equals(searchField) ? 'selected' : ''}>작성자</option>
                       </select>
                     </td>
                     <td colspan="3">

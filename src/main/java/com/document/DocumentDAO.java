@@ -151,12 +151,11 @@ public class DocumentDAO {
 				+ "LEFT JOIN dbo.CATEGORIES cat ON cat.categoryCode = f.categoryCode "
 				+ "LEFT JOIN dbo.USERS u ON u.userCode = f.userCode "
 				+ "LEFT JOIN dbo.CLIENTS c ON c.clientCode = f.clientCode ";
-		if (searchText.trim() != "")
-			if (searchText.trim() != ""){
-				SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, searchField, searchText);
-			} else {
-				SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, null, null);
-			}
+		if (searchText.trim() != ""){
+			SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, searchField, searchText);
+		} else {
+			SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, null, null);
+		}
 		SQL += " ORDER BY " + searchField.trim() + " " + searchOrder +" OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
 		ArrayList<DocumentDTO> list = new ArrayList<DocumentDTO>();
 		
@@ -167,6 +166,51 @@ public class DocumentDAO {
 			} else {
 				pstmt.setInt(1, (Integer.parseInt(nowPage) -1) * 10);
 			}
+			
+			rs = pstmt.executeQuery();
+			while (rs.next()) {
+				document = new DocumentDTO();
+				document.setFileTitle(rs.getString(1));
+				document.setClientName(rs.getString(2));
+				document.setCategoryName(rs.getString(3));
+				document.setUserName(rs.getString(4));
+				document.setDateOfUpdate(rs.getString(5));
+				document.setFileName(rs.getString(6));
+				document.setCategoryCode(rs.getInt(7));
+				document.setClientCode(rs.getInt(8));
+				list.add(document);
+			}			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return list;
+	}
+	
+	
+	public ArrayList<DocumentDTO> getExcel(String startDate, String endDate, String filterCategory, 
+			String filterClient, String searchField, String searchOrder, String searchText){
+		String SQL = "SELECT f.fileTitle, c.clientName, cat.categoryName, u.userName, f.dateOfUpdate, f.fileName, f.categoryCode, f.clientCode "
+				+ "FROM dbo.FILES f "
+				+ "LEFT JOIN dbo.CATEGORIES cat ON cat.categoryCode = f.categoryCode "
+				+ "LEFT JOIN dbo.USERS u ON u.userCode = f.userCode "
+				+ "LEFT JOIN dbo.CLIENTS c ON c.clientCode = f.clientCode ";
+		
+		if (searchField != null && searchText != null && searchOrder != null) {
+			if (searchText.trim() != ""){
+				SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, searchField, searchText);
+			} else {
+				SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, null, null);
+			}
+			SQL += "ORDER BY " + searchField.trim() + " " + searchOrder +" ;";
+		} else {
+			SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, null, null);
+		}
+		
+		ArrayList<DocumentDTO> list = new ArrayList<DocumentDTO>();
+		
+		try {
+			pstmt = conn.prepareStatement(SQL);
 			
 			rs = pstmt.executeQuery();
 			while (rs.next()) {

@@ -38,7 +38,7 @@
               <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">사용자 관리</a>
               <ul class="dropdown-menu">
                 <li>
-                  <form method="post" action="User">
+                  <form method="post" action="User" id="reset" name="reset" >
                     <input type="submit" class="dropdown-item" value="사용자 조회" />
                   </form>
                 </li>
@@ -131,7 +131,7 @@
         <tbody>
           <c:choose>
             <c:when test="${empty list}">
-              <tr><td colspan="9" rowspan="4"><h1>결과 없음</h1></td></tr>
+              <tr><td colspan="9" rowspan="4"><h1 class="c-b">결과 없음</h1></td></tr>
             </c:when>
             <c:otherwise>
               <c:forEach var="user" items="${list}">
@@ -189,223 +189,98 @@
       </table>
     </div>
     <div class="row">
-      <div class="col t-l w-25">
+      <div class="col t-l w-25"></div>
         <c:choose>
-          <c:when test="${isRetire == 0}">
-            <form method="post" action="User?page=1" class="d-i">
-              <input type="hidden" name="isRetire" value="${isRetire + 1}">
-              <input type="hidden" name="ChangeDate" value="${ChangeDate}">
-              <button type="submit" class="btn btn-secondary">퇴직자만 보기</button>
-            </form>
-          </c:when>
+          <c:when test="${empty list}"></c:when>
           <c:otherwise>
-            <form method="post" action="User?page=1" class="d-i">
-              <input type="hidden" name="isRetire" value="${isRetire - 1}">
-              <input type="hidden" name="ChangeDate" value="${ChangeDate}">
-              <button type="submit" class="btn btn-secondary">재직자만 보기</button>
-            </form>
+            <nav class="col t-c w-auto" aria-label="Page navigation">
+              <ul class="pagination justify-content-center">
+                <c:if test="${totalPages > 5}">
+                  <li class="page-item">
+                    <form method="post" tabindex="-1" aria-disabled="true" action="User?page=1" class="d-i">
+                      <input type="hidden" name="searchField" value="${searchField}">
+                      <input type="hidden" name="searchText" value="${searchText}">
+                      <input type="hidden" name="searchOrder" value="${searchOrder}">
+                      <input type="hidden" name="dateOfPassword" value="${dateOfPassword}">
+                      <input type="hidden" name="isLock" value="${isLock}">
+                      <input type="hidden" name="isRetire" value="${isRetire}">
+                      <button type="submit" class="page-link">«</button>
+                    </form>
+                  </li>
+                  <li class="page-item w-55p" >
+                    <form method="post" tabindex="-1" aria-disabled="true" action="User?page=${(endPage < 6) ? 1 : startPage - 1}" class="d-i">
+                      <input type="hidden" name="searchField" value="${searchField}">
+                      <input type="hidden" name="searchText" value="${searchText}">
+                      <input type="hidden" name="searchOrder" value="${searchOrder}">
+                      <input type="hidden" name="dateOfPassword" value="${dateOfPassword}">
+                      <input type="hidden" name="isLock" value="${isLock}">
+                      <input type="hidden" name="isRetire" value="${isRetire}">
+                      <button type="submit" class="page-link">이전</button>
+                    </form>
+                  </li>
+                </c:if>
+                
+                <c:forEach var="i" begin="${startPage}" end="${endPage}">
+                  <c:choose>
+                    <c:when test="${i == nowPage or (empty nowPage and i == 1)}">
+                      <li class="page-item active">
+                        <form method="post" tabindex="-1" aria-disabled="true" action="User?page=${i}" class="d-i">
+                          <input type="hidden" name="searchField" value="${searchField}">
+                          <input type="hidden" name="searchText" value="${searchText}">
+                          <input type="hidden" name="searchOrder" value="${searchOrder}">
+                          <input type="hidden" name="dateOfPassword" value="${dateOfPassword}">
+                          <input type="hidden" name="isLock" value="${isLock}">
+                          <input type="hidden" name="isRetire" value="${isRetire}">
+                          <button type="submit" class="page-link active">${i}</button>
+                        </form>
+                      </li>
+                    </c:when>
+                    <c:otherwise>
+                      <li class="page-item">
+                        <form method="post" tabindex="-1" aria-disabled="true" action="User?page=${i}" class="d-i">
+                          <input type="hidden" name="searchField" value="${searchField}">
+                          <input type="hidden" name="searchText" value="${searchText}">
+                          <input type="hidden" name="searchOrder" value="${searchOrder}">
+                          <input type="hidden" name="dateOfPassword" value="${dateOfPassword}">
+                          <input type="hidden" name="isLock" value="${isLock}">
+                          <input type="hidden" name="isRetire" value="${isRetire}">
+                          <button type="submit" class="page-link">${i}</button>
+                        </form>
+                      </li>
+                    </c:otherwise>
+                  </c:choose>
+                </c:forEach>
+            
+                <c:if test="${totalPages > 5}">
+                  <li class="page-item w-55p" >
+                    <form method="post" tabindex="-1" aria-disabled="true" action="User?page=${(endPage == totalPages)?totalPages : endPage + 1}" class="d-i">
+                      <input type="hidden" name="searchField" value="${searchField}">
+                      <input type="hidden" name="searchText" value="${searchText}">
+                      <input type="hidden" name="searchOrder" value="${searchOrder}">
+                      <input type="hidden" name="dateOfPassword" value="${dateOfPassword}">
+                      <input type="hidden" name="isLock" value="${isLock}">
+                      <input type="hidden" name="isRetire" value="${isRetire}">
+                      <button type="submit" class="page-link">다음</button>
+                    </form>
+                  </li>
+
+                  <li class="page-item">
+                    <form method="post" tabindex="-1" aria-disabled="true" action="User?page=${totalPages}" class="d-i">
+                      <input type="hidden" name="searchField" value="${searchField}">
+                      <input type="hidden" name="searchText" value="${searchText}">
+                      <input type="hidden" name="searchOrder" value="${searchOrder}">
+                      <input type="hidden" name="dateOfPassword" value="${dateOfPassword}">
+                      <input type="hidden" name="isLock" value="${isLock}">
+                      <input type="hidden" name="isRetire" value="${isRetire}">
+                      <button type="submit" class="page-link">»</button>
+                    </form>
+                  </li>
+                </c:if>
+              </ul>
+            </nav>
           </c:otherwise>
         </c:choose>
-      </div>
-      <c:choose>
-        <c:when test="${not empty searchField and searchText != null and not empty searchOrder}">
-          <c:choose>
-            <c:when test="${empty list}"></c:when>
-            <c:otherwise>
-              <nav class="col t-c w-auto" aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
-                  <c:if test="${totalPages > 5}">
-                    <li class="page-item">
-                      <form method="post" tabindex="-1" aria-disabled="true" action="User?page=1" class="d-i">
-                        <input type="hidden" name="searchField" value="${searchField}">
-                        <input type="hidden" name="searchText" value="${searchText}">
-                        <input type="hidden" name="searchOrder" value="${searchOrder}">
-                        <input type="hidden" name="isClient" value="${isClient}">
-                        <input type="hidden" name="isCategory" value="${isCategory}">
-                        <input type="hidden" name="isDocument" value="${isDocument}">
-                        <input type="hidden" name="dateOfPassword" value="${dateOfPassword}">
-                        <input type="hidden" name="isLock" value="${isLock}">
-                        <input type="hidden" name="isRetire" value="${isRetire}">
-                        <button type="submit" class="page-link">«</button>
-                      </form>
-                    </li>
-                    <li class="page-item w-55p" >
-                      <form method="post" tabindex="-1" aria-disabled="true" action="User?page=${(endPage < 6) ? 1 : startPage - 1}" class="d-i">
-                        <input type="hidden" name="searchField" value="${searchField}">
-                        <input type="hidden" name="searchText" value="${searchText}">
-                        <input type="hidden" name="searchOrder" value="${searchOrder}">
-                        <input type="hidden" name="isClient" value="${isClient}">
-                        <input type="hidden" name="isCategory" value="${isCategory}">
-                        <input type="hidden" name="isDocument" value="${isDocument}">
-                        <input type="hidden" name="dateOfPassword" value="${dateOfPassword}">
-                        <input type="hidden" name="isLock" value="${isLock}">
-                        <input type="hidden" name="isRetire" value="${isRetire}">
-                        <button type="submit" class="page-link">이전</button>
-                      </form>
-                    </li>
-                  </c:if>
-                  
-                  <c:forEach var="i" begin="${startPage}" end="${endPage}">
-                    <c:choose>
-                      <c:when test="${i == nowPage or (empty nowPage and i == 1)}">
-                        <li class="page-item active">
-                          <form method="post" tabindex="-1" aria-disabled="true" action="User?page=${i}" class="d-i">
-                            <input type="hidden" name="searchField" value="${searchField}">
-                            <input type="hidden" name="searchText" value="${searchText}">
-                            <input type="hidden" name="searchOrder" value="${searchOrder}">
-                            <input type="hidden" name="isClient" value="${isClient}">
-                            <input type="hidden" name="isCategory" value="${isCategory}">
-                            <input type="hidden" name="isDocument" value="${isDocument}">
-                            <input type="hidden" name="dateOfPassword" value="${dateOfPassword}">
-                            <input type="hidden" name="isLock" value="${isLock}">
-                            <input type="hidden" name="isRetire" value="${isRetire}">
-                            <button type="submit" class="page-link active">${i}</button>
-                          </form>
-                        </li>
-                      </c:when>
-                      <c:otherwise>
-                        <li class="page-item">
-                          <form method="post" tabindex="-1" aria-disabled="true" action="User?page=${i}" class="d-i">
-                            <input type="hidden" name="searchField" value="${searchField}">
-                            <input type="hidden" name="searchText" value="${searchText}">
-                            <input type="hidden" name="searchOrder" value="${searchOrder}">
-                        <input type="hidden" name="isClient" value="${isClient}">
-                        <input type="hidden" name="isCategory" value="${isCategory}">
-                        <input type="hidden" name="isDocument" value="${isDocument}">
-                        <input type="hidden" name="dateOfPassword" value="${dateOfPassword}">
-                        <input type="hidden" name="isLock" value="${isLock}">
-                        <input type="hidden" name="isRetire" value="${isRetire}">
-                            <button type="submit" class="page-link">${i}</button>
-                          </form>
-                        </li>
-                      </c:otherwise>
-                    </c:choose>
-                  </c:forEach>
-              
-                  <c:if test="${totalPages > 5}">
-                    <li class="page-item w-55p" >
-                      <form method="post" tabindex="-1" aria-disabled="true" action="User?page=${(endPage == totalPages)?totalPages : endPage + 1}" class="d-i">
-                        <input type="hidden" name="searchField" value="${searchField}">
-                        <input type="hidden" name="searchText" value="${searchText}">
-                        <input type="hidden" name="searchOrder" value="${searchOrder}">
-                        <input type="hidden" name="isClient" value="${isClient}">
-                        <input type="hidden" name="isCategory" value="${isCategory}">
-                        <input type="hidden" name="isDocument" value="${isDocument}">
-                        <input type="hidden" name="dateOfPassword" value="${dateOfPassword}">
-                        <input type="hidden" name="isLock" value="${isLock}">
-                        <input type="hidden" name="isRetire" value="${isRetire}">
-                        <button type="submit" class="page-link">다음</button>
-                      </form>
-                    </li>
-
-                    <li class="page-item">
-                      <form method="post" tabindex="-1" aria-disabled="true" action="User?page=${totalPages}" class="d-i">
-                        <input type="hidden" name="searchField" value="${searchField}">
-                        <input type="hidden" name="searchText" value="${searchText}">
-                        <input type="hidden" name="searchOrder" value="${searchOrder}">
-                        <input type="hidden" name="isClient" value="${isClient}">
-                        <input type="hidden" name="isCategory" value="${isCategory}">
-                        <input type="hidden" name="isDocument" value="${isDocument}">
-                        <input type="hidden" name="dateOfPassword" value="${dateOfPassword}">
-                        <input type="hidden" name="isLock" value="${isLock}">
-                        <input type="hidden" name="isRetire" value="${isRetire}">
-                        <button type="submit" class="page-link">»</button>
-                      </form>
-                    </li>
-                  </c:if>
-                </ul>
-              </nav>
-            </c:otherwise>
-          </c:choose>
                       
-        </c:when>
-        <c:otherwise>
-          <nav class="col t-c w-80" aria-label="Page navigation">
-            <ul class="pagination justify-content-center">
-              <c:if test="${totalPages > 5}">
-                <li class="page-item">
-                  <form method="post" action="User?page=1"  class="d-i"">
-                    <input type="hidden" name="isClient" value="${isClient}">
-                    <input type="hidden" name="isCategory" value="${isCategory}">
-                    <input type="hidden" name="isDocument" value="${isDocument}">
-                    <input type="hidden" name="dateOfPassword" value="${dateOfPassword}">
-                    <input type="hidden" name="isLock" value="${isLock}">
-                    <input type="hidden" name="isRetire" value="${isRetire}">
-                    <button type="submit" class="page-link">«</button>
-                  </form>
-                </li>
-                <li class="page-item w-55p" >
-                  <form method="post" action="User?page=${(endPage < 6) ? 1 : startPage - 1}" class="d-i">
-                    <input type="hidden" name="isClient" value="${isClient}">
-                    <input type="hidden" name="isCategory" value="${isCategory}">
-                    <input type="hidden" name="isDocument" value="${isDocument}">
-                    <input type="hidden" name="dateOfPassword" value="${dateOfPassword}">
-                    <input type="hidden" name="isLock" value="${isLock}">
-                    <input type="hidden" name="isRetire" value="${isRetire}">
-                    <button type="submit" class="page-link">이전</button>
-                  </form>
-                </li>
-              </c:if>
-    
-              <c:forEach var="i" begin="${startPage}" end="${endPage}">
-                <c:choose>
-                  <c:when test="${i == nowPage or (empty nowPage and i == 1)}">
-                    <li class="page-item active">
-                      <form method="post" action="User?page=${i}" class="d-i">
-                        <input type="hidden" name="isClient" value="${isClient}">
-                        <input type="hidden" name="isCategory" value="${isCategory}">
-                        <input type="hidden" name="isDocument" value="${isDocument}">
-                        <input type="hidden" name="dateOfPassword" value="${dateOfPassword}">
-                        <input type="hidden" name="isLock" value="${isLock}">
-                        <input type="hidden" name="isRetire" value="${isRetire}">
-                        <button type="submit" class="page-link active">${i}</button>
-                      </form>
-                    </li>
-                  </c:when>
-                  <c:otherwise>
-                    <li class="page-item">
-                      <form method="post" action="User?page=${i}" class="d-i">
-                        <input type="hidden" name="isClient" value="${isClient}">
-                        <input type="hidden" name="isCategory" value="${isCategory}">
-                        <input type="hidden" name="isDocument" value="${isDocument}">
-                        <input type="hidden" name="dateOfPassword" value="${dateOfPassword}">
-                        <input type="hidden" name="isLock" value="${isLock}">
-                        <input type="hidden" name="isRetire" value="${isRetire}">
-                        <button type="submit" class="page-link">${i}</button>
-                      </form>
-                    </li>
-                  </c:otherwise>
-                </c:choose>
-              </c:forEach>
-                
-              <c:if test="${totalPages > 5}">
-                <li class="page-item w-55p">
-                  <form method="post" action="User?page=${(endPage == totalPages)?totalPages : endPage + 1}" class="d-i">
-                    <input type="hidden" name="isClient" value="${isClient}">
-                    <input type="hidden" name="isCategory" value="${isCategory}">
-                    <input type="hidden" name="isDocument" value="${isDocument}">
-                    <input type="hidden" name="dateOfPassword" value="${dateOfPassword}">
-                    <input type="hidden" name="isLock" value="${isLock}">
-                    <input type="hidden" name="isRetire" value="${isRetire}">
-                    <button type="submit" class="page-link">다음</button>
-                  </form>
-                </li>
-                <li class="page-item">
-                  <form method="post" action="User?page=${totalPages}" class="d-i">
-                    <input type="hidden" name="isClient" value="${isClient}">
-                    <input type="hidden" name="isCategory" value="${isCategory}">
-                    <input type="hidden" name="isDocument" value="${isDocument}">
-                    <input type="hidden" name="dateOfPassword" value="${dateOfPassword}">
-                    <input type="hidden" name="isLock" value="${isLock}">
-                    <input type="hidden" name="isRetire" value="${isRetire}">
-                    <button type="submit" class="page-link">»</button>
-                  </form>
-                </li>
-              </c:if>
-            </ul>
-          </nav>
-        </c:otherwise>
-      </c:choose>
       <div class="col t-r w-25">
         <form method="post" action="UserUpload">
           <input type="submit" class="btn btn-dark btn-allow-left" value="등록" />
@@ -432,9 +307,8 @@
                     <td class="bg-gray">
                       <select class="form-control select-gray-custom" name="searchField" id="searchField" aria-label="searchField">
                         <option value="" disabled ${empty searchField ? 'selected' : ''}>선택</option>
-                        <option value="1" ${'1'.equals(searchField) ? 'selected' : ''}>코드</option>
-                        <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>고객사명</option>
-                        <option value="3" ${'3'.equals(searchField) ? 'selected' : ''}>작성자</option>
+                        <option value="1" ${'1'.equals(searchField) ? 'selected' : ''}>이름</option>
+                        <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>사번</option>
                       </select>
                     </td>
                     <td colspan="3">
@@ -448,45 +322,6 @@
                         <option value="1" ${'1'.equals(searchOrder) ? 'selected' : ''}>오름차순</option>
                         <option value="2" ${'2'.equals(searchOrder) ? 'selected' : ''}>내림차순</option>
                       </select>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="bg-gray"><b>고객사</b></td>
-                    <td colspan="3">
-                      <div class="btn-group w-100" role="group" >
-                        <input type="radio" class="btn-check" name="isClient" id="isClientNone" ${empty isUse ? 'checked' : ''} >
-                        <label class="btn btn-outline-dark" for="isClientNone">미선택</label>
-                        <input type="radio" class="btn-check" name="isClient" id="isClientO" value="1" ${'1'.equals(isUse) ? 'checked' : ''} >
-                        <label class="btn btn-outline-dark" for="isClientO">권한 O</label>
-                        <input type="radio" class="btn-check" name="isClient" id="isClientX"  value="0" ${'0'.equals(isUse) ? 'checked' : ''} >
-                        <label class="btn btn-outline-dark" for="isClientX">권한 X</label>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="bg-gray"><b>문서 목록</b></td>
-                    <td colspan="3">
-                      <div class="btn-group w-100" role="group" >
-                        <input type="radio" class="btn-check" name="isCategory" id="isCategoryNone" ${empty isUse ? 'checked' : ''} >
-                        <label class="btn btn-outline-dark" for="isCategoryNone">미선택</label>
-                        <input type="radio" class="btn-check" name="isCategory" id="isCategoryO" value="1" ${'1'.equals(isUse) ? 'checked' : ''} >
-                        <label class="btn btn-outline-dark" for="isCategoryO">권한 O</label>
-                        <input type="radio" class="btn-check" name="isCategory" id="isCategoryX"  value="0" ${'0'.equals(isUse) ? 'checked' : ''} >
-                        <label class="btn btn-outline-dark" for="isCategoryX">권한 X</label>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="bg-gray"><b>문서</b></td>
-                    <td colspan="3">
-                      <div class="btn-group w-100" role="group" >
-                        <input type="radio" class="btn-check" name="isDocument" id="isDocumentNone" ${empty isUse ? 'checked' : ''} >
-                        <label class="btn btn-outline-dark" for="isDocumentNone">미선택</label>
-                        <input type="radio" class="btn-check" name="isDocument" id="isDocumentO" value="1" ${'1'.equals(isUse) ? 'checked' : ''} >
-                        <label class="btn btn-outline-dark" for="isDocumentO">권한 O</label>
-                        <input type="radio" class="btn-check" name="isDocument" id="isDocumentX"  value="0" ${'0'.equals(isUse) ? 'checked' : ''} >
-                        <label class="btn btn-outline-dark" for="isDocumentX">권한 X</label>
-                      </div>
                     </td>
                   </tr>
                   <tr>
@@ -504,12 +339,12 @@
                     <td class="bg-gray"><b>계정 잠금</b></td>
                     <td colspan="3">
                       <div class="btn-group w-100" role="group" >
-                        <input type="radio" class="btn-check" name="isLock" id="isLockNone" ${empty isUse ? 'checked' : ''} >
+                        <input type="radio" class="btn-check" name="isLock" id="isLockNone" ${empty isLock ? 'checked' : ''} >
                         <label class="btn btn-outline-dark" for="isLockNone">미선택</label>
-                        <input type="radio" class="btn-check" name="isLock" id="isLockO" value="1" ${'1'.equals(isUse) ? 'checked' : ''} >
-                        <label class="btn btn-outline-dark" for="isLockO">권한 O</label>
-                        <input type="radio" class="btn-check" name="isLock" id="isLockX"  value="0" ${'0'.equals(isUse) ? 'checked' : ''} >
-                        <label class="btn btn-outline-dark" for="isLockX">권한 X</label>
+                        <input type="radio" class="btn-check" name="isLock" id="isLockO" value="1" ${'1'.equals(isLock) ? 'checked' : ''} >
+                        <label class="btn btn-outline-dark" for="isLockO">잠금</label>
+                        <input type="radio" class="btn-check" name="isLock" id="isLockX"  value="0" ${'0'.equals(isLock) ? 'checked' : ''} >
+                        <label class="btn btn-outline-dark" for="isLockX">미잠금</label>
                       </div>
                     </td>
                   </tr>
@@ -517,11 +352,11 @@
                     <td class="bg-gray"><b>퇴직 여부</b></td>
                     <td colspan="3">
                       <div class="btn-group w-100" role="group" >
-                        <input type="radio" class="btn-check" name="isRetire" id="isRetireNone" ${empty isUse ? 'checked' : ''} >
+                        <input type="radio" class="btn-check" name="isRetire" id="isRetireNone" ${empty isRetire ? 'checked' : ''} >
                         <label class="btn btn-outline-dark" for="isRetireNone">미선택</label>
-                        <input type="radio" class="btn-check" name="isRetire" id="isRetireO" value="1" ${'1'.equals(isUse) ? 'checked' : ''} >
+                        <input type="radio" class="btn-check" name="isRetire" id="isRetireO" value="1" ${'1'.equals(isRetire) ? 'checked' : ''} >
                         <label class="btn btn-outline-dark" for="isRetireO">퇴직</label>
-                        <input type="radio" class="btn-check" name="isRetire" id="isRetireX"  value="0" ${'0'.equals(isUse) ? 'checked' : ''} >
+                        <input type="radio" class="btn-check" name="isRetire" id="isRetireX"  value="0" ${'0'.equals(isRetire) ? 'checked' : ''} >
                         <label class="btn btn-outline-dark" for="isRetireX">재직</label>
                       </div>
                     </td>
@@ -535,7 +370,8 @@
           </div>
           <div class="modal-footer">
             <button type="submit" class="btn btn-secondary">적용</button>
-            <button type="button" class="btn btn-secondary" onclick=" document.getElementById('reset').submit();">검색/필터 초기화</button>
+            <button type="button" onclick="downloadExcel('Excel')">엑셀</button>
+            <button type="button" class="btn btn-secondary" onclick=" document.getElementById('reset').submit();">검색 초기화</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
           </div>
         </form>

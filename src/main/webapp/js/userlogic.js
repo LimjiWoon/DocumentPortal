@@ -64,6 +64,21 @@ function check(){
 	return true;
 }
 
+function downloadExcel(newActionURL) {
+    var form = document.getElementById('UserFilter');
+    form.action = newActionURL;
+
+	var hiddenInput = document.createElement('input');
+	hiddenInput.type = 'hidden';
+	hiddenInput.name = 'code';
+	hiddenInput.value = 'hidden1';
+
+	form.appendChild(hiddenInput);
+
+    // 폼 제출
+    form.submit();
+}
+
 
 function checkID(event) {
     var pattern = /^[a-zA-Z0-9]*$/;

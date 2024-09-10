@@ -193,6 +193,45 @@ public class ClientDAO {
 		
 		return list;
 	}
+	
+	public ArrayList<ClientDTO> getExcel(String startDate, String endDate, String isUse, String searchField, String searchOrder, String searchText){
+		String SQL = "SELECT c.clientCode, c.clientName, u.userName, c.dateOfUpdate, c.isUse, c.clientContent "
+				+ "FROM  dbo.CLIENTS c "
+				+ "LEFT JOIN dbo.USERS u ON c.userCode = u.userCode ";
+		
+		if (searchField != null && searchText != null && searchOrder != null) {
+			if (searchText.trim() != ""){
+				SQL = filterSQL(SQL, startDate, endDate, isUse, searchField, searchText);
+			} else {
+				SQL = filterSQL(SQL, startDate, endDate, isUse, null, null);
+			}
+			SQL += "ORDER BY " + searchField.trim() + " " + searchOrder +" ;";
+		} else {
+			SQL = filterSQL(SQL, startDate, endDate, isUse, null, null);
+		}
+		
+		ArrayList<ClientDTO> list = new ArrayList<ClientDTO>();
+		
+		try {
+			pstmt = conn.prepareStatement(SQL);
+			
+			rs = pstmt.executeQuery();
+			while (rs.next()) {
+				client = new ClientDTO();
+				client.setClientCode(rs.getInt(1));
+				client.setClientName(rs.getString(2));
+				client.setUserName(rs.getString(3));
+				client.setDateOfUpdate(rs.getString(4));
+				client.setUse(rs.getInt(5));
+				client.setClientContent(rs.getString(6));
+				list.add(client);
+			}			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return list;
+	}
 
 	public void updateUse(int clientCode, String status, int userCode, String clientName) {
 		String SQL = "UPDATE CLIENTS SET isUSE=? FROM CLIENTS WHERE clientCode=?;";

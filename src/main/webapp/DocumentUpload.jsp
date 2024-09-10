@@ -210,7 +210,7 @@
               <tr>
                 <td class="bg-gray col-1"><b>설명</b></td>
                 <td class="col-5" colspan="3">
-                  <textarea class="form-control" name="fileContent" aria-label="With textarea" placeholder="문서 설명을 적어주세요."></textarea>
+                  <textarea class="form-control" name="fileContent" aria-label="With textarea" placeholder="문서 설명을 적어주세요." maxlength="200"></textarea>
                 </td>
               </tr>
             </tbody>

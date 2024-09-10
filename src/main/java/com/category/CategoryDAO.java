@@ -153,7 +153,7 @@ public class CategoryDAO {
 		
 		return list;
 	}
-	
+
 	
 	
 	public ArrayList<CategoryDTO> getSearch(String startDate, String endDate, String nowPage, String searchField, String searchOrder, String searchText){
@@ -178,6 +178,45 @@ public class CategoryDAO {
 			} else {
 				pstmt.setInt(1, (Integer.parseInt(nowPage) -1) * 10);
 			}
+			
+			rs = pstmt.executeQuery();
+			while (rs.next()) {
+				category = new CategoryDTO();
+				category.setCategoryCode(rs.getInt(1));
+				category.setCategoryName(rs.getString(2));
+				category.setUserName(rs.getString(3));
+				category.setDateOfCreate(rs.getString(4));
+				list.add(category);
+			}			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return list;
+	}
+	
+	
+	public ArrayList<CategoryDTO> getExcel(String startDate, String endDate, String searchField, String searchOrder, String searchText){
+		String SQL = "SELECT cat.categoryCode, cat.categoryName, u.userName, cat.dateOfCreate "
+				+ "FROM dbo.CATEGORIES cat "
+				+ "LEFT JOIN dbo.USERS u ON u.userCode = cat.userCode "
+				+ "WHERE categoryLv=1 ";
+		
+		if (searchField != null && searchText != null && searchOrder != null) {
+			if (searchText.trim() != ""){
+				SQL = filterSQL(SQL, startDate, endDate, searchField, searchText);
+			} else {
+				SQL = filterSQL(SQL, startDate, endDate, null, null);
+			}
+			SQL += "ORDER BY " + searchField.trim() + " " + searchOrder +" ;";
+		} else {
+			SQL = filterSQL(SQL, startDate, endDate, null, null);
+		}
+		
+		ArrayList<CategoryDTO> list = new ArrayList<CategoryDTO>();
+		
+		try {
+			pstmt = conn.prepareStatement(SQL);
 			
 			rs = pstmt.executeQuery();
 			while (rs.next()) {

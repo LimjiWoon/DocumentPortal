@@ -31,44 +31,6 @@ public class UserDAO {
 		}
 	}
 	
-	private String filterSQL(String SQL, String startDate, String endDate, String filterCategory, 
-			String filterClient, String searchField, String searchText) {
-		//그 어떠한 값도 들어오지 않은 경우
-		if (startDate == null && endDate == null && filterCategory == null && 
-				filterClient == null && searchField == null && searchText == null) {
-			return SQL;
-		}
-		
-		StringBuilder query = new StringBuilder(SQL);
-		ArrayList<String> conditions = new ArrayList<String>();
-		
-		if (startDate != null && endDate != null) {
-			conditions.add(" f.dateOfUpdate BETWEEN '"+startDate+"' AND DATEADD(day, 1, '"+endDate+"') ");
-		} else if (startDate != null) {
-			conditions.add(" f.dateOfUpdate > '"+startDate+"' ");
-		} else if (endDate != null) {
-			conditions.add(" f.dateOfUpdate < DATEADD(day, 1, '"+endDate+"') ");
-		}
-
-		if (filterCategory != null) {
-			conditions.add(" f.categoryCode ="+filterCategory+" ");
-		}
-
-		if (filterClient != null) {
-			conditions.add(" f.clientCode ="+filterClient+" ");
-		}
-		
-		if (searchField != null && searchText != null) {
-			conditions.add(" " + searchField.trim() + " LIKE '%" + searchText.trim() + "%' ");
-		}
-		
-		if (!conditions.isEmpty()) {
-		    query.append(" WHERE ").append(String.join(" AND ", conditions));
-		}
-		
-		return query.toString();
-	}
-	
 	public int login(String userID, String userPassword) {
 		String SQL = "SELECT userPassword,failOfPassword FROM USERS WHERE userID = ?";
 		try {
@@ -218,68 +180,62 @@ public class UserDAO {
 			e.printStackTrace();
 		}
 	}
+
 	
-	public int maxPage(int isRetire) { //다음 글 가지고 오기
-		String SQL = "SELECT COUNT(*) AS cnt FROM dbo.USERS WHERE isRetire = ? and userCode != 0;";
-		try {
-			PreparedStatement pstmt = conn.prepareStatement(SQL);
-			pstmt.setInt(1, isRetire);
-			rs = pstmt.executeQuery();
-			if(rs.next()) {
-				if (isRetire == 0)
-					return (rs.getInt(1)-1) / 10 + 1;
-				return (rs.getInt(1)) / 10 + 1;
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
+	private String filterSQL(String SQL, String dateOfPassword, String isLock, String isRetire, String searchField, String searchText) {
+		//그 어떠한 값도 들어오지 않은 경우
+		if (dateOfPassword == null && isLock == null && isRetire == null && searchField == null && searchText == null) {
+			return SQL + " WHERE userCode != 0 ";
 		}
-		return -1; //DB 오류
-	}
-	
-	public int maxPage(int isRetire, String ChangeDate) { //다음 글 가지고 오기
-		String SQL = "SELECT COUNT(*) AS cnt FROM dbo.USERS WHERE isRetire = ? and userCode != 0 ";
-		switch (ChangeDate) {
-			case "1":
-				SQL += "AND (dateOfPassword BETWEEN DATEADD(DAY, -90, GETDATE()) AND GETDATE()) OR dateOfPassword IS NULL;";
-				break;
-			case "2":
-				SQL += "AND dateOfPassword BETWEEN DATEADD(DAY, -180, GETDATE()) AND DATEADD(DAY, -90, GETDATE());";
-				break;
-			case "3":
-				SQL += "AND dateOfPassword < DATEADD(DAY, -180, GETDATE());";
-				break;
-			default:
-				break;
-		}
-		try {
-			PreparedStatement pstmt = conn.prepareStatement(SQL);
-			pstmt.setInt(1, isRetire);
-			rs = pstmt.executeQuery();
-			if(rs.next()) {
-				if (isRetire == 0)
-					return (rs.getInt(1)-1) / 10 + 1;
-				return (rs.getInt(1)) / 10 + 1;
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		return -1; //DB 오류
-	}
-	
-	public int maxPage(int isRetire, String searchField, String searchText) { //다음 글 가지고 오기
-		String SQL = "SELECT COUNT(*) AS cnt FROM dbo.USERS "
-				+ "WHERE isRetire = ? AND userCode != 0 ";
-		if (searchText.trim() != "")
-				SQL += " AND " + searchField.trim() + " LIKE '%" + searchText.trim() + "%'";
 		
+		StringBuilder query = new StringBuilder(SQL);
+		ArrayList<String> conditions = new ArrayList<String>();
+		
+		switch (dateOfPassword) {
+		case "1":
+			conditions.add(" (dateOfPassword BETWEEN DATEADD(DAY, -90, GETDATE()) AND GETDATE()) OR dateOfPassword IS NULL ");
+			break;
+		case "2":
+			conditions.add(" dateOfPassword BETWEEN DATEADD(DAY, -180, GETDATE()) AND DATEADD(DAY, -90, GETDATE()) ");
+			break;
+		case "3":
+			conditions.add(" dateOfPassword < DATEADD(DAY, -180, GETDATE()) ");
+			break;
+		default:
+			break;
+		}
+
+		if ("0".equals(isLock) || "1".equals(isLock)) {
+			conditions.add(" isLock="+isLock+" ");
+		}
+
+		if ("0".equals(isRetire) || "1".equals(isRetire)) {
+			conditions.add(" isRetire="+isRetire+" ");
+		}
+
+		
+		if (searchField != null && searchText != null) {
+			conditions.add(" " + searchField.trim() + " LIKE '%" + searchText.trim() + "%' ");
+		}
+		
+		conditions.add(" userCode != 0 ");
+		
+		if (!conditions.isEmpty()) {
+		    query.append(" WHERE ").append(String.join(" AND ", conditions));
+		}
+		
+		return query.toString();
+	}
+	
+	
+	public int maxPage(String dateOfPassword, String isLock, String isRetire) { //다음 글 가지고 오기
+		String SQL = "SELECT COUNT(*) AS cnt FROM dbo.USERS ";
+		SQL = filterSQL(SQL, dateOfPassword, isLock, isRetire, null, null);
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(SQL);
-			pstmt.setInt(1, isRetire);
 			rs = pstmt.executeQuery();
 			if(rs.next()) {
-				if (isRetire == 0)
-					return (rs.getInt(1)-1) / 10 + 1;
-				return (rs.getInt(1)) / 10 + 1;
+				return (rs.getInt(1)-1) / 10 + 1;
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -287,35 +243,21 @@ public class UserDAO {
 		return -1; //DB 오류
 	}
 	
-	public int maxPage(int isRetire, String ChangeDate, String searchField, String searchText) { //다음 글 가지고 오기
-		String SQL = "SELECT COUNT(*) AS cnt FROM dbo.USERS "
-				+ "WHERE isRetire = ? AND userCode != 0 ";
-		
-		switch (ChangeDate) {
-			case "1":
-				SQL += "AND (dateOfPassword BETWEEN DATEADD(DAY, -90, GETDATE()) AND GETDATE()) OR dateOfPassword IS NULL ";
-				break;
-			case "2":
-				SQL += "AND dateOfPassword BETWEEN DATEADD(DAY, -180, GETDATE()) AND DATEADD(DAY, -90, GETDATE()) ";
-				break;
-			case "3":
-				SQL += "AND dateOfPassword < DATEADD(DAY, -180, GETDATE()) ";
-				break;
-			default:
-				break;
-		}
+	
+	public int maxPage(String dateOfPassword, String isLock, String isRetire, String searchField, String searchText) { //다음 글 가지고 오기
+		String SQL = "SELECT COUNT(*) AS cnt FROM dbo.USERS ";
 			
-		if (searchText.trim() != "")
-				SQL += " AND " + searchField.trim() + " LIKE '%" + searchText.trim() + "%'";
+		if (searchText.trim() != ""){
+			SQL = filterSQL(SQL, dateOfPassword, isLock, isRetire, searchField, searchText);
+		} else {
+			SQL = filterSQL(SQL, dateOfPassword, isLock, isRetire, null, null);
+		}
 		
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(SQL);
-			pstmt.setInt(1, isRetire);
 			rs = pstmt.executeQuery();
 			if(rs.next()) {
-				if (isRetire == 0)
-					return (rs.getInt(1)-1) / 10 + 1;
-				return (rs.getInt(1)) / 10 + 1;
+				return (rs.getInt(1)-1) / 10 + 1;
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -324,19 +266,19 @@ public class UserDAO {
 	}
 	
 
-	public ArrayList<UserDTO> getList(String nowPage, int isRetire){
+	public ArrayList<UserDTO> getList(String dateOfPassword, String isLock, String isRetire, String nowPage){
 		String SQL = "SELECT userCode, userName, isCategory, isClient, isDocument, isLock, DATEDIFF(DAY, dateOfPassword, GETDATE()) "
-				+ "FROM dbo.USERS WHERE isRetire = ? and userCode != 0"
-				+ "ORDER BY userCode DESC OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
+				+ "FROM dbo.USERS ";
+		SQL = filterSQL(SQL, dateOfPassword, isLock, isRetire, null, null);
+		SQL += "ORDER BY userCode DESC OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
 		ArrayList<UserDTO> list = new ArrayList<UserDTO>();
 		
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(SQL);	
-			pstmt.setInt(1, isRetire);
 			if (nowPage == null) {
-				pstmt.setInt(2, 0);
+				pstmt.setInt(1, 0);
 			} else {
-				pstmt.setInt(2, (Integer.parseInt(nowPage) -1) * 10);
+				pstmt.setInt(1, (Integer.parseInt(nowPage) -1) * 10);
 			}
 			
 			rs = pstmt.executeQuery();
@@ -358,33 +300,25 @@ public class UserDAO {
 		return list;
 	}
 	
-	public ArrayList<UserDTO> getList(String nowPage, int isRetire, String ChangeDate){
-		String SQL = "SELECT userCode, userName, isCategory, isClient, isDocument, isLock, DATEDIFF(DAY, dateOfPassword, GETDATE()) "
-				+ "FROM dbo.USERS WHERE isRetire = ? and userCode != 0 ";
+	public ArrayList<UserDTO> getSearch(String dateOfPassword, String isLock, String isRetire, 
+			String nowPage, String searchField, String searchOrder, String searchText){
 		ArrayList<UserDTO> list = new ArrayList<UserDTO>();
+		String SQL = "SELECT userCode, userName, isCategory, isClient, isDocument, isLock, DATEDIFF(DAY, dateOfPassword, GETDATE()) "
+				+ "FROM dbo.USERS ";
 
-		switch (ChangeDate) {
-			case "1":
-				SQL += "AND (dateOfPassword BETWEEN DATEADD(DAY, -90, GETDATE()) AND GETDATE()) OR dateOfPassword IS NULL ";
-				break;
-			case "2":
-				SQL += "AND dateOfPassword BETWEEN DATEADD(DAY, -180, GETDATE()) AND DATEADD(DAY, -90, GETDATE()) ";
-				break;
-			case "3":
-				SQL += "AND dateOfPassword < DATEADD(DAY, -180, GETDATE()) ";
-				break;
-			default:
-				break;
+		if (searchText.trim() != ""){
+			SQL = filterSQL(SQL, dateOfPassword, isLock, isRetire, searchField, searchText);
+		} else {
+			SQL = filterSQL(SQL, dateOfPassword, isLock, isRetire, null, null);
 		}
-		SQL += " ORDER BY userCode DESC OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
 		
+		SQL += "ORDER BY " + searchField.trim() + " " + searchOrder +" OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
 		try {
-			PreparedStatement pstmt = conn.prepareStatement(SQL);	
-			pstmt.setInt(1, isRetire);
+			pstmt = conn.prepareStatement(SQL);	
 			if (nowPage == null) {
-				pstmt.setInt(2, 0);
+				pstmt.setInt(1, 0);
 			} else {
-				pstmt.setInt(2, (Integer.parseInt(nowPage) -1) * 10);
+				pstmt.setInt(1, (Integer.parseInt(nowPage) -1) * 10);
 			}
 			
 			rs = pstmt.executeQuery();
@@ -406,72 +340,24 @@ public class UserDAO {
 		return list;
 	}
 	
-	public ArrayList<UserDTO> getSearch(String nowPage, int isRetire, String searchField, String searchOrder, String searchText){
+	public ArrayList<UserDTO> getExcel(String dateOfPassword, String isLock, String isRetire, 
+			String searchField, String searchOrder, String searchText){
 		ArrayList<UserDTO> list = new ArrayList<UserDTO>();
 		String SQL = "SELECT userCode, userName, isCategory, isClient, isDocument, isLock, DATEDIFF(DAY, dateOfPassword, GETDATE()) "
-				+ "FROM dbo.USERS WHERE isRetire = ? AND userCode != 0 ";
-		if (searchText.trim() != "")
-				SQL += " AND " + searchField.trim() + " LIKE '%" + searchText.trim() + "%'";
-		SQL += "ORDER BY " + searchField.trim() + " " + searchOrder +" OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
-		try {
-			pstmt = conn.prepareStatement(SQL);	
-			pstmt.setInt(1, isRetire);
-			if (nowPage == null) {
-				pstmt.setInt(2, 0);
+				+ "FROM dbo.USERS ";
+		
+		if (searchField != null && searchText != null && searchOrder != null) {
+			if (searchText.trim() != ""){
+				SQL = filterSQL(SQL, dateOfPassword, isLock, isRetire, searchField, searchText);
 			} else {
-				pstmt.setInt(2, (Integer.parseInt(nowPage) -1) * 10);
+				SQL = filterSQL(SQL, dateOfPassword, isLock, isRetire, null, null);
 			}
-			
-			rs = pstmt.executeQuery();
-			while (rs.next()) {
-				UserDTO user = new UserDTO();
-				user.setUserCode(rs.getInt(1));
-				user.setUserName(rs.getString(2));
-				user.setCategory(rs.getInt(3));
-				user.setClient(rs.getInt(4));
-				user.setDocument(rs.getInt(5));
-				user.setLock(rs.getInt(6));
-				user.setDateOfPassword(rs.getString(7));
-				list.add(user);
-			}			
-		} catch(Exception e) {
-			e.printStackTrace();
+			SQL += "ORDER BY " + searchField.trim() + " " + searchOrder +" ;";
+		} else {
+			SQL = filterSQL(SQL, dateOfPassword, isLock, isRetire, null, null);
 		}
-		
-		return list;
-	}
-	
-	
-	public ArrayList<UserDTO> getSearch(String nowPage, int isRetire, String ChangeDate, String searchField, String searchOrder, String searchText){
-		ArrayList<UserDTO> list = new ArrayList<UserDTO>();
-		String SQL = "SELECT userCode, userName, isCategory, isClient, isDocument, isLock, DATEDIFF(DAY, dateOfPassword, GETDATE()) "
-				+ "FROM dbo.USERS WHERE isRetire = ? AND userCode != 0 ";
-		
-		switch (ChangeDate) {
-			case "1":
-				SQL += "AND (dateOfPassword BETWEEN DATEADD(DAY, -90, GETDATE()) AND GETDATE()) OR dateOfPassword IS NULL ";
-				break;
-			case "2":
-				SQL += "AND dateOfPassword BETWEEN DATEADD(DAY, -180, GETDATE()) AND DATEADD(DAY, -90, GETDATE()) ";
-				break;
-			case "3":
-				SQL += "AND dateOfPassword < DATEADD(DAY, -180, GETDATE()) ";
-				break;
-			default:
-				break;
-		}
-		
-		if (searchText.trim() != "")
-				SQL += " AND " + searchField.trim() + " LIKE '%" + searchText.trim() + "%'";
-		SQL += "ORDER BY " + searchField.trim() + " " + searchOrder +" OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
 		try {
-			pstmt = conn.prepareStatement(SQL);	
-			pstmt.setInt(1, isRetire);
-			if (nowPage == null) {
-				pstmt.setInt(2, 0);
-			} else {
-				pstmt.setInt(2, (Integer.parseInt(nowPage) -1) * 10);
-			}
+			pstmt = conn.prepareStatement(SQL);
 			
 			rs = pstmt.executeQuery();
 			while (rs.next()) {

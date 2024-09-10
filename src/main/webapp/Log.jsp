@@ -156,109 +156,17 @@
 	
 	
     <div class="row">
+      <div class="col t-l w-20"></div>
       <c:choose>
-        <c:when test="${not empty startDate and not empty endDate}"> 
-          <c:choose>
-            <c:when test="${empty list}"></c:when>
-            <c:otherwise>
-              <div class="col t-l w-20"></div>
-              <nav class="col t-c w-80" aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
-                  <c:if test="${totalPages > 5}">
-                    <li class="page-item">
-                      <form method="post" tabindex="-1" aria-disabled="true" action="Log?page=1" class="d-i">
-                        <input type="hidden" name="searchField" value="${searchField}">
-                        <input type="hidden" name="searchText" value="${searchText}">
-                        <input type="hidden" name="startDate" value="${startDate}">
-                        <input type="hidden" name="endDate" value="${endDate}">
-                        <input type="hidden" name="logWhere" value="${logWhere}">
-                        <input type="hidden" name="logHow" value="${logHow}">
-                        <button type="submit" class="page-link">«</button>
-                      </form>
-                    </li>
-                    <li class="page-item w-55p" >
-                      <form method="post" tabindex="-1" aria-disabled="true" action="Log?page=${(endPage < 6) ? 1 : startPage - 1}" class="d-i">
-                        <input type="hidden" name="searchField" value="${searchField}">
-                        <input type="hidden" name="searchText" value="${searchText}">
-                        <input type="hidden" name="startDate" value="${startDate}">
-                        <input type="hidden" name="endDate" value="${endDate}">
-                        <input type="hidden" name="logWhere" value="${logWhere}">
-                        <input type="hidden" name="logHow" value="${logHow}">
-                        <button type="submit" class="page-link">이전</button>
-                      </form>
-                    </li>
-                  </c:if>
-                  
-                  <c:forEach var="i" begin="${startPage}" end="${endPage}">
-                    <c:choose>
-                      <c:when test="${i == nowPage or (empty nowPage and i == 1)}">
-                        <li class="page-item active">
-                          <form method="post" tabindex="-1" aria-disabled="true" action="Log?page=${i}" class="d-i">
-                            <input type="hidden" name="searchField" value="${searchField}">
-                            <input type="hidden" name="searchText" value="${searchText}">
-                            <input type="hidden" name="startDate" value="${startDate}">
-                            <input type="hidden" name="endDate" value="${endDate}">
-                            <input type="hidden" name="logWhere" value="${logWhere}">
-                            <input type="hidden" name="logHow" value="${logHow}">
-                            <button type="submit" class="page-link active">${i}</button>
-                          </form>
-                        </li>
-                      </c:when>
-                      <c:otherwise>
-                        <li class="page-item">
-                          <form method="post" tabindex="-1" aria-disabled="true" action="Log?page=${i}" class="d-i">
-                            <input type="hidden" name="searchField" value="${searchField}">
-                            <input type="hidden" name="searchText" value="${searchText}">
-                            <input type="hidden" name="startDate" value="${startDate}">
-                            <input type="hidden" name="endDate" value="${endDate}">
-                            <input type="hidden" name="logWhere" value="${logWhere}">
-                            <input type="hidden" name="logHow" value="${logHow}">
-                            <button type="submit" class="page-link">${i}</button>
-                          </form>
-                        </li>
-                      </c:otherwise>
-                    </c:choose>
-                  </c:forEach>
-              
-                  <c:if test="${totalPages > 5}">
-                    <li class="page-item w-55p" >
-                      <form method="post" tabindex="-1" aria-disabled="true" action="Log?page=${(endPage == totalPages)?totalPages : endPage + 1}" class="d-i">
-                        <input type="hidden" name="searchField" value="${searchField}">
-                        <input type="hidden" name="searchText" value="${searchText}">
-                        <input type="hidden" name="startDate" value="${startDate}">
-                        <input type="hidden" name="endDate" value="${endDate}">
-                        <input type="hidden" name="logWhere" value="${logWhere}">
-                        <input type="hidden" name="logHow" value="${logHow}">
-                        <button type="submit" class="page-link">다음</button>
-                      </form>
-                    </li>
-
-                    <li class="page-item">
-                      <form method="post" tabindex="-1" aria-disabled="true" action="Log?page=${totalPages}" class="d-i">
-                        <input type="hidden" name="searchField" value="${searchField}">
-                        <input type="hidden" name="searchText" value="${searchText}">
-                        <input type="hidden" name="startDate" value="${startDate}">
-                        <input type="hidden" name="endDate" value="${endDate}">
-                        <input type="hidden" name="logWhere" value="${logWhere}">
-                        <input type="hidden" name="logHow" value="${logHow}">
-                        <button type="submit" class="page-link">»</button>
-                      </form>
-                    </li>
-                  </c:if>
-                </ul>
-              </nav>
-            </c:otherwise>
-          </c:choose>
-                      
-        </c:when>
+        <c:when test="${empty list}"></c:when>
         <c:otherwise>
-          <div class="col t-l w-20"></div>
-  
           <nav class="col t-c w-80" aria-label="Page navigation">
             <ul class="pagination justify-content-center">
               <c:if test="${totalPages > 5}">
                 <li class="page-item">
-                  <form method="post" action="Log?page=1"  class="d-i"">
+                  <form method="post" tabindex="-1" aria-disabled="true" action="Log?page=1" class="d-i">
+                    <input type="hidden" name="searchField" value="${searchField}">
+                    <input type="hidden" name="searchText" value="${searchText}">
                     <input type="hidden" name="startDate" value="${startDate}">
                     <input type="hidden" name="endDate" value="${endDate}">
                     <input type="hidden" name="logWhere" value="${logWhere}">
@@ -267,7 +175,9 @@
                   </form>
                 </li>
                 <li class="page-item w-55p" >
-                  <form method="post" action="Log?page=${(endPage < 6) ? 1 : startPage - 1}" class="d-i">
+                  <form method="post" tabindex="-1" aria-disabled="true" action="Log?page=${(endPage < 6) ? 1 : startPage - 1}" class="d-i">
+                    <input type="hidden" name="searchField" value="${searchField}">
+                    <input type="hidden" name="searchText" value="${searchText}">
                     <input type="hidden" name="startDate" value="${startDate}">
                     <input type="hidden" name="endDate" value="${endDate}">
                     <input type="hidden" name="logWhere" value="${logWhere}">
@@ -276,12 +186,14 @@
                   </form>
                 </li>
               </c:if>
-    
+              
               <c:forEach var="i" begin="${startPage}" end="${endPage}">
                 <c:choose>
                   <c:when test="${i == nowPage or (empty nowPage and i == 1)}">
                     <li class="page-item active">
-                      <form method="post" action="Log?page=${i}" class="d-i">
+                      <form method="post" tabindex="-1" aria-disabled="true" action="Log?page=${i}" class="d-i">
+                        <input type="hidden" name="searchField" value="${searchField}">
+                        <input type="hidden" name="searchText" value="${searchText}">
                         <input type="hidden" name="startDate" value="${startDate}">
                         <input type="hidden" name="endDate" value="${endDate}">
                         <input type="hidden" name="logWhere" value="${logWhere}">
@@ -292,7 +204,9 @@
                   </c:when>
                   <c:otherwise>
                     <li class="page-item">
-                      <form method="post" action="Log?page=${i}" class="d-i">
+                      <form method="post" tabindex="-1" aria-disabled="true" action="Log?page=${i}" class="d-i">
+                        <input type="hidden" name="searchField" value="${searchField}">
+                        <input type="hidden" name="searchText" value="${searchText}">
                         <input type="hidden" name="startDate" value="${startDate}">
                         <input type="hidden" name="endDate" value="${endDate}">
                         <input type="hidden" name="logWhere" value="${logWhere}">
@@ -303,10 +217,12 @@
                   </c:otherwise>
                 </c:choose>
               </c:forEach>
-                
+          
               <c:if test="${totalPages > 5}">
-                <li class="page-item w-55p">
-                  <form method="post" action="Log?page=${(endPage == totalPages)?totalPages : endPage + 1}" class="d-i">
+                <li class="page-item w-55p" >
+                  <form method="post" tabindex="-1" aria-disabled="true" action="Log?page=${(endPage == totalPages)?totalPages : endPage + 1}" class="d-i">
+                    <input type="hidden" name="searchField" value="${searchField}">
+                    <input type="hidden" name="searchText" value="${searchText}">
                     <input type="hidden" name="startDate" value="${startDate}">
                     <input type="hidden" name="endDate" value="${endDate}">
                     <input type="hidden" name="logWhere" value="${logWhere}">
@@ -314,8 +230,11 @@
                     <button type="submit" class="page-link">다음</button>
                   </form>
                 </li>
+
                 <li class="page-item">
-                  <form method="post" action="Log?page=${totalPages}" class="d-i">
+                  <form method="post" tabindex="-1" aria-disabled="true" action="Log?page=${totalPages}" class="d-i">
+                    <input type="hidden" name="searchField" value="${searchField}">
+                    <input type="hidden" name="searchText" value="${searchText}">
                     <input type="hidden" name="startDate" value="${startDate}">
                     <input type="hidden" name="endDate" value="${endDate}">
                     <input type="hidden" name="logWhere" value="${logWhere}">
@@ -328,6 +247,7 @@
           </nav>
         </c:otherwise>
       </c:choose>
+
       <div class="col t-r w-20"></div>
     </div>
   </div>
