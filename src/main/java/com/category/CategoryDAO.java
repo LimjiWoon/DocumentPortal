@@ -331,7 +331,7 @@ public class CategoryDAO {
 			
 			pstmt.executeUpdate();
 			
-			logUpload(userCode, categoryName, "category", "create", "신규 카테고리 생성");
+			logUpload(userCode, categoryName, "category", "create", "신규 문서 목록 생성");
 			
 			return 1;
 		} catch(Exception e) {
@@ -407,7 +407,7 @@ public class CategoryDAO {
 			pstmt.setInt(2, categoryCode);
 			pstmt.executeUpdate();
 			
-			logUpload(userCode, categoryName, "category", "update", categoryCode + ": " + originCategoryName + "->" + categoryName);
+			logUpload(userCode, categoryName, "category", "update", categoryCode + ": " + originCategoryName + "-&gt;" + categoryName);
 			
 			return 1;
 		} catch(Exception e) {

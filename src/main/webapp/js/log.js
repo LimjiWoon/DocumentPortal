@@ -26,3 +26,27 @@ document.getElementById('search').addEventListener('submit', function(event) {
         event.preventDefault(); // 폼 제출 방지
     }
 });
+
+
+function downloadExcel(newActionURL, hiddenValue) {
+    var form = document.getElementById('SearchFilter');
+    form.action = newActionURL;
+
+	var hiddenInput = document.createElement('input');
+	hiddenInput.type = 'hidden';
+	hiddenInput.name = 'code';
+	hiddenInput.value = hiddenValue;
+
+	form.appendChild(hiddenInput);
+
+    // 폼 제출
+    form.submit();
+}
+
+function searchExcel(newActionURL) {
+    var form = document.getElementById('SearchFilter');
+    form.action = newActionURL;
+
+    // 폼 제출
+    form.submit();
+}

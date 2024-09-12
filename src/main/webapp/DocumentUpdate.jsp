@@ -16,149 +16,115 @@
 
   <c:set var="user" value="${sessionScope.user}" />
 
-  <c:if test="${user == null or not user.isDocument or document == null}">
+  <c:if test="${empty user or not user.isDocument or document == null}">
     <script>
       alert("비정상적인 접근");
       location.href = 'Main';
     </script>
   </c:if>
   
-  
-  <c:choose>
-    <c:when test="${empty user}">
-      <nav class="navbar navbar-expand-lg bg-body-tertiary rounded">
-        <div class="container-fluid">
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbars" aria-controls="navbars" aria-expanded="false">
-            <span class="navbar-toggler-icon"></span>
-          </button>
+  <nav class="navbar navbar-expand-lg bg-body-tertiary rounded">
+    <div class="container-fluid">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbars" aria-controls="navbars" aria-expanded="false">
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-          <div class="collapse navbar-collapse d-lg-flex" id="navbars">
-            <a class="navbar-brand col-lg-3 me-0" href="Main">루키스 문서 관리</a>
-              <ul class="navbar-nav col-lg-6 justify-content-lg-center">
+      <div class="collapse navbar-collapse d-lg-flex" id="navbars">
+        <a class="navbar-brand col-lg-3 me-0" href="Main">루키스 문서 관리</a>
+          <ul class="navbar-nav col-lg-6 justify-content-lg-center">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="Main">홈</a>
+            </li>
+            <c:if test="${user.userCode == 0}">
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">사용자 관리</a>
+                <ul class="dropdown-menu">
+                  <li>
+                    <form method="post" action="User">
+                      <input type="submit" class="dropdown-item" value="사용자 조회" />
+                    </form>
+                  </li>
+                  <li>
+                    <form method="post" action="UserUpload">
+                      <input type="submit" class="dropdown-item" value="사용자 등록" />
+                    </form>
+                  </li>
+                </ul>
+              </li>
+            </c:if>
+            <c:choose>
+              <c:when test="${user.isClient}">
                 <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="Main">홈</a>
+                  <form method="post" action="Client">
+                    <input type="submit" class="nav-link" value="고객사 관리" />
+                  </form>
                 </li>
+              </c:when>
+              <c:otherwise>
                 <li class="nav-item">
                   <a class="nav-link disabled" aria-current="page" href="#">고객사 관리</a>
                 </li>
+              </c:otherwise>
+            </c:choose>
+            <c:choose>
+              <c:when test="${user.isCategory || user.isDocument}">
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">문서 관리</a>
+                  <ul class="dropdown-menu">
+                    <c:choose>
+                      <c:when test="${user.isCategory}">
+                        <form method="post" action="Category">
+                          <input type="submit" class="dropdown-item" value="문서 목록" />
+                        </form>
+                      </c:when>
+                      <c:otherwise>
+                        <li><a class="dropdown-item disabled">문서 목록</a></li>
+                      </c:otherwise>
+                    </c:choose>
+                    <c:choose>
+                      <c:when test="${user.isDocument}">
+                        <form method="post" action="Document">
+                          <input type="submit" class="dropdown-item" value="문서 관리" />
+                        </form>
+                        <form method="post" action="DocumentUpload">
+                          <input type="submit" class="dropdown-item" value="문서 등록" />
+                        </form>
+                      </c:when>
+                      <c:otherwise>
+                        <li><a class="dropdown-item disabled">문서 관리</a></li>
+                        <li><a class="dropdown-item disabled"">문서 등록</a></li>
+                      </c:otherwise>
+                    </c:choose>
+                  </ul>
+                </li>
+              </c:when>
+              <c:otherwise>
                 <li class="nav-item">
                   <a class="nav-link disabled" aria-current="page" href="#">문서 관리</a>
                 </li>
-              </ul>
-            <div class="d-lg-flex col-lg-3 justify-content-lg-end">
-              <a class="nav-link" href="Login">
-                <button class="btn btn-primary">로그인</button>
-              </a>
-            </div>
+              </c:otherwise>
+            </c:choose>
+            <c:if test="${user.userCode == 0}">
+              <li class="nav-item">
+                <form method="post" action="Log">
+                  <input type="submit" class="nav-link active" value="로그" />
+                </form>
+              </li>
+            </c:if>
+          </ul>
+        <div class="d-lg-flex col-lg-3 justify-content-lg-end">
+          <div class="me-4 d-flex align-items-center justify-content-center">
+            <c:if test="${not empty sessionScope.user}">
+              사용자: &nbsp; <b><span style="color: gray;">${sessionScope.user.userName}</span></b>
+            </c:if>
           </div>
+          <a class="nav-link" href="Logout">
+            <button class="btn btn-primary">로그아웃</button>
+          </a>
         </div>
-      </nav>
-    </c:when>
-    <c:otherwise>
-      <nav class="navbar navbar-expand-lg bg-body-tertiary rounded">
-        <div class="container-fluid">
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbars" aria-controls="navbars" aria-expanded="false">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-
-          <div class="collapse navbar-collapse d-lg-flex" id="navbars">
-            <a class="navbar-brand col-lg-3 me-0" href="Main">루키스 문서 관리</a>
-              <ul class="navbar-nav col-lg-6 justify-content-lg-center">
-                <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="Main">홈</a>
-                </li>
-                <c:if test="${user.userCode == 0}">
-                  <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">사용자 관리</a>
-                    <ul class="dropdown-menu">
-                      <li>
-                        <form method="post" action="User">
-                          <input type="submit" class="dropdown-item" value="사용자 조회" />
-                        </form>
-                      </li>
-                      <li>
-                        <form method="post" action="UserUpload">
-                          <input type="submit" class="dropdown-item" value="사용자 등록" />
-                        </form>
-                      </li>
-                    </ul>
-                  </li>
-                </c:if>
-                <c:choose>
-                  <c:when test="${user.isClient}">
-                    <li class="nav-item">
-                      <form method="post" action="Client">
-                        <input type="submit" class="nav-link" value="고객사 관리" />
-                      </form>
-                    </li>
-                  </c:when>
-                  <c:otherwise>
-                    <li class="nav-item">
-                      <a class="nav-link disabled" aria-current="page" href="#">고객사 관리</a>
-                    </li>
-                  </c:otherwise>
-                </c:choose>
-                <c:choose>
-                  <c:when test="${user.isCategory || user.isDocument}">
-                    <li class="nav-item dropdown">
-                      <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">문서 관리</a>
-                      <ul class="dropdown-menu">
-                        <c:choose>
-                          <c:when test="${user.isCategory}">
-                            <form method="post" action="Category">
-                              <input type="submit" class="dropdown-item" value="문서 목록" />
-                            </form>
-                          </c:when>
-                          <c:otherwise>
-                            <li><a class="dropdown-item disabled">문서 목록</a></li>
-                          </c:otherwise>
-                        </c:choose>
-                        <c:choose>
-                          <c:when test="${user.isDocument}">
-                            <form method="post" action="Document">
-                              <input type="submit" class="dropdown-item" value="문서 조회" />
-                            </form>
-                            <form method="post" action="DocumentUpload">
-                              <input type="submit" class="dropdown-item" value="문서 등록" />
-                            </form>
-                          </c:when>
-                          <c:otherwise>
-                            <li><a class="dropdown-item disabled">문서 조회</a></li>
-                            <li><a class="dropdown-item disabled"">문서 등록</a></li>
-                          </c:otherwise>
-                        </c:choose>
-                      </ul>
-                    </li>
-                  </c:when>
-                  <c:otherwise>
-                    <li class="nav-item">
-                      <a class="nav-link disabled" aria-current="page" href="#">문서 관리</a>
-                    </li>
-                  </c:otherwise>
-                </c:choose>
-                <c:if test="${user.userCode == 0}">
-                  <li class="nav-item">
-                    <form method="post" action="Log">
-                      <input type="submit" class="nav-link active" value="로그" />
-                    </form>
-                  </li>
-                </c:if>
-              </ul>
-            <div class="d-lg-flex col-lg-3 justify-content-lg-end">
-              <div class="me-4 d-flex align-items-center justify-content-center">
-                <c:if test="${not empty sessionScope.user}">
-                  사용자: &nbsp; <b><span style="color: gray;">${sessionScope.user.userName}</span></b>
-                </c:if>
-              </div>
-              <a class="nav-link" href="Logout">
-                <button class="btn btn-primary">로그아웃</button>
-              </a>
-            </div>
-          </div>
-        </div>
-      </nav>
-    </c:otherwise>
-  </c:choose>
+      </div>
+    </div>
+  </nav>
   
   <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function() {
@@ -216,8 +182,9 @@
               </tr>
               <tr>
                 <td class="bg-gray col-1"><b>파일 등록</b></td>
-                <td class="col-5" colspan="3">
-                  <input type="file" id="fileName" name="fileName" class="form-control" required>
+                <td class="col-5 small-note t-l" colspan="3">
+                  <input type="file" id="fileName" name="fileName" class="form-control"  accept=".jpg, .jpeg, .png, .gif, .pdf, .ppt, .pptx, .xls, .xlsx, .xml, .csv, .hwp, .hwpx, .docx, .txt, .zip"  required>
+                  * jpg, jpeg, png, gif, pdf, ppt, pptx, xls, xlsx, xml, csv, hwp, hwpx, docx, txt, zip 파일만 등록할 수 있습니다.
                 </td>
               </tr>
               <tr>

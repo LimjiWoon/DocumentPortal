@@ -15,7 +15,7 @@
 <body>
   <c:set var="user" value="${sessionScope.user}" />
 
-  <c:if test="${user == null or user.userCode != 0}">
+  <c:if test="${empty user or user.userCode != 0}">
     <script>
       alert("비정상적인 접근");
       location.href = 'Main';
@@ -61,7 +61,7 @@
                   <input type="submit" class="dropdown-item" value="문서 목록" />
                 </form>
                 <form method="post" action="Document">
-                  <input type="submit" class="dropdown-item" value="문서 조회" />
+                  <input type="submit" class="dropdown-item" value="문서 관리" />
                 </form>
                 <form method="post" action="DocumentUpload">
                   <input type="submit" class="dropdown-item" value="문서 등록" />
@@ -123,9 +123,9 @@
             <th scope="col" class="t-c w-12">고객사(권한)</th>
             <th scope="col" class="t-c w-12">문서 목록(권한)</th>
             <th scope="col" class="t-c w-12">문서(권한)</th>
-            <th scope="col" class="t-c w-19">비밀번호 변경일</th>
+            <th scope="col" class="t-c w-11">비밀번호 변경일</th>
             <th scope="col" class="t-c w-14">계정 잠금 여부</th>
-            <th scope="col" class="t-c w-7"></th>
+            <th scope="col" class="t-c w-9">수정/복직</th>
           </tr>
         </thead>
         <tbody>
@@ -166,17 +166,17 @@
                   </td>
                   <td>
                     <c:choose>
-                      <c:when test="${isRetire == 0}">
-                        <form method="post" action="UserUpdate">
-                          <input type="hidden" name="userCode" value="${user.userCode}" />
-                          <button type="submit" class="btn btn-outline-dark btn-xs">수정</button>
-                        </form>
-                      </c:when>
-                      <c:otherwise>
+                      <c:when test="${user.isRetire}">
                         <form method="post" action="UserRetire" onsubmit="return confirm('정말 복직시키겠습니까?');">
                           <input type="hidden" name="userCode" value="${user.userCode}" />
                           <input type="hidden" name="isRetire" value="0" />
                           <button type="submit" class="btn btn-outline-dark btn-xs">복직</button>
+                        </form>
+                      </c:when>
+                      <c:otherwise>
+                        <form method="post" action="UserUpdate">
+                          <input type="hidden" name="userCode" value="${user.userCode}" />
+                          <button type="submit" class="btn btn-outline-dark btn-xs">수정</button>
                         </form>
                       </c:otherwise>
                     </c:choose>
@@ -189,7 +189,9 @@
       </table>
     </div>
     <div class="row">
-      <div class="col t-l w-25"></div>
+      <div class="col t-l w-25">
+        <button type="button" class="btn btn-secondary" onclick=" document.getElementById('reset').submit();">검색/필터 초기화</button>
+      </div>
         <c:choose>
           <c:when test="${empty list}"></c:when>
           <c:otherwise>
@@ -298,7 +300,7 @@
         <div class="modal-header">
           <h4 class="modal-title" id="SearchFilterModallabel">검색 필터</h4>
         </div>
-        <form id="UserFilter" method="post" name="UserFilter" action="User">
+        <form id="SearchFilter" method="post" name="SearchFilter" action="User">
           <div class="modal-body">
             <div class="container">
               <table class="table table-dark-line t-c custom-table">
@@ -369,9 +371,8 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="submit" class="btn btn-secondary">적용</button>
-            <button type="button" onclick="downloadExcel('Excel')">엑셀</button>
-            <button type="button" class="btn btn-secondary" onclick=" document.getElementById('reset').submit();">검색 초기화</button>
+            <button type="submit" class="btn btn-secondary" onclick="searchExcel('User')">적용</button>
+            <button type="button" class="btn btn-secondary" onclick="downloadExcel('Excel', 'hidden1')">엑셀</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
           </div>
         </form>

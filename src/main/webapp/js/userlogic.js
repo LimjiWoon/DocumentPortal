@@ -64,20 +64,6 @@ function check(){
 	return true;
 }
 
-function downloadExcel(newActionURL) {
-    var form = document.getElementById('UserFilter');
-    form.action = newActionURL;
-
-	var hiddenInput = document.createElement('input');
-	hiddenInput.type = 'hidden';
-	hiddenInput.name = 'code';
-	hiddenInput.value = 'hidden1';
-
-	form.appendChild(hiddenInput);
-
-    // 폼 제출
-    form.submit();
-}
 
 
 function checkID(event) {
@@ -98,6 +84,30 @@ function checkName(event) {
         // 허용된 문자를 제외한 모든 문자를 제거
         this.value = currentValue.replace(/[^a-zA-Z가-힣ㄱ-ㅎㅏ-ㅣ\s.\-']/g, '');
     }
+}
+
+
+function downloadExcel(newActionURL, hiddenValue) {
+    var form = document.getElementById('SearchFilter');
+    form.action = newActionURL;
+
+	var hiddenInput = document.createElement('input');
+	hiddenInput.type = 'hidden';
+	hiddenInput.name = 'code';
+	hiddenInput.value = hiddenValue;
+
+	form.appendChild(hiddenInput);
+
+    // 폼 제출
+    form.submit();
+}
+
+function searchExcel(newActionURL) {
+    var form = document.getElementById('SearchFilter');
+    form.action = newActionURL;
+
+    // 폼 제출
+    form.submit();
 }
 
 function changeLock(button, userCode) {

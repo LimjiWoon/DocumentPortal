@@ -17,6 +17,12 @@ h1 {
 	color: black;
 }
 
+.small-note {
+    font-size: 12px;
+    color: gray;
+    font-style: italic;
+}
+
 textarea {
     height: 150px;
 }
@@ -228,7 +234,7 @@ textarea {
 }
 
 .w-55p {
-	width:55px;
+	width:56px;
 }
 
 .w-90p {

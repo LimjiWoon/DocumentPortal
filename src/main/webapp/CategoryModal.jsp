@@ -35,7 +35,7 @@
         </div>
         
         <div class="modal-body">
-          <table class="table table-dark-line">
+          <table class="table table-dark-line table-bordered">
             <tr>
               <c:forEach var="clientName" items="${list}" varStatus="status">
                 <td>

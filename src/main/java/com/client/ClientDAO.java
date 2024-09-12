@@ -344,7 +344,7 @@ public class ClientDAO {
 		boolean isName = clientName.equals(hiddenClientName);
 		boolean isContent = clientContent.equals(hiddenClientContent);
 		int cnt = 1;
-		String logContent = "고객사 수정: ";
+		String logContent = "";
 		
 		if (isName && isContent)
 			return 0;

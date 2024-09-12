@@ -61,7 +61,7 @@
                   <input type="submit" class="dropdown-item" value="문서 목록" />
                 </form>
                 <form method="post" action="Document">
-                  <input type="submit" class="dropdown-item" value="문서 조회" />
+                  <input type="submit" class="dropdown-item" value="문서 관리" />
                 </form>
                 <form method="post" action="DocumentUpload">
                   <input type="submit" class="dropdown-item" value="문서 등록" />
@@ -103,7 +103,7 @@
               <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>이름</option>
             </select>
             <input type="text" class="form-control f-1" name="searchText" id="searchText" value="${searchText}" placeholder="사번 및 이름" >
-            <button type="submit" class="form-control f-90p btn btn-secondary">조회</button>
+            <button type="submit" class="form-control f-90p btn btn-secondary">검색</button>
             <button type="button" class="form-control f-90p btn btn-secondary" data-bs-toggle="modal" data-bs-target="#SearchFilterModal">필터</button>
           </div>
         </form>
@@ -117,9 +117,9 @@
             <th scope="col" class="t-c w-5">사번</th>
             <th scope="col" class="t-c w-7">사용자</th>
             <th scope="col" class="t-c w-10">페이지</th>
-            <th scope="col" class="t-c w-19">시간</th>
-            <th scope="col" class="t-c w-12">대상</th>
-            <th scope="col" class="t-c w-7">행동</th>
+            <th scope="col" class="t-c w-18">시간</th>
+            <th scope="col" class="t-c w-14">대상</th>
+            <th scope="col" class="t-c w-5">행동</th>
             <th scope="col" class="t-c w-auto">설명</th>
           </tr>
         </thead>
@@ -138,7 +138,7 @@
                       log.logWhere == 'file' ? '문서' :
                       log.logWhere == 'category' ? '문서 목록' : log.logWhere}
                   </td>
-                  <td>${log.logWhen}</td>
+                  <td>${log.logWhen.substring(0, 19)}</td>
                   <td>${log.logWhat}</td>
                   <td>
                     ${log.logHow == 'create' ? '등록' :
@@ -156,7 +156,9 @@
 	
 	
     <div class="row">
-      <div class="col t-l w-20"></div>
+      <div class="col t-l w-20">
+        <button type="button" class="btn btn-secondary" onclick=" document.getElementById('reset').submit();">검색/필터 초기화</button>
+      </div>
       <c:choose>
         <c:when test="${empty list}"></c:when>
         <c:otherwise>
@@ -171,7 +173,7 @@
                     <input type="hidden" name="endDate" value="${endDate}">
                     <input type="hidden" name="logWhere" value="${logWhere}">
                     <input type="hidden" name="logHow" value="${logHow}">
-                    <button type="submit" class="page-link">«</button>
+                    <button type="submit" class="page-link active">«</button>
                   </form>
                 </li>
                 <li class="page-item w-55p" >
@@ -182,7 +184,7 @@
                     <input type="hidden" name="endDate" value="${endDate}">
                     <input type="hidden" name="logWhere" value="${logWhere}">
                     <input type="hidden" name="logHow" value="${logHow}">
-                    <button type="submit" class="page-link">이전</button>
+                    <button type="submit" class="page-link active">이전</button>
                   </form>
                 </li>
               </c:if>
@@ -227,7 +229,7 @@
                     <input type="hidden" name="endDate" value="${endDate}">
                     <input type="hidden" name="logWhere" value="${logWhere}">
                     <input type="hidden" name="logHow" value="${logHow}">
-                    <button type="submit" class="page-link">다음</button>
+                    <button type="submit" class="page-link active">다음</button>
                   </form>
                 </li>
 
@@ -239,7 +241,7 @@
                     <input type="hidden" name="endDate" value="${endDate}">
                     <input type="hidden" name="logWhere" value="${logWhere}">
                     <input type="hidden" name="logHow" value="${logHow}">
-                    <button type="submit" class="page-link">»</button>
+                    <button type="submit" class="page-link active">»</button>
                   </form>
                 </li>
               </c:if>
@@ -259,7 +261,7 @@
         <div class="modal-header">
           <h4 class="modal-title" id="SearchFilterModallabel">검색 필터</h4>
         </div>
-        <form id="LogFilter" method="post" name="LogFilter" action="Log">
+        <form id="SearchFilter" method="post" name="SearchFilter" action="Log">
           <div class="modal-body">
             <div class="container">
               <table class="table table-dark-line t-c custom-table">
@@ -315,8 +317,8 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="submit" class="btn btn-secondary">적용</button>
-            <button type="button" class="btn btn-secondary" onclick=" document.getElementById('reset').submit();">검색/필터 초기화</button>
+            <button type="submit" class="btn btn-secondary" onclick="searchExcel('Log')">적용</button>
+            <button type="button" class="btn btn-secondary" onclick="downloadExcel('Excel', 'hidden5')">엑셀</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
           </div>
         </form>

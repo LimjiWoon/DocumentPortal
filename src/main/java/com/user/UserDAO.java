@@ -267,7 +267,7 @@ public class UserDAO {
 	
 
 	public ArrayList<UserDTO> getList(String dateOfPassword, String isLock, String isRetire, String nowPage){
-		String SQL = "SELECT userCode, userName, isCategory, isClient, isDocument, isLock, DATEDIFF(DAY, dateOfPassword, GETDATE()) "
+		String SQL = "SELECT userCode, userName, isCategory, isClient, isDocument, isLock, isRetire, DATEDIFF(DAY, dateOfPassword, GETDATE()) "
 				+ "FROM dbo.USERS ";
 		SQL = filterSQL(SQL, dateOfPassword, isLock, isRetire, null, null);
 		SQL += "ORDER BY userCode DESC OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
@@ -290,7 +290,8 @@ public class UserDAO {
 				user.setClient(rs.getInt(4));
 				user.setDocument(rs.getInt(5));
 				user.setLock(rs.getInt(6));
-				user.setDateOfPassword(rs.getString(7));
+				user.setRetire(rs.getInt(7));
+				user.setDateOfPassword(rs.getString(8));
 				list.add(user);
 			}			
 		} catch(Exception e) {
@@ -303,7 +304,7 @@ public class UserDAO {
 	public ArrayList<UserDTO> getSearch(String dateOfPassword, String isLock, String isRetire, 
 			String nowPage, String searchField, String searchOrder, String searchText){
 		ArrayList<UserDTO> list = new ArrayList<UserDTO>();
-		String SQL = "SELECT userCode, userName, isCategory, isClient, isDocument, isLock, DATEDIFF(DAY, dateOfPassword, GETDATE()) "
+		String SQL = "SELECT userCode, userName, isCategory, isClient, isDocument, isLock, isRetire, DATEDIFF(DAY, dateOfPassword, GETDATE()) "
 				+ "FROM dbo.USERS ";
 
 		if (searchText.trim() != ""){
@@ -330,7 +331,8 @@ public class UserDAO {
 				user.setClient(rs.getInt(4));
 				user.setDocument(rs.getInt(5));
 				user.setLock(rs.getInt(6));
-				user.setDateOfPassword(rs.getString(7));
+				user.setRetire(rs.getInt(7));
+				user.setDateOfPassword(rs.getString(8));
 				list.add(user);
 			}			
 		} catch(Exception e) {
@@ -343,7 +345,7 @@ public class UserDAO {
 	public ArrayList<UserDTO> getExcel(String dateOfPassword, String isLock, String isRetire, 
 			String searchField, String searchOrder, String searchText){
 		ArrayList<UserDTO> list = new ArrayList<UserDTO>();
-		String SQL = "SELECT userCode, userName, isCategory, isClient, isDocument, isLock, DATEDIFF(DAY, dateOfPassword, GETDATE()) "
+		String SQL = "SELECT userCode, userName, isCategory, isClient, isDocument, isLock, isRetire, DATEDIFF(DAY, dateOfPassword, GETDATE()) "
 				+ "FROM dbo.USERS ";
 		
 		if (searchField != null && searchText != null && searchOrder != null) {
@@ -368,7 +370,8 @@ public class UserDAO {
 				user.setClient(rs.getInt(4));
 				user.setDocument(rs.getInt(5));
 				user.setLock(rs.getInt(6));
-				user.setDateOfPassword(rs.getString(7));
+				user.setRetire(rs.getInt(7));
+				user.setDateOfPassword(rs.getString(8));
 				list.add(user);
 			}			
 		} catch(Exception e) {

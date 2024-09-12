@@ -58,13 +58,17 @@ public class ExcelDownloadAction extends HttpServlet {
 		
 		
 	    String dateOfPassword = XSSEscape.changeChangeDate(request.getParameter("dateOfPassword"));
-	    String searchField = XSSEscape.changeUserField(request.getParameter("searchField"));
+	    String searchField = null;
 	    String searchOrder = XSSEscape.changeOrder(request.getParameter("searchOrder"));
 	    String searchText = XSSEscape.changeText(request.getParameter("searchText"));
 	    String isRetire = XSSEscape.changePermisson(request.getParameter("isRetire"));
 	    String isLock = XSSEscape.changePermisson(request.getParameter("isLock"));
 	    String startDate = XSSEscape.checkDate(request.getParameter("startDate"));
 	    String endDate = XSSEscape.checkDate(request.getParameter("endDate"));
+	    String filterCategory = XSSEscape.isNumber(request.getParameter("filterCategory"));
+	    String filterClient = XSSEscape.isNumber(request.getParameter("filterClient"));
+	    String logWhere = XSSEscape.changeLogWhere(request.getParameter("logWhere"));
+	    String logHow = XSSEscape.changeLogHow(request.getParameter("logHow"));
 	    String isUse = XSSEscape.changePermisson(request.getParameter("isUse"));
 	    
 
@@ -76,6 +80,7 @@ public class ExcelDownloadAction extends HttpServlet {
 	    	if ("hidden1".equals(code) && user.getUserCode() == 0) {
 	    	    ArrayList<UserDTO> list = new ArrayList<UserDTO>();
 	    	    UserDAO userDAO = new UserDAO();
+	    	    searchField = XSSEscape.changeUserField(request.getParameter("searchField"));
 	    		
 	    	    if (searchField != null && searchText != null && searchOrder != null){
 	    	    	list = userDAO.getExcel(dateOfPassword, isLock, isRetire, searchField, searchOrder, searchText);
@@ -88,6 +93,7 @@ public class ExcelDownloadAction extends HttpServlet {
 			} else if ("hidden2".equals(code) && user.isClient()) {
 			    ArrayList<ClientDTO> list = new ArrayList<ClientDTO>();
 			    ClientDAO clientDAO = new ClientDAO();
+			    searchField = XSSEscape.changeClientField(request.getParameter("searchField"));
 
 	    	    if (searchField != null && searchText != null && searchOrder != null){
 	    	    	list = clientDAO.getExcel(startDate, endDate, isUse, searchField, searchOrder, searchText);
@@ -100,20 +106,39 @@ public class ExcelDownloadAction extends HttpServlet {
 			} else if ("hidden3".equals(code) && user.isCategory()) {
 			    ArrayList<CategoryDTO> list = new ArrayList<CategoryDTO>();
 			    CategoryDAO categoryDAO = new CategoryDAO();
-			    
-			    
+			    searchField = XSSEscape.changeCategoryField(request.getParameter("searchField"));
+
+	    	    if (searchField != null && searchText != null && searchOrder != null){
+	    	    	list = categoryDAO.getExcel(startDate, endDate, searchField, searchOrder, searchText);
+	    	    } else {
+	    	    	list = categoryDAO.getExcel(startDate, endDate, null, null, null);
+	    	    }
 				
 				workBook = CreateExcel.categoryExcel(list);
 				categoryDAO.categoryClose();
 			} else if ("hidden4".equals(code) && user.isDocument()) {
 			    ArrayList<DocumentDTO> list = new ArrayList<DocumentDTO>();
 			    DocumentDAO documentDAO = new DocumentDAO();
+			    searchField = XSSEscape.changeDocumentField(request.getParameter("searchField"));
+
+	    	    if (searchField != null && searchText != null && searchOrder != null){
+	    	    	list = documentDAO.getExcel(startDate, endDate, filterCategory, filterClient, searchField, searchOrder, searchText);
+	    	    } else {
+	    	    	list = documentDAO.getExcel(startDate, endDate, filterCategory, filterClient, null, null, null);
+	    	    }
 				
 				workBook = CreateExcel.documentExcel(list);
 				documentDAO.documentClose();
 			} else if ("hidden5".equals(code) && user.getUserCode() == 0) {
 			    ArrayList<LogDTO> list = new ArrayList<LogDTO>();
 			    LogDAO logDAO = new LogDAO();
+			    searchField = XSSEscape.changeLogField(request.getParameter("searchField"));
+
+	    	    if (searchField != null && searchText != null){
+	    	    	list = logDAO.getExcel(startDate, endDate, logWhere, logHow, searchField, searchText);
+	    	    } else {
+	    	    	list = logDAO.getExcel(startDate, endDate, logWhere, logHow, null, null);
+	    	    }
 				
 				workBook = CreateExcel.logExcel(list);
 				logDAO.logClose();

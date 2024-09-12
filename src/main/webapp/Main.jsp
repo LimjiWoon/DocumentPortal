@@ -13,7 +13,7 @@
   <c:set var="user" value="${sessionScope.user}" />
   <c:choose>
     <c:when test="${empty user}">
-      <nav class="navbar navbar-expand-lg bg-body-tertiary rounded">
+      <nav class="navbar navbar-expand-lg bg-body-tertiary rounded fixed-top">
         <div class="container-fluid">
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbars" aria-controls="navbars" aria-expanded="false">
             <span class="navbar-toggler-icon"></span>
@@ -42,7 +42,7 @@
       </nav>
     </c:when>
     <c:otherwise>
-      <nav class="navbar navbar-expand-lg bg-body-tertiary rounded">
+      <nav class="navbar navbar-expand-lg bg-body-tertiary rounded fixed-top">
         <div class="container-fluid">
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbars" aria-controls="navbars" aria-expanded="false">
             <span class="navbar-toggler-icon"></span>
@@ -103,14 +103,14 @@
                         <c:choose>
                           <c:when test="${user.isDocument}">
                             <form method="post" action="Document">
-                              <input type="submit" class="dropdown-item" value="문서 조회" />
+                              <input type="submit" class="dropdown-item" value="문서 관리" />
                             </form>
                             <form method="post" action="DocumentUpload">
                               <input type="submit" class="dropdown-item" value="문서 등록" />
                             </form>
                           </c:when>
                           <c:otherwise>
-                            <li><a class="dropdown-item disabled">문서 조회</a></li>
+                            <li><a class="dropdown-item disabled">문서 관리</a></li>
                             <li><a class="dropdown-item disabled"">문서 등록</a></li>
                           </c:otherwise>
                         </c:choose>
@@ -147,8 +147,8 @@
     </c:otherwise>
   </c:choose>
 
-  <div class="container my-5 w-70">
-    <div class="p-5 text-center bg-light rounded-3">
+  <div class="container d-flex flex-column justify-content-center align-items-center vh-100">
+    <div class="p-5 text-center bg-light rounded-3 w-75">
       <h1 class="text-body-emphasis">사이트 소개</h1>
       <p class="col-lg-8 mx-auto fs-5 text-muted">
         이 사이트는 루키스의 문서 관리 포탈입니다. <br> 

@@ -15,7 +15,7 @@
 <body>
   <c:set var="user" value="${sessionScope.user}" />
 
-  <c:if test="${user == null or user.userCode != 0}">
+  <c:if test="${empty user or user.userCode != 0}">
     <script>
       alert("비정상적인 접근");
       location.href = 'Main';
@@ -67,7 +67,7 @@
                   <input type="submit" class="dropdown-item" value="문서 목록" />
                 </form>
                 <form method="post" action="Document">
-                  <input type="submit" class="dropdown-item" value="문서 조회" />
+                  <input type="submit" class="dropdown-item" value="문서 관리" />
                 </form>
                 <form method="post" action="DocumentUpload">
                   <input type="submit" class="dropdown-item" value="문서 등록" />

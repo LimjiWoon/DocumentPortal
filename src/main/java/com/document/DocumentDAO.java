@@ -190,7 +190,7 @@ public class DocumentDAO {
 	
 	public ArrayList<DocumentDTO> getExcel(String startDate, String endDate, String filterCategory, 
 			String filterClient, String searchField, String searchOrder, String searchText){
-		String SQL = "SELECT f.fileTitle, c.clientName, cat.categoryName, u.userName, f.dateOfUpdate, f.fileName, f.categoryCode, f.clientCode "
+		String SQL = "SELECT f.fileTitle, c.clientName, cat.categoryName, u.userName, f.dateOfUpdate, f.fileName, f.categoryCode, f.clientCode, f.fileContent "
 				+ "FROM dbo.FILES f "
 				+ "LEFT JOIN dbo.CATEGORIES cat ON cat.categoryCode = f.categoryCode "
 				+ "LEFT JOIN dbo.USERS u ON u.userCode = f.userCode "
@@ -223,6 +223,7 @@ public class DocumentDAO {
 				document.setFileName(rs.getString(6));
 				document.setCategoryCode(rs.getInt(7));
 				document.setClientCode(rs.getInt(8));
+				document.setFileContent(rs.getString(9));
 				list.add(document);
 			}			
 		} catch(Exception e) {
@@ -323,7 +324,7 @@ public class DocumentDAO {
 			}
 
 			pstmt.executeUpdate();
-			logUpload(userCode, fileName, "file", "create", categoryCode + ": 위치의 신규 문서 생성");
+			logUpload(userCode, fileName, "file", "create", categoryCode + "/"+ clientCode + ": 위치의 신규 문서 생성");
 			
 			return 1;
 		} catch(Exception e) {
@@ -400,17 +401,17 @@ public class DocumentDAO {
 			int userCode, String clientCode, String originClientCode, String fileContent) {
 		String SQL = "UPDATE FILES SET fileTitle=?, clientCode=?, fileContent=?, dateOfUpdate=GETDATE(), categoryCode=? "
 				+ "WHERE fileName=? AND categoryCode=? AND clientCode ";
-		String logContent = "문서 갱신";
+		String logContent = "";
 		if (!categoryCode.equals(originCategoryCode)) 
-			logContent += "  문서 위치: " + originCategoryCode + "->" + categoryCode;
+			logContent += " 문서 위치: " + originCategoryCode + "-&gt;" + categoryCode;
 		if (originClientCode == null) {
 			SQL += "IS NULL;";
 		} else {
 			SQL += "=?;";
 			if (clientCode != null && !clientCode.equals(originClientCode)) {
-				logContent += "  고객사: " + originCategoryCode + "->" + categoryCode;
+				logContent += "  고객사: " + originClientCode + "-&gt;" + clientCode;
 			} else if (clientCode == null && originClientCode != null){
-				logContent += "  고객사: " + originClientCode + "->" + clientCode;
+				logContent += "  고객사: " + originClientCode + "-&gt;" + clientCode;
 			}
 		}
 		
@@ -447,19 +448,19 @@ public class DocumentDAO {
 			String originCategoryCode, int userCode, String clientCode, String originClientCode, String fileContent) {
 		String SQL = "UPDATE FILES SET fileTitle=?, fileName=?, clientCode=?, fileContent=?, dateOfUpdate=GETDATE(), categoryCode=? "
 				+ "WHERE fileName=? AND categoryCode=? AND clientCode ";
-		String logContent = "문서 갱신";
+		String logContent = "";
 		if (!fileName.equals(originFileName)) 
-			logContent += ": " + originFileName + "->" + fileName;
+			logContent += "파일명: " + originFileName + "-&gt;" + fileName;
 		if (!categoryCode.equals(originCategoryCode)) 
-			logContent += "  문서 위치: " + originCategoryCode + "->" + categoryCode;
+			logContent += "  문서 위치: " + originCategoryCode + "-&gt;" + categoryCode;
 		if (originClientCode == null) {
 			SQL += "IS NULL;";
 		} else {
 			SQL += "=?;";
 			if (clientCode != null && !clientCode.equals(originClientCode)) {
-				logContent += "  고객사: " + originCategoryCode + "->" + categoryCode;
+				logContent += "  고객사: " + originClientCode + "-&gt;" + clientCode;
 			} else if (clientCode == null && originClientCode != null){
-				logContent += "  고객사: " + originClientCode + "->" + clientCode;
+				logContent += "  고객사: " + originClientCode + "-&gt;" + clientCode;
 			}
 		}
 		

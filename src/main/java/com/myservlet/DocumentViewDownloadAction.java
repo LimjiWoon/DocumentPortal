@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.zip.*;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -70,27 +72,46 @@ public class DocumentViewDownloadAction extends HttpServlet {
 
 	        // 3. ZIP 파일 생성 및 파일 추가
 	        try (ServletOutputStream servletOutputStream = response.getOutputStream();
-	             ZipOutputStream zipOutputStream = new ZipOutputStream(servletOutputStream)) {
+	        	     ZipOutputStream zipOutputStream = new ZipOutputStream(servletOutputStream)) {
 
-	            for (String filePath : filePaths) {
-	                File file = new File(filePath);
-	                if (!file.exists()){
-	                	continue;
-	                }
-	                try (FileInputStream fileInputStream = new FileInputStream(file)) {
-	                    // 4. ZipEntry 생성 및 추가
-	                    ZipEntry zipEntry = new ZipEntry(file.getName());
-	                    zipOutputStream.putNextEntry(zipEntry);
+	        	    Set<String> existingFileNames = new HashSet<>(); // 중복 체크를 위한 Set 생성
 
-	                    // 5. 파일 데이터를 읽어서 ZipOutputStream에 쓰기
-	                    byte[] buffer = new byte[1024];
-	                    int bytesRead;
-	                    while ((bytesRead = fileInputStream.read(buffer)) != -1) {
-	                        zipOutputStream.write(buffer, 0, bytesRead);
-	                    }
-	                    zipOutputStream.closeEntry();
-	                }
-	            }
+	        	    for (String filePath : filePaths) {
+	        	        File file = new File(filePath);
+	        	        if (!file.exists()){
+	        	            continue;
+	        	        }
+
+	        	        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+	        	            // 4. ZipEntry 생성 및 중복 이름 처리
+	        	            String originalFileName = file.getName();
+	        	            String zipEntryName = originalFileName;
+
+	        	            int count = 1;
+	        	            // 파일 이름이 중복되면 숫자를 추가
+	        	            while (existingFileNames.contains(zipEntryName)) {
+	        	                String baseName = originalFileName.substring(0, originalFileName.lastIndexOf('.'));
+	        	                String extension = originalFileName.substring(originalFileName.lastIndexOf('.'));
+	        	                zipEntryName = baseName + "(" + count + ")" + extension;
+	        	                count++;
+	        	            }
+
+	        	            existingFileNames.add(zipEntryName); // 현재 이름을 Set에 추가
+
+	        	            // ZipEntry 생성 및 추가
+	        	            ZipEntry zipEntry = new ZipEntry(zipEntryName);
+	        	            zipOutputStream.putNextEntry(zipEntry);
+
+	        	            // 5. 파일 데이터를 읽어서 ZipOutputStream에 쓰기
+	        	            byte[] buffer = new byte[1024];
+	        	            int bytesRead;
+	        	            while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+	        	                zipOutputStream.write(buffer, 0, bytesRead);
+	        	            }
+
+	        	            zipOutputStream.closeEntry();
+	        	        }
+	        	    }
 
 	            zipOutputStream.finish(); // ZIP 파일 완성
 
