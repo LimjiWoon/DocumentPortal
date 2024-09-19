@@ -98,7 +98,7 @@ public class LoginAction extends HttpServlet {
                     request.getRequestDispatcher("PasswordRenewPage.jsp").forward(request, response);
                 } //로그인 성공 2
                 else {
-                    userDAO.loginSuccess(userID);
+                    userDAO.loginSuccess(realUser.getUserCode(), userID);
                     HttpSession session = request.getSession();
                     session.setAttribute("user", realUser);
                     response.sendRedirect("Main");
@@ -107,7 +107,7 @@ public class LoginAction extends HttpServlet {
             else if (result == 0) {
                 user = userDAO.getInfo(userID);
                 if (!user.isLock()) {
-                    userDAO.loginFail(userID, user.getFailOfPassword());
+                    userDAO.loginFail(user.getUserCode(), userID, user.getFailOfPassword());
                 }
                 message = "비밀번호가 틀립니다.";
                 if (user.getFailOfPassword() == 4) {

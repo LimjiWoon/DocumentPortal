@@ -41,24 +41,46 @@ public class DocumentUpdateAction extends HttpServlet {
 
 
     // 허용된 확장자 목록
-       private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList(
-           "jpg", "jpeg", "png", "gif", "pdf", "ppt", "pptx", "xls", "xlsx", "xml", 
-           "csv", "hwp", "hwpx", "docx", "txt", "zip"
-       );
+    private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList(
+       "jpg", "jpeg", "png", "gif", "pdf", "ppt", "pptx", "xls", "xlsx", "xml", 
+       "csv", "hwp", "hwpx", "docx", "txt", "zip"
+    		);
 
-       public boolean isAllowedExtension(String fileName) {
-           // 파일 확장자 추출
-           String extension = "";
+    public boolean isAllowedExtension(String fileName) {
+    	// 파일 확장자 추출
+		String extension = "";
+	
+		// 파일명에서 마지막 '.' 이후의 확장자 추출
+		int i = fileName.lastIndexOf('.');
+		if (i > 0) {
+			extension = fileName.substring(i + 1).toLowerCase();
+		}
+	
+		// 확장자가 허용된 목록에 있는지 확인
+	    return ALLOWED_EXTENSIONS.contains(extension);
+	}
 
-           // 파일명에서 마지막 '.' 이후의 확장자 추출
-           int i = fileName.lastIndexOf('.');
-           if (i > 0) {
-               extension = fileName.substring(i + 1).toLowerCase();
-           }
 
-           // 확장자가 허용된 목록에 있는지 확인
-           return ALLOWED_EXTENSIONS.contains(extension);
-       }
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+        request.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html; charset=UTF-8");
+
+        //세션에 로그인 정보가 있는지 확인부터 한다.
+		HttpSession session = request.getSession();
+		UserDTO user = (UserDTO) session.getAttribute("user");
+		if (user == null) {
+	        request.setAttribute("errorMessage", "로그인을 해주세요.");
+		} else {
+	        request.setAttribute("errorMessage", "Url을 직접 입력하여 들어올 수 없습니다.");
+		}
+	    request.getRequestDispatcher("Error.jsp").forward(request, response);
+	}
+
+  
        
        
 	/**

@@ -183,7 +183,7 @@ public class LogDAO {
 		return list;
 	}
 
-	public ArrayList<LogDTO> getExcel(String startDate, String endDate, String logWhere, String logHow, String searchField, String searchText){
+	public ArrayList<LogDTO> getExcel(int userCode, String startDate, String endDate, String logWhere, String logHow, String searchField, String searchText){
 		String SQL = "SELECT l.logWho, u.userName, l.logWhat, l.logWhere, l.logWhen, l.logHow, l.logwhy "
 				+ "FROM dbo.LOGS l "
 				+ "LEFT JOIN dbo.USERS u ON u.userCode = l.logWho ";
@@ -205,6 +205,7 @@ public class LogDAO {
 			pstmt = conn.prepareStatement(SQL);
 			
 			rs = pstmt.executeQuery();
+			logUpload(userCode, "", "log", "download", "로그 리스트 엑셀 다운로드");
 			
 			while (rs.next()) {
 				log = new LogDTO();
@@ -248,6 +249,7 @@ public class LogDAO {
 		}
 		return -1;
 	}
+	
 		
 	public void logClose() {
 	    try {

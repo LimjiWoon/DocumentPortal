@@ -29,6 +29,50 @@ public class ClientAction extends HttpServlet {
         // TODO Auto-generated constructor stub
     }
 
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+        request.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html; charset=UTF-8");
+
+        //세션에 로그인 정보가 있는지 확인부터 한다.
+		HttpSession session = request.getSession();
+		UserDTO user = (UserDTO) session.getAttribute("user");
+		if (user == null || !user.isClient()) {
+	        request.setAttribute("errorMessage", "비정상적인 접근");
+		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+			return;
+		}
+        
+
+	    int startPage = 1;
+	    int endPage;
+	    int totalPages;
+    	ClientDAO clientDAO = new ClientDAO();
+	    ArrayList<ClientDTO> list = new ArrayList<ClientDTO>();
+    	
+    	totalPages = Math.max(clientDAO.maxPage(null, null, null), 1);
+	    endPage = Math.min(startPage + 4, totalPages);
+
+	    if (endPage - startPage < 4) {
+	      startPage = Math.max(endPage - 4, 1);
+	    }
+	    
+	    list = clientDAO.getList(null, null, null, null);
+
+        request.setAttribute("startPage", startPage);
+        request.setAttribute("endPage", endPage);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("list", list);
+	    request.getRequestDispatcher("Client.jsp").forward(request, response);
+    	
+	}
+
+  
+
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */

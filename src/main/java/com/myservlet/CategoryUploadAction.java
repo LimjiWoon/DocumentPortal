@@ -27,6 +27,28 @@ public class CategoryUploadAction extends HttpServlet {
         // TODO Auto-generated constructor stub
     }
 
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+        request.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html; charset=UTF-8");
+
+        //세션에 로그인 정보가 있는지 확인부터 한다.
+		HttpSession session = request.getSession();
+		UserDTO user = (UserDTO) session.getAttribute("user");
+		if (user == null) {
+	        request.setAttribute("errorMessage", "로그인을 해주세요.");
+		} else {
+	        request.setAttribute("errorMessage", "Url을 직접 입력하여 들어올 수 없습니다.");
+		}
+	    request.getRequestDispatcher("Error.jsp").forward(request, response);
+	}
+
+  
+
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */

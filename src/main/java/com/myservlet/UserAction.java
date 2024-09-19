@@ -6,6 +6,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import com.user.*;
 import java.util.ArrayList;
 import com.myclass.XSSEscape;
@@ -24,6 +26,52 @@ public class UserAction extends HttpServlet {
         super();
         // TODO Auto-generated constructor stub
     }
+
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+        request.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html; charset=UTF-8");
+
+        //세션에 로그인 정보가 있는지 확인부터 한다.
+		HttpSession session = request.getSession();
+		UserDTO user = (UserDTO) session.getAttribute("user");
+		if (user == null || user.getUserCode() != 0) {
+	        request.setAttribute("errorMessage", "비정상적인 접근");
+		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    return;
+		} else {
+	    	UserDAO userDAO = new UserDAO();
+		    ArrayList<UserDTO> list = new ArrayList<UserDTO>();
+	    	
+		    int startPage = 1;
+		    int endPage;
+		    int totalPages;
+			
+	    	totalPages = Math.max(userDAO.maxPage(null, null, null), 1);
+	    	
+		    endPage = Math.min(startPage + 4, totalPages);
+
+		    if (endPage - startPage < 4) {
+		      startPage = Math.max(endPage - 4, 1);
+		    }
+		    
+		    list = userDAO.getList(null, null, null, null);
+
+	        userDAO.userClose();
+
+	        request.setAttribute("startPage", startPage);
+	        request.setAttribute("endPage", endPage);
+	        request.setAttribute("totalPages", totalPages);
+	        request.setAttribute("list", list);
+		    request.getRequestDispatcher("User.jsp").forward(request, response);
+		}
+	}
+
+  
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)

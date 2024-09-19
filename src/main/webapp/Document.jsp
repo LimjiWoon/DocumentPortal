@@ -34,21 +34,17 @@
         <a class="navbar-brand col-lg-3 me-0" href="Main">루키스 문서 관리</a>
           <ul class="navbar-nav col-lg-6 justify-content-lg-center">
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="Main">홈</a>
+              <a class="nav-link active" href="Main">홈</a>
             </li>
             <c:if test="${user.userCode == 0}">
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">사용자 관리</a>
                 <ul class="dropdown-menu">
                   <li>
-                    <form method="post" action="User">
-                      <input type="submit" class="dropdown-item" value="사용자 조회" />
-                    </form>
+                    <a class="dropdown-item" href="User">사용자 관리</a>
                   </li>
                   <li>
-                    <form method="post" action="UserUpload">
-                      <input type="submit" class="dropdown-item" value="사용자 등록" />
-                    </form>
+                    <a class="dropdown-item" href="UserUpload">사용자 등록</a>
                   </li>
                 </ul>
               </li>
@@ -56,14 +52,12 @@
             <c:choose>
               <c:when test="${user.isClient}">
                 <li class="nav-item">
-                  <form method="post" action="Client">
-                    <input type="submit" class="nav-link" value="고객사 관리" />
-                  </form>
+                  <a class="nav-link" href="Client">고객사 관리</a>
                 </li>
               </c:when>
               <c:otherwise>
                 <li class="nav-item">
-                  <a class="nav-link disabled" aria-current="page" href="#">고객사 관리</a>
+                  <a class="nav-link disabled" href="#">고객사 관리</a>
                 </li>
               </c:otherwise>
             </c:choose>
@@ -74,9 +68,7 @@
                   <ul class="dropdown-menu">
                     <c:choose>
                       <c:when test="${user.isCategory}">
-                        <form method="post" action="Category">
-                          <input type="submit" class="dropdown-item" value="문서 목록" />
-                        </form>
+                        <li><a class="dropdown-item" href="Category">문서 목록</a></li>
                       </c:when>
                       <c:otherwise>
                         <li><a class="dropdown-item disabled">문서 목록</a></li>
@@ -84,12 +76,8 @@
                     </c:choose>
                     <c:choose>
                       <c:when test="${user.isDocument}">
-                        <form method="post" action="Document" id="reset" name="reset" >
-                          <input type="submit" class="dropdown-item" value="문서 관리" />
-                        </form>
-                        <form method="post" action="DocumentUpload">
-                          <input type="submit" class="dropdown-item" value="문서 등록" />
-                        </form>
+                        <li><a class="dropdown-item" href="Document">문서 관리</a></li>
+                        <li><a class="dropdown-item" href="DocumentUpload">문서 등록</a></li>
                       </c:when>
                       <c:otherwise>
                         <li><a class="dropdown-item disabled">문서 관리</a></li>
@@ -101,15 +89,13 @@
               </c:when>
               <c:otherwise>
                 <li class="nav-item">
-                  <a class="nav-link disabled" aria-current="page" href="#">문서 관리</a>
+                  <a class="nav-link disabled" href="#">문서 관리</a>
                 </li>
               </c:otherwise>
             </c:choose>
             <c:if test="${user.userCode == 0}">
               <li class="nav-item">
-                <form method="post" action="Log">
-                  <input type="submit" class="nav-link active" value="로그" />
-                </form>
+                <a class="nav-link" href="Log">로그</a>
               </li>
             </c:if>
           </ul>
@@ -150,7 +136,7 @@
                 <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>고객사</option>
               </c:if>
               <c:if test="${empty filterCategory}">
-                <option value="3" ${'3'.equals(searchField) ? 'selected' : ''}>문서 위치</option>
+                <option value="3" ${'3'.equals(searchField) ? 'selected' : ''}>문서 목록</option>
               </c:if>
             </select>
             <select class="form-control f-90p" name="searchOrder" id="searchOrder" aria-label="searchOrder">
@@ -177,7 +163,7 @@
               <th scope="col" class="t-c w-25">문서 제목</th>
               <th scope="col" class="t-c w-12">작성자</th>
               <th scope="col" class="t-c w-12">고객사</th>
-              <th scope="col" class="t-c w-12">문서 위치</th>
+              <th scope="col" class="t-c w-12">문서 목록</th>
               <th scope="col" class="t-c w-auto">최근 수정일</th>
               <th scope="col" class="t-c w-7">조회</th>
               <th scope="col" class="t-c w-7">수정</th>
@@ -223,13 +209,13 @@
 	
     <div class="row">
       <div class="col t-l w-20">
-        <button class="btn btn-secondary btn-allow-left" onclick="submitCheckedDocuments('DocumentViewDownload');">
+        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#DownloadFilterModal">
           다운로드
         </button>
         <button class="btn btn-danger btn-allow-left" onclick="submitCheckedDocuments('DocumentDelete');">
           삭제
         </button>
-        <button type="button" class="btn btn-secondary" onclick=" document.getElementById('reset').submit();">검색/필터 초기화</button>
+        <a class="btn btn-secondary" href="Document">검색/필터 초기화</a>
       </div>
       <c:choose>
         <c:when test="${empty list}"></c:when>
@@ -328,9 +314,7 @@
       </c:choose>
 
       <div class="col t-r w-20">
-        <form method="post" action="DocumentUpload">
-          <input type="submit" class="btn btn-dark btn-allow-left" value="등록" />
-        </form>
+        <a class="btn btn-dark btn-allow-left" href="DocumentUpload">등록</a>
       </div>
     </div>
   </div>
@@ -358,7 +342,7 @@
                           <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>고객사</option>
                         </c:if>
                         <c:if test="${empty filterCategory}">
-                          <option value="3" ${'3'.equals(searchField) ? 'selected' : ''}>문서 위치</option>
+                          <option value="3" ${'3'.equals(searchField) ? 'selected' : ''}>문서 목록</option>
                         </c:if>
                       </select>
                     </td>
@@ -388,10 +372,10 @@
                     </td>
                   </tr>
                   <tr>
-                    <td class="bg-gray"><b>문서 위치</b></td>
+                    <td class="bg-gray"><b>문서 목록</b></td>
                     <td colspan="3">
                       <select class="form-select" title="filterCategory" id="filterCategory" name="filterCategory" required>
-                        <option ${empty filterCategory ? 'selected' : ''} >문서 위치 선택</option>
+                        <option ${empty filterCategory ? 'selected' : ''} >문서 목록 선택</option>
                         <c:forEach var="list" items="${categoryList}">
                           <option value="${list.categoryCode}" ${(list.categoryCode == filterCategory) ? 'selected' : ''} >${list.categoryName}</option>
                         </c:forEach>
@@ -416,7 +400,7 @@
           </div>
           <div class="modal-footer">
             <button type="submit" class="btn btn-secondary" onclick="searchExcel('Document')">적용</button>
-            <button type="button" class="btn btn-secondary" onclick="downloadExcel('Excel', 'hidden4')">엑셀</button>
+            <button type="button" class="btn btn-secondary" onclick="downloadExcel('Excel', 'hidden4')">출력</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
           </div>
         </form>
@@ -424,9 +408,86 @@
     </div>
   </div>
   
+    <div class="modal fade" id="DownloadFilterModal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="DowonloadFilterModallabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="DowonloadFilterModallabel">다운로드 옵션 선택</h4>
+        </div>
+        <form id="DownloadFilter" method="post" name="DownloadFilter" action="DocumentDownload">
+          <div class="modal-body">
+            <div class="container">
+              <table class="table table-dark-line t-c custom-table">
+                <tbody>
+                  <tr>
+                    <td class="bg-gray">
+                      <select class="form-control select-gray-custom" name="searchField" id="searchField" aria-label="searchField">
+                        <option value="" disabled ${empty searchField ? 'selected' : ''}>선택</option>
+                        <option value="1" ${'1'.equals(searchField) ? 'selected' : ''}>문서 제목</option>
+                        <option value="4" ${'4'.equals(searchField) ? 'selected' : ''}>작성자</option>
+                        <c:if test="${empty filterClient}">
+                          <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>고객사</option>
+                        </c:if>
+                        <c:if test="${empty filterCategory}">
+                          <option value="3" ${'3'.equals(searchField) ? 'selected' : ''}>문서 목록</option>
+                        </c:if>
+                      </select>
+                    </td>
+                    <td colspan="3">
+                      <input type="text" class="form-control f-1" name="searchText" id="searchText" value="${searchText}">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="bg-gray col-3"><b>수정일</b></td>
+                    <td class="col-3">
+                      <input type="date" class="form-control" id="startDate" name="startDate"
+                        value="${startDate}" min="2009-01-01" max="2039-12-31" />
+                    </td>
+                    <td class="bg-gray col-1"><b>-</b></td>
+                    <td class="col-3">
+                      <input type="date" class="form-control" id="endDate" name="endDate"
+                        value="${endDate}" min="2009-01-01" max="2039-12-31" />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="bg-gray"><b>문서 목록</b></td>
+                    <td colspan="3">
+                      <select class="form-select" title="filterCategory" id="filterCategory" name="filterCategory" required>
+                        <option ${empty filterCategory ? 'selected' : ''} >문서 목록 선택</option>
+                        <c:forEach var="list" items="${categoryList}">
+                          <option value="${list.categoryCode}" ${(list.categoryCode == filterCategory) ? 'selected' : ''} >${list.categoryName}</option>
+                        </c:forEach>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="bg-gray"><b>고객사</b></td>
+                    <td colspan="3">
+                      <select class="form-select" title="filterClient" id="filterClient" name="filterClient" required>
+                        <option ${empty filterClient ? 'selected' : ''} >고객사 선택</option>
+                        <c:forEach var="list" items="${clientList}">
+                          <option value="${list.clientCode}" ${(list.clientCode == filterClient) ? 'selected' : ''} >${list.clientName}</option>
+                        </c:forEach>
+                      </select>
+                    </td>
+                  </tr>
+                  
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-allow-left" onclick="submitCheckedDocuments('DocumentViewDownload');">
+              다운로드
+            </button>
+            <button type="submit" class="btn btn-secondary" onclick="searchExcel('Document')">적용</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
   
-  
-  <div id="modalContainer"></div>
 
 
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>

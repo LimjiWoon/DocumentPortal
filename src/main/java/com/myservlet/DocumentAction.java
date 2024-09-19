@@ -31,6 +31,60 @@ public class DocumentAction extends HttpServlet {
         // TODO Auto-generated constructor stub
     }
 
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+        request.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html; charset=UTF-8");
+
+        //세션에 로그인 정보가 있는지 확인부터 한다.
+		HttpSession session = request.getSession();
+		UserDTO user = (UserDTO) session.getAttribute("user");
+		if (user == null || !user.isDocument() ) {
+	        request.setAttribute("errorMessage", "비정상적인 접근");
+		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+			return;
+		}
+
+    	DocumentDAO documentDAO = new DocumentDAO();
+    	CategoryDAO categoryDAO = new CategoryDAO();
+    	ClientDAO clientDAO = new ClientDAO();
+		
+	    int startPage = 1;
+	    int totalPages = Math.max(documentDAO.maxPage(null, null, null, null), 1);
+	    int endPage = Math.min(startPage + 4, totalPages);
+	    ArrayList<CategoryDTO> categoryList = new ArrayList<CategoryDTO>();
+	    ArrayList<ClientDTO> clientList = new ArrayList<ClientDTO>();
+	    ArrayList<DocumentDTO> list = new ArrayList<DocumentDTO>();
+	    
+	    if (endPage - startPage < 4) {
+	      startPage = Math.max(endPage - 4, 1);
+	    }
+	    
+	    list = documentDAO.getList(null, null, null, null, null);
+	    categoryList = categoryDAO.getList();
+	    clientList = clientDAO.getList();
+	    
+	    categoryDAO.categoryClose();
+	    clientDAO.clientClose();
+	    documentDAO.documentClose();
+		
+
+        request.setAttribute("startPage", startPage);
+        request.setAttribute("endPage", endPage);
+        request.setAttribute("totalPages", totalPages);
+	    request.setAttribute("categoryList", categoryList);
+	    request.setAttribute("clientList", clientList);
+        request.setAttribute("list", list);
+        
+	    request.getRequestDispatcher("Document.jsp").forward(request, response);
+	}
+
+  
+
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */

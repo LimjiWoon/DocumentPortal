@@ -6,7 +6,10 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import com.user.UserDAO;
+import com.user.UserDTO;
 import com.myclass.XSSEscape;
 
 /**
@@ -23,6 +26,30 @@ public class UserUploadAction extends HttpServlet {
         super();
         // TODO Auto-generated constructor stub
     }
+
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+        request.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html; charset=UTF-8");
+        
+        //세션에 로그인 정보가 있는지 확인부터 한다.
+        //관리자 계정이라면 upload페이지로 이동시킨다.
+		HttpSession session = request.getSession();
+		UserDTO user = (UserDTO) session.getAttribute("user");
+		if (user == null || user.getUserCode() != 0) {
+	        request.setAttribute("errorMessage", "비정상적인 접근");
+	        request.getRequestDispatcher("Error.jsp").forward(request, response);
+		} else {
+			request.getRequestDispatcher("UserUpload.jsp").forward(request, response);
+		}
+		
+	}
+
+  
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
@@ -45,7 +72,8 @@ public class UserUploadAction extends HttpServlet {
 			//위 XSS를 어느 하나라도 통과하지 못했다면
 			if (userID == null || userName == null || userPassword == null 
 					|| isCategory == null || isClient == null || isDocument == null){
-                request.getRequestDispatcher("UserUpload.jsp").forward(request, response);
+		        request.setAttribute("errorMessage", "비정상적인 접근");
+		        request.getRequestDispatcher("Error.jsp").forward(request, response);
 			} //아이디 중복 체크
 			else if (userDAO.userIDCheck(userID) == 1) {
 				//아이디 등록 성공

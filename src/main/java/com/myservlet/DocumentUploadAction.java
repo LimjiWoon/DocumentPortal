@@ -39,7 +39,7 @@ public class DocumentUploadAction extends HttpServlet {
         // TODO Auto-generated constructor stub
     }
     
- // 허용된 확장자 목록
+	// 허용된 확장자 목록
     private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList(
         "jpg", "jpeg", "png", "gif", "pdf", "ppt", "pptx", "xls", "xlsx", "xml", 
         "csv", "hwp", "hwpx", "docx", "txt", "zip"
@@ -56,8 +56,45 @@ public class DocumentUploadAction extends HttpServlet {
         }
 
         // 확장자가 허용된 목록에 있는지 확인
-        return ALLOWED_EXTENSIONS.contains(extension);
+    	return ALLOWED_EXTENSIONS.contains(extension);
     }
+
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+        request.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html; charset=UTF-8");
+
+        //세션에 로그인 정보가 있는지 확인부터 한다.
+		HttpSession session = request.getSession();
+		UserDTO user = (UserDTO) session.getAttribute("user");
+		if (user == null || !user.isDocument() ) {
+	        request.setAttribute("errorMessage", "비정상적인 접근");
+		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+			return;
+		}
+		
+	    ArrayList<CategoryDTO> category = new ArrayList<CategoryDTO>();
+	    ArrayList<ClientDTO> client = new ArrayList<ClientDTO>();
+		CategoryDAO categoryDAO= new CategoryDAO();
+		ClientDAO clientDAO= new ClientDAO();
+		
+    	category = categoryDAO.getList();
+    	client = clientDAO.getList();
+    	
+    	categoryDAO.categoryClose();
+    	clientDAO.clientClose();
+
+        request.setAttribute("category", category);
+        request.setAttribute("client", client);
+	    request.getRequestDispatcher("DocumentUpload.jsp").forward(request, response);
+	    
+	}
+
+  
     
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
@@ -71,7 +108,7 @@ public class DocumentUploadAction extends HttpServlet {
         //세션에 로그인 정보가 있는지 확인부터 한다.
 		HttpSession session = request.getSession();
 		UserDTO user = (UserDTO) session.getAttribute("user");
-		if (user == null) {
+		if (user == null || !user.isDocument() ) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
 		    request.getRequestDispatcher("Error.jsp").forward(request, response);
 			return;
@@ -123,6 +160,7 @@ public class DocumentUploadAction extends HttpServlet {
     			//만약 파일 외 같이 받은 값이 이상하다면 파일을 삭제하고 동작을 중단시킨다.
     			//또한 업로드할 경로가 존재하지 않는다면 마찬가지로 동작을 중단시킨다.
     			if (documentName == null || categoryCode  == null || categoryRoot == null) {
+    	        	System.out.println("0");
     				deleteFile(multipartRequest.getFile("fileName"));
     		        request.setAttribute("errorMessage", "비정상적인 접근");
     			    request.getRequestDispatcher("Error.jsp").forward(request, response);
@@ -232,21 +270,8 @@ public class DocumentUploadAction extends HttpServlet {
     		
         } else {
             // 일반 form-data 처리
-    	    ArrayList<CategoryDTO> category = new ArrayList<CategoryDTO>();
-    	    ArrayList<ClientDTO> client = new ArrayList<ClientDTO>();
-    		CategoryDAO categoryDAO= new CategoryDAO();
-    		ClientDAO clientDAO= new ClientDAO();
-    		
-        	category = categoryDAO.getList();
-        	client = clientDAO.getList();
-        	
-        	categoryDAO.categoryClose();
-        	clientDAO.clientClose();
-
-            request.setAttribute("category", category);
-            request.setAttribute("client", client);
-    	    request.getRequestDispatcher("DocumentUpload.jsp").forward(request, response);
-        	
+	        request.setAttribute("errorMessage", "비정상적인 접근");
+		    request.getRequestDispatcher("Error.jsp").forward(request, response);
         	return;
         }
 		

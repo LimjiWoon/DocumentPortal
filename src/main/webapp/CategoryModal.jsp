@@ -12,7 +12,7 @@
 <body>
 
 
-  <div class="modal fade" id="CategoryModal" data-bs-backdrop="static" data-bs-keyboard="false" 
+  <div class="modal fade" id="CategoryModal" data-bs-keyboard="false" 
   tabindex="-1" aria-labelledby="CategoryModallabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable">
       <div class="modal-content">

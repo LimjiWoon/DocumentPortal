@@ -194,7 +194,7 @@ public class ClientDAO {
 		return list;
 	}
 	
-	public ArrayList<ClientDTO> getExcel(String startDate, String endDate, String isUse, String searchField, String searchOrder, String searchText){
+	public ArrayList<ClientDTO> getExcel(int userCode, String startDate, String endDate, String isUse, String searchField, String searchOrder, String searchText){
 		String SQL = "SELECT c.clientCode, c.clientName, u.userName, c.dateOfUpdate, c.isUse, c.clientContent "
 				+ "FROM  dbo.CLIENTS c "
 				+ "LEFT JOIN dbo.USERS u ON c.userCode = u.userCode ";
@@ -216,6 +216,7 @@ public class ClientDAO {
 			pstmt = conn.prepareStatement(SQL);
 			
 			rs = pstmt.executeQuery();
+			logUpload(userCode, "", "client", "download", "고객사 리스트 엑셀 다운로드");
 			while (rs.next()) {
 				client = new ClientDTO();
 				client.setClientCode(rs.getInt(1));

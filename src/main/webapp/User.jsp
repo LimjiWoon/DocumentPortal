@@ -15,7 +15,7 @@
 <body>
   <c:set var="user" value="${sessionScope.user}" />
 
-  <c:if test="${empty user or user.userCode != 0}">
+  <c:if test="${empty user or user.userCode != 0 or list == null}">
     <script>
       alert("비정상적인 접근");
       location.href = 'Main';
@@ -32,46 +32,32 @@
         <a class="navbar-brand col-lg-3 me-0" href="Main">루키스 문서 관리</a>
           <ul class="navbar-nav col-lg-6 justify-content-lg-center">
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="Main">홈</a>
+              <a class="nav-link active" href="Main">홈</a>
             </li>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">사용자 관리</a>
               <ul class="dropdown-menu">
                 <li>
-                  <form method="post" action="User" id="reset" name="reset" >
-                    <input type="submit" class="dropdown-item" value="사용자 조회" />
-                  </form>
+                  <a class="dropdown-item" href="User">사용자 관리</a>
                 </li>
                 <li>
-                  <form method="post" action="UserUpload">
-                    <input type="submit" class="dropdown-item" value="사용자 등록" />
-                  </form>
+                  <a class="dropdown-item" href="UserUpload">사용자 등록</a>
                 </li>
               </ul>
             </li>
             <li class="nav-item">
-              <form method="post" action="Client">
-                <input type="submit" class="nav-link" value="고객사 관리" />
-              </form>
+              <a class="nav-link" href="Client">고객사 관리</a>
             </li>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">문서 관리</a>
               <ul class="dropdown-menu">
-                <form method="post" action="Category">
-                  <input type="submit" class="dropdown-item" value="문서 목록" />
-                </form>
-                <form method="post" action="Document">
-                  <input type="submit" class="dropdown-item" value="문서 관리" />
-                </form>
-                <form method="post" action="DocumentUpload">
-                  <input type="submit" class="dropdown-item" value="문서 등록" />
-                </form>
+                <a class="dropdown-item" href="Category">문서 목록</a>
+                <a class="dropdown-item" href="Document">문서 관리</a>
+                <a class="dropdown-item" href="DocumentUpload">문서 등록</a>
               </ul>
             </li>
             <li class="nav-item">
-              <form method="post" action="Log">
-                <input type="submit" class="nav-link active" value="로그" />
-              </form>
+              <a class="nav-link" href="Log">로그</a>
             </li>
           </ul>
         <div class="d-lg-flex col-lg-3 justify-content-lg-end">
@@ -188,9 +174,11 @@
         </tbody> 
       </table>
     </div>
+    
+    
     <div class="row">
       <div class="col t-l w-25">
-        <button type="button" class="btn btn-secondary" onclick=" document.getElementById('reset').submit();">검색/필터 초기화</button>
+        <a class="btn btn-secondary" href="User">검색/필터 초기화</a>
       </div>
         <c:choose>
           <c:when test="${empty list}"></c:when>
@@ -284,9 +272,7 @@
         </c:choose>
                       
       <div class="col t-r w-25">
-        <form method="post" action="UserUpload">
-          <input type="submit" class="btn btn-dark btn-allow-left" value="등록" />
-        </form>
+        <a class="btn btn-dark btn-allow-left" href="UserUpload">등록</a>
       </div>
     </div>
   </div>
@@ -372,7 +358,7 @@
           </div>
           <div class="modal-footer">
             <button type="submit" class="btn btn-secondary" onclick="searchExcel('User')">적용</button>
-            <button type="button" class="btn btn-secondary" onclick="downloadExcel('Excel', 'hidden1')">엑셀</button>
+            <button type="button" class="btn btn-secondary" onclick="downloadExcel('Excel', 'hidden1')">출력</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
           </div>
         </form>

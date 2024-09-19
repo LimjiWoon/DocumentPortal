@@ -52,18 +52,19 @@ public class UserDAO {
 		return -2; //데이터베이스 오류
 	}
 	
-	public void loginSuccess(String userID) {
+	public void loginSuccess(int userCode, String userID) {
 		String SQL = "UPDATE USERS SET failOfPassword=0 FROM USERS WHERE userID=?";
 		try {
 			pstmt = conn.prepareStatement(SQL);
 			pstmt.setString(1, userID);
 			pstmt.executeUpdate();
+			logUpload(userCode, userID, "user", "login", "로그인 성공");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public void loginFail(String userID, int failOfPassword) {
+	public void loginFail(int userCode, String userID, int failOfPassword) {
 	    // 첫 번째 try-catch 블록
 	    try {
 	    	String SQL;
@@ -78,17 +79,12 @@ public class UserDAO {
 	        pstmt = conn.prepareStatement(SQL);
 	        pstmt.setString(1, userID);
 	        pstmt.executeUpdate();
+	        if (failOfPassword == 4) {
+				logUpload(userCode, userID, "user", "update", "로그인 5회 실패로 계정 잠금");
+	        }
 
 	    } catch (Exception e) {
 	        e.printStackTrace();
-	    } finally {
-	        // 리소스 해제
-	        try {
-	            if (rs != null) rs.close();
-	            if (pstmt != null) pstmt.close();
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	        }
 	    }
 	}
 	
@@ -114,6 +110,38 @@ public class UserDAO {
 				user.setUserID(userID);
 			}
 			return user; //아이디가 없으면 emtpy상태와 같음 -> 정보 없음
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null; //데이터베이스 오류
+	}
+	
+	public int getCode(String userID) {
+		String SQL = "SELECT userCode FROM USERS WHERE userID = ?";
+		try {
+			pstmt = conn.prepareStatement(SQL);
+			pstmt.setString(1, userID);
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				return rs.getInt(1);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return -1; //데이터베이스 오류
+	}
+	
+	public String getID(int userCode) {
+		String SQL = "SELECT userID FROM USERS WHERE userCode = ?";
+		try {
+			pstmt = conn.prepareStatement(SQL);
+			pstmt.setInt(1, userCode);
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				return rs.getString(1);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -158,6 +186,7 @@ public class UserDAO {
 			if(rs.next()) {
 				if(rs.getString(1).equals(logic.getSHA256(nowPassword))) {
 					passwordUpdate(userID, newPassword);
+					logUpload(getCode(userID), userID, "user", "update", "비밀번호 변경");
 					return 1; //변경 성공
 				}
 			}
@@ -342,7 +371,7 @@ public class UserDAO {
 		return list;
 	}
 	
-	public ArrayList<UserDTO> getExcel(String dateOfPassword, String isLock, String isRetire, 
+	public ArrayList<UserDTO> getExcel(int userCode, String dateOfPassword, String isLock, String isRetire, 
 			String searchField, String searchOrder, String searchText){
 		ArrayList<UserDTO> list = new ArrayList<UserDTO>();
 		String SQL = "SELECT userCode, userName, isCategory, isClient, isDocument, isLock, isRetire, DATEDIFF(DAY, dateOfPassword, GETDATE()) "
@@ -362,6 +391,8 @@ public class UserDAO {
 			pstmt = conn.prepareStatement(SQL);
 			
 			rs = pstmt.executeQuery();
+			logUpload(userCode, "", "user", "download", "사용자 리스트 엑셀 다운로드");
+			
 			while (rs.next()) {
 				UserDTO user = new UserDTO();
 				user.setUserCode(rs.getInt(1));
@@ -393,6 +424,7 @@ public class UserDAO {
 			}
 			pstmt.setInt(2, userCode);
 			pstmt.executeUpdate();
+			logUpload(userCode, getID(userCode), "user", "update", "계정 잠금 상태 변경");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -422,6 +454,7 @@ public class UserDAO {
 			}
 			
 			pstmt.executeUpdate();
+			logUpload(getCode(userID), userID, "user", "create", "신규 계정 등록");
 			
 			return 1;
 		} catch (Exception e) {
@@ -506,6 +539,7 @@ public class UserDAO {
 			}
 			pstmt.setString(cnt, userID);
 			pstmt.executeUpdate();
+			logUpload(getCode(userID), userID, "user", "update", "계정 정보 변경");
 			
 			return 1;
 		} catch (Exception e) {
@@ -527,9 +561,35 @@ public class UserDAO {
 			}
 			pstmt.setInt(3, userCode);
 			pstmt.executeUpdate();
+			logUpload(userCode, getID(userCode), "user", "update", "계정 재직 상태 변경");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	
+	public int logUpload(int logWho, String logWhat, String logWhere, String logHow, String logWhy) {
+		String SQL = "INSERT INTO dbo.LOGS (logWho, logWhat, logWhere, logHow, logWhy) "
+				+ " VALUES (?, ?, ?, ?, ?);";
+
+		try {
+			pstmt = conn.prepareStatement(SQL);
+			pstmt.setInt(1, logWho);
+			pstmt.setString(2, logWhat);
+			pstmt.setString(3, logWhere);
+			pstmt.setString(4, logHow);
+			if (logWhy == null){
+				pstmt.setNull(5, java.sql.Types.VARCHAR);
+			} else {
+				pstmt.setString(5, logWhy);
+			}
+			pstmt.executeUpdate();
+			
+			return 1;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return -1;
 	}
 	
 	public void userClose() {

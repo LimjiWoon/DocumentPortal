@@ -37,6 +37,28 @@ public class ExcelDownloadAction extends HttpServlet {
         // TODO Auto-generated constructor stub
     }
 
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+        request.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html; charset=UTF-8");
+
+        //세션에 로그인 정보가 있는지 확인부터 한다.
+		HttpSession session = request.getSession();
+		UserDTO user = (UserDTO) session.getAttribute("user");
+		if (user == null) {
+	        request.setAttribute("errorMessage", "로그인을 해주세요.");
+		} else {
+	        request.setAttribute("errorMessage", "Url을 직접 입력하여 들어올 수 없습니다.");
+		}
+	    request.getRequestDispatcher("Error.jsp").forward(request, response);
+	}
+
+  
+
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
@@ -76,6 +98,9 @@ public class ExcelDownloadAction extends HttpServlet {
 	    
 	    try {
 	    	Workbook workBook;
+
+			response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+	    	
 	    	//각 권한에 따른 엑셀 생성
 	    	if ("hidden1".equals(code) && user.getUserCode() == 0) {
 	    	    ArrayList<UserDTO> list = new ArrayList<UserDTO>();
@@ -83,12 +108,13 @@ public class ExcelDownloadAction extends HttpServlet {
 	    	    searchField = XSSEscape.changeUserField(request.getParameter("searchField"));
 	    		
 	    	    if (searchField != null && searchText != null && searchOrder != null){
-	    	    	list = userDAO.getExcel(dateOfPassword, isLock, isRetire, searchField, searchOrder, searchText);
+	    	    	list = userDAO.getExcel(user.getUserCode(), dateOfPassword, isLock, isRetire, searchField, searchOrder, searchText);
 	    	    } else {
-	    	    	list = userDAO.getExcel(dateOfPassword, isLock, isRetire, null, null, null);
+	    	    	list = userDAO.getExcel(user.getUserCode(), dateOfPassword, isLock, isRetire, null, null, null);
 	    	    }
 	    		
 	    		workBook = CreateExcel.userExcel(list);
+		        response.setHeader("Content-Disposition", "attachment; filename=\"user_list.xlsx\"");
 	    		userDAO.userClose();
 			} else if ("hidden2".equals(code) && user.isClient()) {
 			    ArrayList<ClientDTO> list = new ArrayList<ClientDTO>();
@@ -96,12 +122,13 @@ public class ExcelDownloadAction extends HttpServlet {
 			    searchField = XSSEscape.changeClientField(request.getParameter("searchField"));
 
 	    	    if (searchField != null && searchText != null && searchOrder != null){
-	    	    	list = clientDAO.getExcel(startDate, endDate, isUse, searchField, searchOrder, searchText);
+	    	    	list = clientDAO.getExcel(user.getUserCode(), startDate, endDate, isUse, searchField, searchOrder, searchText);
 	    	    } else {
-	    	    	list = clientDAO.getExcel(startDate, endDate, isUse, null, null, null);
+	    	    	list = clientDAO.getExcel(user.getUserCode(), startDate, endDate, isUse, null, null, null);
 	    	    }
 				
 				workBook = CreateExcel.clientExcel(list);
+		        response.setHeader("Content-Disposition", "attachment; filename=\"client_list.xlsx\"");
 				clientDAO.clientClose();
 			} else if ("hidden3".equals(code) && user.isCategory()) {
 			    ArrayList<CategoryDTO> list = new ArrayList<CategoryDTO>();
@@ -109,12 +136,13 @@ public class ExcelDownloadAction extends HttpServlet {
 			    searchField = XSSEscape.changeCategoryField(request.getParameter("searchField"));
 
 	    	    if (searchField != null && searchText != null && searchOrder != null){
-	    	    	list = categoryDAO.getExcel(startDate, endDate, searchField, searchOrder, searchText);
+	    	    	list = categoryDAO.getExcel(user.getUserCode(), startDate, endDate, searchField, searchOrder, searchText);
 	    	    } else {
-	    	    	list = categoryDAO.getExcel(startDate, endDate, null, null, null);
+	    	    	list = categoryDAO.getExcel(user.getUserCode(), startDate, endDate, null, null, null);
 	    	    }
 				
 				workBook = CreateExcel.categoryExcel(list);
+		        response.setHeader("Content-Disposition", "attachment; filename=\"category_list.xlsx\"");
 				categoryDAO.categoryClose();
 			} else if ("hidden4".equals(code) && user.isDocument()) {
 			    ArrayList<DocumentDTO> list = new ArrayList<DocumentDTO>();
@@ -122,12 +150,13 @@ public class ExcelDownloadAction extends HttpServlet {
 			    searchField = XSSEscape.changeDocumentField(request.getParameter("searchField"));
 
 	    	    if (searchField != null && searchText != null && searchOrder != null){
-	    	    	list = documentDAO.getExcel(startDate, endDate, filterCategory, filterClient, searchField, searchOrder, searchText);
+	    	    	list = documentDAO.getExcel(user.getUserCode(), startDate, endDate, filterCategory, filterClient, searchField, searchOrder, searchText);
 	    	    } else {
-	    	    	list = documentDAO.getExcel(startDate, endDate, filterCategory, filterClient, null, null, null);
+	    	    	list = documentDAO.getExcel(user.getUserCode(), startDate, endDate, filterCategory, filterClient, null, null, null);
 	    	    }
 				
 				workBook = CreateExcel.documentExcel(list);
+		        response.setHeader("Content-Disposition", "attachment; filename=\"document_list.xlsx\"");
 				documentDAO.documentClose();
 			} else if ("hidden5".equals(code) && user.getUserCode() == 0) {
 			    ArrayList<LogDTO> list = new ArrayList<LogDTO>();
@@ -135,20 +164,20 @@ public class ExcelDownloadAction extends HttpServlet {
 			    searchField = XSSEscape.changeLogField(request.getParameter("searchField"));
 
 	    	    if (searchField != null && searchText != null){
-	    	    	list = logDAO.getExcel(startDate, endDate, logWhere, logHow, searchField, searchText);
+	    	    	list = logDAO.getExcel(user.getUserCode(), startDate, endDate, logWhere, logHow, searchField, searchText);
 	    	    } else {
-	    	    	list = logDAO.getExcel(startDate, endDate, logWhere, logHow, null, null);
+	    	    	list = logDAO.getExcel(user.getUserCode(), startDate, endDate, logWhere, logHow, null, null);
 	    	    }
 				
 				workBook = CreateExcel.logExcel(list);
+		        response.setHeader("Content-Disposition", "attachment; filename=\"log_list.xlsx\"");
 				logDAO.logClose();
 			} else {
 				workBook = new XSSFWorkbook();
+		        response.setHeader("Content-Disposition", "attachment; filename=\"Excel.xlsx\"");
 			}
 	    	
 	    	
-			response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-	        response.setHeader("Content-Disposition", "attachment; filename=\"Excel.xlsx\"");
 	        
 	        // ServletOutputStream을 통해 파일을 클라이언트에게 전송
 	        ServletOutputStream servletOutputStream = response.getOutputStream();

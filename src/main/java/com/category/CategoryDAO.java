@@ -196,7 +196,7 @@ public class CategoryDAO {
 	}
 	
 	
-	public ArrayList<CategoryDTO> getExcel(String startDate, String endDate, String searchField, String searchOrder, String searchText){
+	public ArrayList<CategoryDTO> getExcel(int userCode, String startDate, String endDate, String searchField, String searchOrder, String searchText){
 		String SQL = "SELECT cat.categoryCode, cat.categoryName, u.userName, cat.dateOfCreate "
 				+ "FROM dbo.CATEGORIES cat "
 				+ "LEFT JOIN dbo.USERS u ON u.userCode = cat.userCode "
@@ -219,6 +219,7 @@ public class CategoryDAO {
 			pstmt = conn.prepareStatement(SQL);
 			
 			rs = pstmt.executeQuery();
+			logUpload(userCode, "", "category", "download", "문서 목록 리스트 엑셀 다운로드");
 			while (rs.next()) {
 				category = new CategoryDTO();
 				category.setCategoryCode(rs.getInt(1));
@@ -400,11 +401,12 @@ public class CategoryDAO {
 	}
 
 	public int categoryUpdate(String categoryName, String originCategoryName,int categoryCode, int userCode) {
-		String SQL = "UPDATE dbo.CATEGORIES SET categoryName=? WHERE categoryCode=?;";
+		String SQL = "UPDATE dbo.CATEGORIES SET categoryName=?, categoryRoot=? WHERE categoryCode=?;";
 		try {
 			pstmt = conn.prepareStatement(SQL);
 			pstmt.setString(1, categoryName);
-			pstmt.setInt(2, categoryCode);
+			pstmt.setString(2, "/root/"+categoryName);
+			pstmt.setInt(3, categoryCode);
 			pstmt.executeUpdate();
 			
 			logUpload(userCode, categoryName, "category", "update", categoryCode + ": " + originCategoryName + "-&gt;" + categoryName);

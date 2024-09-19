@@ -15,7 +15,7 @@
 <body>
   <c:set var="user" value="${sessionScope.user}" />
 
-  <c:if test="${user == null or user.userCode != 0}">
+  <c:if test="${user == null or user.userCode != 0 or list == null}">
     <script>
       alert("비정상적인 접근");
       location.href = 'Main';
@@ -39,7 +39,7 @@
               <ul class="dropdown-menu">
                 <li>
                   <form method="post" action="User">
-                    <input type="submit" class="dropdown-item" value="사용자 조회" />
+                    <input type="submit" class="dropdown-item" value="사용자 관리" />
                   </form>
                 </li>
                 <li>
@@ -119,7 +119,7 @@
             <th scope="col" class="t-c w-10">페이지</th>
             <th scope="col" class="t-c w-18">시간</th>
             <th scope="col" class="t-c w-14">대상</th>
-            <th scope="col" class="t-c w-5">행동</th>
+            <th scope="col" class="t-c w-7">행동</th>
             <th scope="col" class="t-c w-auto">설명</th>
           </tr>
         </thead>
@@ -136,14 +136,18 @@
                   <td>
                     ${log.logWhere == 'client' ? '고객사' :
                       log.logWhere == 'file' ? '문서' :
-                      log.logWhere == 'category' ? '문서 목록' : log.logWhere}
+                      log.logWhere == 'category' ? '문서 목록' :
+                      log.logWhere == 'user' ? '사용자' :
+                      log.logWhere == 'log' ? '로그' : log.logWhere}
                   </td>
                   <td>${log.logWhen.substring(0, 19)}</td>
                   <td>${log.logWhat}</td>
                   <td>
                     ${log.logHow == 'create' ? '등록' :
                       log.logHow == 'update' ? '갱신' :
-                      log.logHow == 'delete' ? '삭제' : log.logHow}
+                      log.logHow == 'delete' ? '삭제' : 
+                      log.logHow == 'download' ? '다운' :
+                      log.logHow == 'login' ? '로그인' : log.logHow}
                   </td>
                   <td>${log.logWhy}</td>
                 </tr>
@@ -157,7 +161,7 @@
 	
     <div class="row">
       <div class="col t-l w-20">
-        <button type="button" class="btn btn-secondary" onclick=" document.getElementById('reset').submit();">검색/필터 초기화</button>
+        <a class="btn btn-secondary" href="Client">검색/필터 초기화</a>
       </div>
       <c:choose>
         <c:when test="${empty list}"></c:when>
@@ -294,10 +298,12 @@
                     <td class="bg-gray"><b>페이지</b></td>
                     <td colspan="3">
                       <select class="form-select" name="logWhere" id="logWhere" aria-label="logWhere">
-                        <option ${empty logWhere ? 'selected' : ''}>페이지</option>
+                        <option ${empty logWhere ? 'selected' : ''}>페이지 선택</option>
+                        <option value="4" ${'4'.equals(logWhere) ? 'selected' : ''}>사용자</option>
                         <option value="1" ${'1'.equals(logWhere) ? 'selected' : ''}>고객사</option>
                         <option value="2" ${'2'.equals(logWhere) ? 'selected' : ''}>문서 목록</option>
                         <option value="3" ${'3'.equals(logWhere) ? 'selected' : ''}>문서</option>
+                        <option value="5" ${'5'.equals(logWhere) ? 'selected' : ''}>로그</option>
                       </select>
                     </td>
                   </tr>
@@ -306,9 +312,11 @@
                     <td colspan="3">
                       <select class="form-select" name="logHow" id="logHow" aria-label="logHow">
                         <option ${empty logHow ? 'selected' : ''}>행동 선택</option>
+                        <option value="5" ${'5'.equals(logHow) ? 'selected' : ''}>로그인</option>
                         <option value="1" ${'1'.equals(logHow) ? 'selected' : ''}>등록</option>
                         <option value="2" ${'2'.equals(logHow) ? 'selected' : ''}>갱신</option>
                         <option value="3" ${'3'.equals(logHow) ? 'selected' : ''}>삭제</option>
+                        <option value="4" ${'4'.equals(logHow) ? 'selected' : ''}>다운</option>
                       </select>
                     </td>
                   </tr> 
@@ -318,7 +326,7 @@
           </div>
           <div class="modal-footer">
             <button type="submit" class="btn btn-secondary" onclick="searchExcel('Log')">적용</button>
-            <button type="button" class="btn btn-secondary" onclick="downloadExcel('Excel', 'hidden5')">엑셀</button>
+            <button type="button" class="btn btn-secondary" onclick="downloadExcel('Excel', 'hidden5')">출력</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
           </div>
         </form>

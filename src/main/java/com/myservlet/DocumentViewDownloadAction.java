@@ -13,9 +13,13 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.myclass.XSSEscape;
+import com.user.UserDTO;
+import com.client.ClientDAO;
 import com.document.DocumentDAO;
+import com.log.LogDAO;
 
 /**
  * Servlet implementation class DocumentViewDownloadAction
@@ -32,6 +36,28 @@ public class DocumentViewDownloadAction extends HttpServlet {
         // TODO Auto-generated constructor stub
     }
 
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+        request.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html; charset=UTF-8");
+
+        //세션에 로그인 정보가 있는지 확인부터 한다.
+		HttpSession session = request.getSession();
+		UserDTO user = (UserDTO) session.getAttribute("user");
+		if (user == null) {
+	        request.setAttribute("errorMessage", "로그인을 해주세요.");
+		} else {
+	        request.setAttribute("errorMessage", "Url을 직접 입력하여 들어올 수 없습니다.");
+		}
+	    request.getRequestDispatcher("Error.jsp").forward(request, response);
+	}
+
+  
+
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
@@ -40,6 +66,17 @@ public class DocumentViewDownloadAction extends HttpServlet {
 		request.setCharacterEncoding("UTF-8"); 
         response.setContentType("text/html; charset=UTF-8");
 
+
+		HttpSession session = request.getSession();
+		UserDTO user = (UserDTO) session.getAttribute("user");
+		
+		if (user == null || !user.isDocument()) {
+	        request.setAttribute("errorMessage", "비정상적인 접근");
+		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+			return;
+		}
+		
+		
 		String fileName = XSSEscape.changeCategoryName(request.getParameter("fileName"));
 		String clientName = XSSEscape.changeClientName(request.getParameter("clientName"));
 		String categoryCode = XSSEscape.isNumber(request.getParameter("categoryCode"));
@@ -52,6 +89,8 @@ public class DocumentViewDownloadAction extends HttpServlet {
 		if (checkedDocumentCodes != null) {
 			//1. 파일 경로 List 설정
 			ArrayList<String> filePaths = new ArrayList<String>();
+			LogDAO logDAO = new LogDAO();
+			ClientDAO clientDAO = new ClientDAO();
 			String[] rootAndName;
 			for (String code: checkedDocumentCodes) {
 				rootAndName = XSSEscape.changeDocumentDownload(code);
@@ -60,10 +99,17 @@ public class DocumentViewDownloadAction extends HttpServlet {
 					clientName = XSSEscape.changeClientName(rootAndName[1]);
 					fileName = XSSEscape.changeCategoryName(rootAndName[2]);
 					categoryRoot = documentDAO.getRoot(categoryCode);
-					if(categoryCode != null && fileName != null && categoryRoot != null || clientName == null)
+					if(categoryCode != null && fileName != null && categoryRoot != null || clientName == null) {
 						filePaths.add(folderPath + File.separator + categoryRoot + File.separator + clientName + File.separator + fileName);
+						logDAO.logUpload(user.getUserCode(), fileName, "client", "download", categoryCode+ "/" + clientDAO.getClientCode(clientName) + " 의 문서 다운로드");
+					}
+						
+					
 				}
 			}
+			
+			logDAO.logClose();
+			clientDAO.clientClose();
 			
 	        // 2. ZIP 파일명 설정
 	        String zipFileName = "download.zip";
@@ -160,6 +206,13 @@ public class DocumentViewDownloadAction extends HttpServlet {
 		
 		FileInputStream fileInputStream = new FileInputStream(file);
 		ServletOutputStream servletOutputStream = response.getOutputStream();
+		LogDAO logDAO = new LogDAO();
+		ClientDAO clientDAO = new ClientDAO();
+
+		logDAO.logUpload(user.getUserCode(), fileName, "client", "download", categoryCode+ "/" + clientDAO.getClientCode(clientName) + " 의 문서 다운로드");
+		
+		logDAO.logClose();
+		clientDAO.clientClose();
 		
 		byte b[] = new byte[1024];
 		int data = 0;

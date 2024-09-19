@@ -30,6 +30,43 @@ public class CategoryAction extends HttpServlet {
     }
 
 	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+        request.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html; charset=UTF-8");
+
+        //세션에 로그인 정보가 있는지 확인부터 한다.
+		HttpSession session = request.getSession();
+		UserDTO user = (UserDTO) session.getAttribute("user");
+		if (user == null || !user.isCategory()) {
+	        request.setAttribute("errorMessage", "비정상적인 접근");
+		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+			return;
+		}
+        
+    	CategoryDAO categoryDAO = new CategoryDAO();
+	    int startPage = 1;
+	    int totalPages = Math.max(categoryDAO.maxPage(null, null), 1);
+	    int endPage = Math.min(startPage + 4, totalPages);
+	    if (endPage - startPage < 4) {
+	      startPage = Math.max(endPage - 4, 1);
+	    }
+	    
+	    ArrayList<CategoryDTO> list = categoryDAO.getList(null, null, null);
+	    
+	    categoryDAO.categoryClose();
+	    
+        request.setAttribute("startPage", startPage);
+        request.setAttribute("endPage", endPage);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("list", list);
+        
+	    request.getRequestDispatcher("Category.jsp").forward(request, response);
+	}
+
+	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

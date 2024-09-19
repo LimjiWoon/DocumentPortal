@@ -188,7 +188,41 @@ public class DocumentDAO {
 	}
 	
 	
-	public ArrayList<DocumentDTO> getExcel(String startDate, String endDate, String filterCategory, 
+	public ArrayList<DocumentDTO> getDownload(String startDate, String endDate, String filterCategory, String filterClient, String searchField, String searchText){
+		String SQL = "SELECT c.clientName, cat.categoryName, f.fileName, f.categoryCode, f.clientCode "
+				+ "FROM dbo.FILES f "
+				+ "LEFT JOIN dbo.CATEGORIES cat ON cat.categoryCode = f.categoryCode "
+				+ "LEFT JOIN dbo.USERS u ON u.userCode = f.userCode "
+				+ "LEFT JOIN dbo.CLIENTS c ON c.clientCode = f.clientCode ";
+		if (searchText.trim() != ""){
+			SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, searchField, searchText);
+		} else {
+			SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, null, null);
+		}
+		ArrayList<DocumentDTO> list = new ArrayList<DocumentDTO>();
+		
+		try {
+			pstmt = conn.prepareStatement(SQL);
+			
+			rs = pstmt.executeQuery();
+			while (rs.next()) {
+				document = new DocumentDTO();
+				document.setClientName(rs.getString(1));
+				document.setCategoryName(rs.getString(2));
+				document.setFileName(rs.getString(3));
+				document.setCategoryCode(rs.getInt(4));
+				document.setClientCode(rs.getInt(5));
+				list.add(document);
+			}			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return list;
+	}
+	
+	
+	public ArrayList<DocumentDTO> getExcel(int userCode, String startDate, String endDate, String filterCategory, 
 			String filterClient, String searchField, String searchOrder, String searchText){
 		String SQL = "SELECT f.fileTitle, c.clientName, cat.categoryName, u.userName, f.dateOfUpdate, f.fileName, f.categoryCode, f.clientCode, f.fileContent "
 				+ "FROM dbo.FILES f "
@@ -213,6 +247,7 @@ public class DocumentDAO {
 			pstmt = conn.prepareStatement(SQL);
 			
 			rs = pstmt.executeQuery();
+			logUpload(userCode, "", "file", "download", "문서 리스트 엑셀 다운로드");
 			while (rs.next()) {
 				document = new DocumentDTO();
 				document.setFileTitle(rs.getString(1));

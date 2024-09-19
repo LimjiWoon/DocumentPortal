@@ -368,6 +368,10 @@ public class XSSEscape {
 			return "update";
 		case "3":
 			return "delete";
+		case "4":
+			return "download";
+		case "5":
+			return "login";
 		default:
 			return null;
 		}
@@ -383,6 +387,10 @@ public class XSSEscape {
 			return "2";
 		case "delete":
 			return "3";
+		case "download":
+			return "4";
+		case "login":
+			return "5";
 		default:
 			return null;
 		}
@@ -398,6 +406,10 @@ public class XSSEscape {
 			return "category";
 		case "3":
 			return "file";
+		case "4":
+			return "user";
+		case "5":
+			return "log";
 		default:
 			return null;
 		}
@@ -413,6 +425,10 @@ public class XSSEscape {
 			return "2";
 		case "file":
 			return "3";
+		case "user":
+			return "4";
+		case "log":
+			return "5";
 		default:
 			return null;
 		}
