@@ -69,14 +69,14 @@ public class LoginAction extends HttpServlet {
             } //로그인 시도 - 일치하는 아이디가 있을 경우
             else if (result == 1) {
             	realUser = userDAO.getInfo(userID);
-            	//로그인 실패 1- 계정 잠금
-                if (realUser.isLock()) {
-                	message += "계정이 잠겼습니다.";
+            	//로그인 실패 1- 퇴사자
+                if (realUser.isRetire()) {
+                	message += "퇴사한 사원입니다.";
                     request.setAttribute("errorMessage", message);
                     request.getRequestDispatcher("Error.jsp").forward(request, response);
-                } //로그인 실패 2- 퇴사자
-                else if (realUser.isRetire()) {
-                	message += "퇴사한 사원입니다.";
+                } //로그인 실패 2- 계정 잠금 
+                else if (realUser.isLock()) {
+                	message += "계정이 잠겼습니다.";
                     request.setAttribute("errorMessage", message);
                     request.getRequestDispatcher("Error.jsp").forward(request, response);
                 } //로그인 실패 3- 장기 미접속 시

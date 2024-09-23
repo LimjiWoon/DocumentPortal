@@ -60,6 +60,21 @@ public class DocumentUploadAction extends HttpServlet {
     }
 
 
+    public String getFileTitle(String fileName) {
+        // 파일 확장자 추출
+        String fileTitle = "";
+
+        // 파일명에서 마지막 '.' 이후의 확장자 추출
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+        	fileTitle = fileName.substring(0, i);
+        }
+
+        // 확장자가 허용된 목록에 있는지 확인
+    	return fileTitle;
+    }
+
+
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
@@ -149,7 +164,6 @@ public class DocumentUploadAction extends HttpServlet {
     					new DefaultFileRenamePolicy());
     	        DocumentDAO documentDAO = new DocumentDAO();
         		ClientDAO clientDAO= new ClientDAO();
-    			String documentName = XSSEscape.changeCategoryName(multipartRequest.getParameter("documentName"));
     			String categoryCode = XSSEscape.isNumber(multipartRequest.getParameter("categoryCode"));
     			String clientCode = XSSEscape.isClientCode(multipartRequest.getParameter("clientCode"));
     			String clientName = null;
@@ -159,10 +173,9 @@ public class DocumentUploadAction extends HttpServlet {
     			
     			//만약 파일 외 같이 받은 값이 이상하다면 파일을 삭제하고 동작을 중단시킨다.
     			//또한 업로드할 경로가 존재하지 않는다면 마찬가지로 동작을 중단시킨다.
-    			if (documentName == null || categoryCode  == null || categoryRoot == null) {
-    	        	System.out.println("0");
+    			if (categoryCode  == null || categoryRoot == null || clientCode == null) {
     				deleteFile(multipartRequest.getFile("fileName"));
-    		        request.setAttribute("errorMessage", "비정상적인 접근");
+    		        request.setAttribute("errorMessage", "모두 정확하게 기입해주시길 바랍니다.");
     			    request.getRequestDispatcher("Error.jsp").forward(request, response);
             		clientDAO.clientClose();
             		documentDAO.documentClose();
@@ -190,17 +203,9 @@ public class DocumentUploadAction extends HttpServlet {
     			}
 
     			//허용되지 않은 확장자가 올라왔을 경우
-    			if (!isAllowedExtension(fileName)) {
-    				deleteFile(multipartRequest.getFile("fileName"));
-    		        request.setAttribute("errorMessage", "허용되지 않은 확장자가 업로드 되었습니다.");
-    			    request.getRequestDispatcher("Error.jsp").forward(request, response);
-            		clientDAO.clientClose();
-            		documentDAO.documentClose();
-    				return;
-    			}
-    			
     			//만에 하나 파일명과 실제 업로드된 파일 명이 다르면 error
-    			if (!fileName.equals(orgFileName)) {
+    			
+    			if (fileName == null || !isAllowedExtension(fileName) || !fileName.equals(orgFileName)) {
     				deleteFile(multipartRequest.getFile("fileName"));
     		        request.setAttribute("errorMessage", "업로드에 문제가 생겼습니다.");
     			    request.getRequestDispatcher("Error.jsp").forward(request, response);
@@ -232,9 +237,9 @@ public class DocumentUploadAction extends HttpServlet {
     			File moveFile = new File(movePath);
     			boolean isFile = moveFile.exists();
     			if (isFile) {
-    				result = documentDAO.documentUpdate(documentName, fileName, categoryCode, user.getUserCode(), clientCode, fileContent);
+    				result = documentDAO.documentUpdate(getFileTitle(fileName), fileName, categoryCode, user.getUserCode(), clientCode, fileContent);
     			} else {
-    				result = documentDAO.documentUpload(documentName, fileName, categoryCode, user.getUserCode(), clientCode, fileContent);
+    				result = documentDAO.documentUpload(getFileTitle(fileName), fileName, categoryCode, user.getUserCode(), clientCode, fileContent);
     			}
     			if (isFile && result == 1) {
     				deleteFile(moveFile);

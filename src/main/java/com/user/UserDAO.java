@@ -199,7 +199,7 @@ public class UserDAO {
 	
 	//passwordRenew가 모든 검사를 마치면 비밀번호와 비밀번호 변경일을 바꾸는 메소드
 	private void passwordUpdate(String userID, String newPassword) {
-		String SQL = "UPDATE USERS SET userPassword=?, dateOfPassword=GETDATE() FROM USERS WHERE userID=?";
+		String SQL = "UPDATE USERS SET userPassword=?, dateOfPassword=GETDATE(), failOfPassword=0 FROM USERS WHERE userID=?";
 		try {
 			pstmt = conn.prepareStatement(SQL);
 			pstmt.setString(1, logic.getSHA256(newPassword));
@@ -436,7 +436,7 @@ public class UserDAO {
 			pstmt = conn.prepareStatement(SQL);
 			pstmt.setString(1, userName);
 			pstmt.setString(2, userID);
-			pstmt.setString(3, logic.getSHA256(userPassword));
+			pstmt.setString(3, userPassword);
 			if (isCategory) {
 				pstmt.setInt(4,1);
 			} else {
@@ -494,7 +494,7 @@ public class UserDAO {
 		if (!userName.equals(hiddenName))
 			SQL += "userName=?, ";
 		if (!userPassword.equals(hiddenPassword))
-			SQL += "userPassword=?, dateOfPassword=NULL, ";
+			SQL += "userPassword=?, failOfPassword=0, dateOfPassword=NULL, ";
 		if (!isCategory.equals(hiddenCategory))
 			SQL += "isCategory=?, ";
 		if (!isClient.equals(hiddenClient))

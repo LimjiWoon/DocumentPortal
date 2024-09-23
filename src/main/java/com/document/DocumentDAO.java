@@ -30,7 +30,7 @@ public class DocumentDAO {
 		//그 어떠한 값도 들어오지 않은 경우
 		if (startDate == null && endDate == null && filterCategory == null && 
 				filterClient == null && searchField == null && searchText == null) {
-			return SQL;
+			return SQL + " WHERE c.isUse=1 ";
 		}
 		
 		StringBuilder query = new StringBuilder(SQL);
@@ -55,6 +55,7 @@ public class DocumentDAO {
 		if (searchField != null && searchText != null) {
 			conditions.add(" " + searchField.trim() + " LIKE '%" + searchText.trim() + "%' ");
 		}
+		conditions.add(" c.isUse=1 ");
 		
 		if (!conditions.isEmpty()) {
 		    query.append(" WHERE ").append(String.join(" AND ", conditions));
@@ -65,7 +66,8 @@ public class DocumentDAO {
 
 	
 	public int maxPage(String startDate, String endDate, String filterCategory, String filterClient) {
-		String SQL = "SELECT COUNT(*) AS cnt FROM dbo.FILES f ";
+		String SQL = "SELECT COUNT(*) AS cnt FROM dbo.FILES f "
+				+ "LEFT JOIN dbo.CLIENTS c ON c.clientCode = f.clientCode ";
 		SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, null, null);
 		try {
 			pstmt = conn.prepareStatement(SQL);
@@ -151,7 +153,7 @@ public class DocumentDAO {
 				+ "LEFT JOIN dbo.CATEGORIES cat ON cat.categoryCode = f.categoryCode "
 				+ "LEFT JOIN dbo.USERS u ON u.userCode = f.userCode "
 				+ "LEFT JOIN dbo.CLIENTS c ON c.clientCode = f.clientCode ";
-		if (searchText.trim() != ""){
+		if (searchText != null && searchText.trim() != ""){
 			SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, searchField, searchText);
 		} else {
 			SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, null, null);
@@ -194,7 +196,7 @@ public class DocumentDAO {
 				+ "LEFT JOIN dbo.CATEGORIES cat ON cat.categoryCode = f.categoryCode "
 				+ "LEFT JOIN dbo.USERS u ON u.userCode = f.userCode "
 				+ "LEFT JOIN dbo.CLIENTS c ON c.clientCode = f.clientCode ";
-		if (searchText.trim() != ""){
+		if (searchText != null && searchText.trim() != ""){
 			SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, searchField, searchText);
 		} else {
 			SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, null, null);
@@ -377,6 +379,9 @@ public class DocumentDAO {
 		} else {
 			SQL += "=?;";
 		}
+		
+		if (categoryCode == null || fileName == null)
+			return -1;
 		
 		try {
 			pstmt = conn.prepareStatement(SQL);

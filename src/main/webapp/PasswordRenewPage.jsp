@@ -4,7 +4,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Insert title here</title>
+  <title>루키스 문서 관리 - 바밀번호</title>
   <script src="js/userlogic.js"></script>
 </head>
 <body>

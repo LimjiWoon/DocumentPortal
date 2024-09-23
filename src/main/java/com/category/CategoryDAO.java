@@ -420,7 +420,7 @@ public class CategoryDAO {
 		return -1;
 	}
 
-	public int documentDelte(String categoryName, int categoryCode, int userCode) {
+	public int documentDelete(String categoryName, int categoryCode, int userCode) {
 		String SQL = "DELETE dbo.FILES WHERE categoryCode=?;";
 		try {
 			pstmt = conn.prepareStatement(SQL);
@@ -438,7 +438,7 @@ public class CategoryDAO {
 		return -1;
 	}
 	
-	public int categoryDelte(String categoryName, int categoryCode, int userCode) {
+	public int categoryDelete(String categoryName, int categoryCode, int userCode) {
 		String SQL = "DELETE CATEGORIES WHERE categoryCode=?;";
 		try {
 			pstmt = conn.prepareStatement(SQL);

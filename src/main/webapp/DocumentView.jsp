@@ -10,7 +10,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/bootstrap.min.css" >
   <link rel="stylesheet" href="css/custom.css">
-  <title>문서 목록 관리</title>
+  <title>루키스 문서 관리 - 문서</title>
 </head>
 <body>
 

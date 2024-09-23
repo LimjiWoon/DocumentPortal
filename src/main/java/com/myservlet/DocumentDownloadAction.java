@@ -82,11 +82,12 @@ public class DocumentDownloadAction extends HttpServlet {
 	    String endDate = XSSEscape.checkDate(request.getParameter("endDate"));
 	    String filterCategory = XSSEscape.isNumber(request.getParameter("filterCategory"));
 	    String filterClient = XSSEscape.isNumber(request.getParameter("filterClient"));
-		String folderPath = getServletContext().getRealPath("");
 
 		DocumentDAO documentDAO = new DocumentDAO();
 	    ArrayList<DocumentDTO> list = new ArrayList<DocumentDTO>();
 		
+	    
+	    //0. 파일 정보 List를 생성
 	    if (searchField != null && searchText != null){
 		    list = documentDAO.getDownload(startDate, endDate, filterCategory, filterClient, searchField, searchText);
 	    }
@@ -100,11 +101,11 @@ public class DocumentDownloadAction extends HttpServlet {
 		LogDAO logDAO = new LogDAO();
 		for (DocumentDTO document: list) {
 			String categoryCode = Integer.toString(document.getCategoryCode());
-			String clientName = document.getCategoryName();
+			String clientName = document.getClientName();
 			String fileName = document.getFileName();
 			String categoryRoot = documentDAO.getRoot(categoryCode);
 			if(categoryCode != null && fileName != null && categoryRoot != null || clientName == null) {
-				filePaths.add(folderPath + File.separator + categoryRoot + File.separator + clientName + File.separator + fileName);
+				filePaths.add(getServletContext().getRealPath(categoryRoot) + File.separator + clientName + File.separator + fileName);
 				logDAO.logUpload(user.getUserCode(), fileName, "client", "download", categoryCode+ "/" + document.getClientCode() + " 의 문서 다운로드");
 		
 			}
@@ -125,6 +126,7 @@ public class DocumentDownloadAction extends HttpServlet {
 
         	    for (String filePath : filePaths) {
         	        File file = new File(filePath);
+        			
         	        if (!file.exists()){
         	            continue;
         	        }

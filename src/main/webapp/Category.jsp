@@ -10,7 +10,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/bootstrap.min.css" >
   <link rel="stylesheet" href="css/custom.css">
-  <title>문서 목록 조회</title>
+  <title>루키스 문서 관리 - 문서 목록</title>
 </head>
 <body>
 
@@ -126,7 +126,7 @@
             <select class="form-control f-110p" name="searchField" id="searchField" aria-label="searchField" required>
               <option value="" disabled ${empty searchField ? 'selected' : ''}>선택</option>
               <option value="1" ${'1'.equals(searchField) ? 'selected' : ''}>코드</option>
-              <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>이름</option>
+              <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>문서 목록명</option>
               <option value="3" ${'3'.equals(searchField) ? 'selected' : ''}>작성자</option>
             </select>
             <select class="form-control f-90p" name="searchOrder" id="searchOrder" aria-label="searchOrder">
@@ -148,7 +148,7 @@
         <thead class="table-dark">
           <tr>
             <th scope="col" class="t-c w-10">코드</th>
-            <th scope="col" class="t-c w-18">이름</th>
+            <th scope="col" class="t-c w-18">문서 목록명</th>
             <th scope="col" class="t-c w-18">작성자</th>
             <th scope="col" class="t-c w-auto">생성일</th>
             <th scope="col" class="t-c w-10">고객사 목록</th>
@@ -382,7 +382,7 @@
                       <select class="form-control select-gray-custom" name="searchField" id="searchField" aria-label="searchField">
                         <option value="" disabled ${empty searchField ? 'selected' : ''}>선택</option>
                         <option value="1" ${'1'.equals(searchField) ? 'selected' : ''}>코드</option>
-                        <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>이름</option>
+                        <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>문서 목록명</option>
                         <option value="3" ${'3'.equals(searchField) ? 'selected' : ''}>작성자</option>
                       </select>
                     </td>
@@ -400,7 +400,7 @@
                     </td>
                   </tr>
                   <tr>
-                    <td class="bg-gray col-3"><b>생성일</b></td>
+                    <td class="bg-gray col-4"><b>생성일</b></td>
                     <td class="col-3">
                       <input type="date" class="form-control" id="startDate" name="startDate"
                         value="${startDate}" min="2009-01-01" max="2039-12-31" />

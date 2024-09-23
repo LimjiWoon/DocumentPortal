@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>알림</title>
+  <title>루키스 문서 관리 - 알림</title>
   <script type="text/javascript">
     window.onload = function() {
         var messageClient = "<%= request.getAttribute("messageClient") != null ? request.getAttribute("messageClient") : "" %>";

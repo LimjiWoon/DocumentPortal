@@ -64,7 +64,7 @@ public class DocumentViewAction extends HttpServlet {
 		String categoryCode = XSSEscape.isNumber(request.getParameter("categoryCode"));
 		String clientCode = XSSEscape.isClientCode(request.getParameter("clientCode"));
 		
-		if (user == null || !user.isDocument() || fileName == null || categoryCode== null) {
+		if (user == null || !user.isDocument() || fileName == null || categoryCode== null || clientCode == null) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
 		    request.getRequestDispatcher("Error.jsp").forward(request, response);
 			return;

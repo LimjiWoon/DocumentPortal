@@ -4,8 +4,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+  <meta charset="UTF-8">
+  <title>루키스 문서 관리 - 에러</title>
 </head>
 <body>
   <c:if test="${empty user}">

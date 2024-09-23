@@ -80,14 +80,14 @@ public class CategoryDeleteAction extends HttpServlet {
 		
 		//문서 권한에 따른 문서 목록 삭제 처리
 		if (user.isDocument() && folder.exists() &&
-				categoryDAO.documentDelte(categoryName, Integer.parseInt(categoryCode), user.getUserCode()) == 1 &&
-				categoryDAO.categoryDelte(categoryName, Integer.parseInt(categoryCode), user.getUserCode()) == 1 &&
+				categoryDAO.documentDelete(categoryName, Integer.parseInt(categoryCode), user.getUserCode()) == 1 &&
+				categoryDAO.categoryDelete(categoryName, Integer.parseInt(categoryCode), user.getUserCode()) == 1 &&
 				deleteDirectory(folder)) {
             request.setAttribute("messageCategory", "문서 목록 삭제 성공!");
             request.getRequestDispatcher("Message.jsp").forward(request, response);
 		} //문서 권한이 없으면 폴더가 비어 있을 때만 삭제시킴
 		else if(folder.exists() && isDirectoryEmpty(folder) && 
-				categoryDAO.categoryDelte(categoryName, Integer.parseInt(categoryCode), user.getUserCode()) == 1 && folder.delete()) {
+				categoryDAO.categoryDelete(categoryName, Integer.parseInt(categoryCode), user.getUserCode()) == 1 && folder.delete()) {
             request.setAttribute("messageCategory", "문서 목록 삭제 성공!");
             request.getRequestDispatcher("Message.jsp").forward(request, response);
 		} 

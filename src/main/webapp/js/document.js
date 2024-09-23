@@ -10,16 +10,29 @@ function selectAll(selectAll)  {
 
 function submitCheckedDocuments(actionURL) {
     var form = document.getElementById('documentForm');
-    
+	var checkboxes = form.querySelectorAll('input[type="checkbox"]');
+	var isChecked = false;
+
+	for (var i = 0; i < checkboxes.length; i++) {
+	    if (checkboxes[i].checked) {
+	        isChecked = true;
+	        break;
+	    }
+	}
+
+	if (!isChecked) {
+	    alert('선택된 문서가 없습니다.');
+	    return;
+	}
+
 	if (actionURL === 'DocumentDelete') {
 	    if (!confirm('정말 삭제하시겠습니까?')) {
 	        return;
 	    }
 	}
-	
-    form.action = actionURL;
-    
-    form.submit();
+
+	form.action = actionURL;
+	form.submit();
 }
 
 function submitForm(action, fileName, categoryCode, clientCode) {
@@ -120,17 +133,5 @@ function confirmUpload(isConfirmed) {
     } else {
 		var confirmationModal = bootstrap.Modal.getInstance(document.getElementById('confirmationModal'));
 		confirmationModal.hide();
-    }
-}
-
-
-
-function checkDocumentName(event) {
-    var pattern = /[\\/:*?"<>|]/g; // 허용되지 않는 문자 패턴
-    var currentValue = event.target.value;
-
-    // 허용된 문자를 제외한 모든 문자를 제거
-    if (pattern.test(currentValue)) {
-        event.target.value = currentValue.replace(pattern, '');
     }
 }

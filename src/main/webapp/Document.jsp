@@ -10,8 +10,10 @@
   <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/bootstrap.min.css" >
+  <link rel="stylesheet" href="css/select2.min.css" >
+  <link rel="stylesheet" href="css/select2-bootstrap-5-theme.min.css" >
   <link rel="stylesheet" href="css/custom.css">
-  <title>문서 목록 조회</title>
+  <title>루키스 문서 관리 - 문서</title>
 </head>
 <body>
 
@@ -130,7 +132,7 @@
           <div class="input-group d-f mb-3">
             <select class="form-control f-110p" name="searchField" id="searchField" aria-label="searchField" required>
               <option value="" disabled ${empty searchField ? 'selected' : ''}>선택</option>
-              <option value="1" ${'1'.equals(searchField) ? 'selected' : ''}>문서 제목</option>
+              <option value="1" ${'1'.equals(searchField) ? 'selected' : ''}>문서명</option>
               <option value="4" ${'4'.equals(searchField) ? 'selected' : ''}>작성자</option>
               <c:if test="${empty filterClient}">
                 <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>고객사</option>
@@ -160,7 +162,7 @@
               <th scope="col" class="t-c w-4">
                 <input type='checkbox' onclick='selectAll(this)'/>
               </th>
-              <th scope="col" class="t-c w-25">문서 제목</th>
+              <th scope="col" class="t-c w-25">문서명</th>
               <th scope="col" class="t-c w-12">작성자</th>
               <th scope="col" class="t-c w-12">고객사</th>
               <th scope="col" class="t-c w-12">문서 목록</th>
@@ -336,7 +338,7 @@
                     <td class="bg-gray">
                       <select class="form-control select-gray-custom" name="searchField" id="searchField" aria-label="searchField">
                         <option value="" disabled ${empty searchField ? 'selected' : ''}>선택</option>
-                        <option value="1" ${'1'.equals(searchField) ? 'selected' : ''}>문서 제목</option>
+                        <option value="1" ${'1'.equals(searchField) ? 'selected' : ''}>문서명</option>
                         <option value="4" ${'4'.equals(searchField) ? 'selected' : ''}>작성자</option>
                         <c:if test="${empty filterClient}">
                           <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>고객사</option>
@@ -360,7 +362,7 @@
                     </td>
                   </tr>
                   <tr>
-                    <td class="bg-gray col-3"><b>수정일</b></td>
+                    <td class="bg-gray col-4"><b>수정일</b></td>
                     <td class="col-3">
                       <input type="date" class="form-control" id="startDate" name="startDate"
                         value="${startDate}" min="2009-01-01" max="2039-12-31" />
@@ -374,8 +376,8 @@
                   <tr>
                     <td class="bg-gray"><b>문서 목록</b></td>
                     <td colspan="3">
-                      <select class="form-select" title="filterCategory" id="filterCategory" name="filterCategory" required>
-                        <option ${empty filterCategory ? 'selected' : ''} >문서 목록 선택</option>
+                      <select class="form-select" title="filterCategory" id="filterCategory" name="filterCategory" >
+                        <option ${empty filterCategory ? 'selected' : ''} ></option>
                         <c:forEach var="list" items="${categoryList}">
                           <option value="${list.categoryCode}" ${(list.categoryCode == filterCategory) ? 'selected' : ''} >${list.categoryName}</option>
                         </c:forEach>
@@ -385,8 +387,8 @@
                   <tr>
                     <td class="bg-gray"><b>고객사</b></td>
                     <td colspan="3">
-                      <select class="form-select" title="filterClient" id="filterClient" name="filterClient" required>
-                        <option ${empty filterClient ? 'selected' : ''} >고객사 선택</option>
+                      <select class="form-select" title="filterClient" id="filterClient" name="filterClient" >
+                        <option ${empty filterClient ? 'selected' : ''} ></option>
                         <c:forEach var="list" items="${clientList}">
                           <option value="${list.clientCode}" ${(list.clientCode == filterClient) ? 'selected' : ''} >${list.clientName}</option>
                         </c:forEach>
@@ -423,7 +425,7 @@
                     <td class="bg-gray">
                       <select class="form-control select-gray-custom" name="searchField" id="searchField" aria-label="searchField">
                         <option value="" disabled ${empty searchField ? 'selected' : ''}>선택</option>
-                        <option value="1" ${'1'.equals(searchField) ? 'selected' : ''}>문서 제목</option>
+                        <option value="1" ${'1'.equals(searchField) ? 'selected' : ''}>문서명</option>
                         <option value="4" ${'4'.equals(searchField) ? 'selected' : ''}>작성자</option>
                         <c:if test="${empty filterClient}">
                           <option value="2" ${'2'.equals(searchField) ? 'selected' : ''}>고객사</option>
@@ -438,7 +440,7 @@
                     </td>
                   </tr>
                   <tr>
-                    <td class="bg-gray col-3"><b>수정일</b></td>
+                    <td class="bg-gray col-4"><b>수정일</b></td>
                     <td class="col-3">
                       <input type="date" class="form-control" id="startDate" name="startDate"
                         value="${startDate}" min="2009-01-01" max="2039-12-31" />
@@ -452,8 +454,8 @@
                   <tr>
                     <td class="bg-gray"><b>문서 목록</b></td>
                     <td colspan="3">
-                      <select class="form-select" title="filterCategory" id="filterCategory" name="filterCategory" required>
-                        <option ${empty filterCategory ? 'selected' : ''} >문서 목록 선택</option>
+                      <select class="form-select" title="filterDownloadCategory" id="filterDownloadCategory" name="filterCategory">
+                        <option ${empty filterCategory ? 'selected' : ''} ></option>
                         <c:forEach var="list" items="${categoryList}">
                           <option value="${list.categoryCode}" ${(list.categoryCode == filterCategory) ? 'selected' : ''} >${list.categoryName}</option>
                         </c:forEach>
@@ -463,8 +465,8 @@
                   <tr>
                     <td class="bg-gray"><b>고객사</b></td>
                     <td colspan="3">
-                      <select class="form-select" title="filterClient" id="filterClient" name="filterClient" required>
-                        <option ${empty filterClient ? 'selected' : ''} >고객사 선택</option>
+                      <select class="form-select" title="filterDownloadClient" id="filterDownloadClient" name="filterClient">
+                        <option ${empty filterClient ? 'selected' : ''} ></option>
                         <c:forEach var="list" items="${clientList}">
                           <option value="${list.clientCode}" ${(list.clientCode == filterClient) ? 'selected' : ''} >${list.clientName}</option>
                         </c:forEach>
@@ -478,9 +480,9 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary btn-allow-left" onclick="submitCheckedDocuments('DocumentViewDownload');">
-              다운로드
+              선택 다운로드
             </button>
-            <button type="submit" class="btn btn-secondary" onclick="searchExcel('Document')">적용</button>
+            <button type="submit" class="btn btn-secondary">필터 다운로드</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
           </div>
         </form>
@@ -492,6 +494,8 @@
 
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/select2.full.min.js"></script>
+  <script src="js/document.select.js"></script>
   <script src="js/document.js"></script>
   <script src="js/log.js"></script>
 </body>

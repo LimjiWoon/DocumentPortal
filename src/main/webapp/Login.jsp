@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="css/bootstrap.min.css" >
   <link rel="stylesheet" href="css/custom.css">
   <link rel="stylesheet" href="css/custom-background.css">
-  <title>Lucis 문서 관리 포탈</title>
+  <title>루키스 문서 관리 - 로그인</title>
 </head>
 <body>
   <% session.invalidate(); %>

@@ -7,7 +7,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Modal Content</title>
+  <title>목록창</title>
 </head>
 <body>
 

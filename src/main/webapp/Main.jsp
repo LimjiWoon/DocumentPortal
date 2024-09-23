@@ -3,11 +3,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="css/bootstrap.min.css" >
-<link rel="stylesheet" href="css/custom.css">
-<link rel="stylesheet" href="css/custom-background.css">
+  <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/bootstrap.min.css" >
+  <link rel="stylesheet" href="css/custom.css">
+  <link rel="stylesheet" href="css/custom-background.css">
+  <title>루키스 문서 관리 - 메인</title>
 </head>
 <body>
   <c:set var="user" value="${sessionScope.user}" />

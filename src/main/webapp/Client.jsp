@@ -7,11 +7,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="css/bootstrap.min.css" >
-<link rel="stylesheet" href="css/custom.css">
-<title>고객사 관리</title>
+  <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/bootstrap.min.css" >
+  <link rel="stylesheet" href="css/custom.css">
+  <title>루키스 문서 관리 - 고객사</title>
 </head>
 <body>
 
@@ -319,15 +319,15 @@
                 <tbody>
                   <tr>
                     <td class="bg-gray col-1"><b>고객사명</b></td>
-                    <td class="col-5">
+                    <td class="col-4">
                       <input type="text" id="clientName" name="clientName" class="form-control" 
                       placeholder="고객사명" aria-label="ClientName" aria-describedby="ClientName" maxlength="25" required>
                     </td>
                   </tr>
                   <tr>
                     <td class="bg-gray col-1"><b>설명</b></td>
-                    <td class="col-5">
-                      <textarea id="clientContent" name="clientContent" class="form-control" placeholder="고객사 설명" aria-label="With textarea" maxlength="200"></textarea>
+                    <td class="col-4">
+                      <textarea id="clientContent" name="clientContent" class="form-control" placeholder="고객사 설명" aria-label="With textarea" maxlength="500"></textarea>
                     </td>
                   </tr>
                 </tbody>
@@ -357,14 +357,14 @@
                 <tbody>
                   <tr>
                     <td class="bg-gray col-1"><b>고객사명</b></td>
-                    <td class="col-5">
+                    <td class="col-4">
                       <input type="text" id="clientName" name="clientName" class="form-control" 
                       placeholder="고객사명" aria-label="ClientName" aria-describedby="ClientName" maxlength="25" required>
                     </td>
                   </tr>
                   <tr>
                     <td class="bg-gray col-1"><b>설명</b></td>
-                    <td class="col-5">
+                    <td class="col-4">
                       <textarea id="clientContent" name="clientContent" class="form-control" placeholder="고객사 설명" aria-label="With textarea" maxlength="200"></textarea>
                     </td>
                   </tr>
@@ -419,7 +419,7 @@
                     </td>
                   </tr>
                   <tr>
-                    <td class="bg-gray col-3"><b>수정일</b></td>
+                    <td class="bg-gray col-4"><b>수정일</b></td>
                     <td class="col-3">
                       <input type="date" class="form-control" id="startDate" name="startDate"
                         value="${startDate}" min="2009-01-01" max="2039-12-31" />

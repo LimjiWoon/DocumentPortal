@@ -92,16 +92,8 @@ public class DocumentUploadToUpdateAction extends HttpServlet {
 		    fileNameToCheck = fileName;
 		}
 
-		
-		// 파일이 DB에 있는지 확인 -> 모든 파일은 등록과 동시에 DB에 기록된다.
 		result = documentDAO.documentUpdateCheck(categoryCode, clientCode, fileNameToCheck);
         documentDAO.documentClose();
-		//System.out.println("pass: " + pass);
-		//System.out.println("fileName: " + fileName);
-		//System.out.println("categoryCode: " + categoryCode);
-		//System.out.println("clientCode: " + clientCode);
-		//System.out.println("originFileName: " + originFileName);
-		//System.out.println("fileNameToCheck: " + fileNameToCheck);
 		
 		//각각 상황에 따른 덮어 쓰기 실행 여부 확인
 		//업로드 업데이트 구분

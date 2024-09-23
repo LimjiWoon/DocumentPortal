@@ -9,8 +9,10 @@
 <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/bootstrap.min.css" >
+  <link rel="stylesheet" href="css/select2.min.css" >
+  <link rel="stylesheet" href="css/select2-bootstrap-5-theme.min.css" >
   <link rel="stylesheet" href="css/custom.css">
-<title>문서 수정</title>
+  <title>루키스 문서 관리 - 문서</title>
 </head>
 <body>
 
@@ -112,16 +114,6 @@
     </div>
   </nav>
   
-  <script type="text/javascript">
-    document.addEventListener('DOMContentLoaded', function() {
-      //inputID
-      var userIDInput = document.querySelector('#documentName');
-      userIDInput.addEventListener('input', checkDocumentName);
-    });
-  </script>
-  
-  <br>
-  
   <div class="container">
     <div class="row d-flex justify-content-between align-items-center">
       <form class="flex-grow-1" id="DocumentInfo" method="post" name="DocumentInfo" action="DocumentUpdate"  enctype="multipart/form-data" >
@@ -136,15 +128,15 @@
             </thead>
             <tbody>
               <tr>
-                <td class="bg-gray col-1"><b>문서 제목</b></td>
+                <td class="bg-gray col-1"><b>문서명</b></td>
                 <td class="col-2">
                   <input type="text" id="documentName" name="documentName" class="form-control" value="${document.fileTitle}" 
-                      placeholder="문서 제목" aria-label="DocumentName" aria-describedby="DocumentName" maxlength="25" required>
+                      placeholder="문서 제목" aria-label="DocumentName" aria-describedby="DocumentName" maxlength="25" readonly required>
                 </td>
                 <td class="bg-gray col-1"><b>고객사</b></td>
                 <td class="col-2">
-                  <select class="form-select" id="clientCode" name="clientCode">
-                    <option ${empty document.clientCode ? 'selected' : ''}>미선택</option>
+                  <select class="form-select" id="clientCode" name="clientCode" required>
+                    <option disabled ${empty document.clientCode ? 'selected' : ''}></option>
                     <c:forEach var="list" items="${client}">
                       <option value="${list.clientCode}" ${list.clientCode.equals(document.clientCode) ? 'selected' : ''}>${list.clientName}</option>
                     </c:forEach>
@@ -158,8 +150,8 @@
                 </td>
                 <td class="bg-gray col-1"><b>문서 목록</b></td>
                 <td class="col-2">
-                  <select class="form-select" id="categoryCode" name="categoryCode" >
-                    <option ${empty document.categoryCode ? 'selected' : ''}>미선택</option>
+                  <select class="form-select" id="categoryCode" name="categoryCode" required>
+                    <option disabled ${empty document.categoryCode ? 'selected' : ''}></option>
                     <c:forEach var="list" items="${categoryList}">
                       <option value="${list.categoryCode}" ${list.categoryCode.equals(document.categoryCode) ? 'selected' : ''} >${list.categoryName}</option>
                     </c:forEach>
@@ -176,7 +168,7 @@
               <tr>
                 <td class="bg-gray col-1"><b>설명</b></td>
                 <td class="col-5" colspan="3">
-                  <textarea class="form-control" name="fileContent" aria-label="With textarea" placeholder="문서 설명을 적어주세요.">${document.fileContent}</textarea>
+                  <textarea class="form-control" name="fileContent" aria-label="With textarea" placeholder="문서 설명을 적어주세요." maxlength="500">${document.fileContent}</textarea>
                 </td>
               </tr>
             </tbody>
@@ -187,8 +179,6 @@
           <input type="button" class="btn btn-secondary me-2" value="취소" onClick="history.back()">
           <input type="button" class="btn btn-danger" value="삭제" onclick="document.getElementById('deleteForm').submit()" >
         </div>
-        <input type="hidden" class="form-control" id="originFileTitle" name="originFileTitle" 
-            value="${document.fileTitle}" required readonly>
         <input type="hidden" class="form-control" id="originClientCode" name="originClientCode" 
             value="${document.clientCode}" required readonly>
         <input type="hidden" class="form-control" id="originCategoryCode" name="originCategoryCode" 
@@ -199,7 +189,7 @@
     </div>
     <div class="col-lg-4">
       <form id="deleteForm" action="DocumentDelete" method="post">
-        <input type="hidden" name="clientName" value="${document.clientName}" />
+        <input type="hidden" name="clientCode" value="${document.clientCode}" />
         <input type="hidden" name="categoryCode" value="${document.categoryCode}" />
         <input type="hidden" name="fileName" value="${document.fileName}" />
       </form>
@@ -230,6 +220,8 @@
   
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/select2.full.min.js"></script>
+  <script src="js/document.select.js"></script>
   <script src="js/document.js"></script>
 </body>
 </html>
