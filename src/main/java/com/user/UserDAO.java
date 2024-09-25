@@ -31,8 +31,9 @@ public class UserDAO {
 		}
 	}
 	
+	//로그인을 하기 위해 비밀번호와 로그인 실패 횟수를 불러오는 메소드
 	public int login(String userID, String userPassword) {
-		String SQL = "SELECT userPassword,failOfPassword FROM USERS WHERE userID = ?";
+		String SQL = "SELECT userPassword FROM USERS WHERE userID = ?";
 		try {
 			pstmt = conn.prepareStatement(SQL);
 			pstmt.setString(1, userID);
@@ -52,6 +53,7 @@ public class UserDAO {
 		return -2; //데이터베이스 오류
 	}
 	
+	//로그인 성공을 기록하고 로그인 실패 횟수를 초기화하는 메소드
 	public void loginSuccess(int userCode, String userID) {
 		String SQL = "UPDATE USERS SET failOfPassword=0 FROM USERS WHERE userID=?";
 		try {
@@ -64,12 +66,11 @@ public class UserDAO {
 		}
 	}
 	
+	//로그인 실패로 로그인 실패 횟수를 증가시키고 실패 횟수가 5회에 도달할 경우 계정을 잠금 상태로 만드는 메소드
 	public void loginFail(int userCode, String userID, int failOfPassword) {
-	    // 첫 번째 try-catch 블록
 	    try {
 	    	String SQL;
-	    
-	    	//실패 횟수 확인 후 일정 횟수 이상이면 계정 잠금, 아니면 1만 추가
+	    	
 	    	if (failOfPassword == 4){
 	    		SQL = "UPDATE USERS SET failOfPassword = failOfPassword + 1, isLock = 1 WHERE userID = ?";
 	    	} else {
@@ -88,6 +89,32 @@ public class UserDAO {
 	    }
 	}
 	
+	//사번으로 사용자 정보를 가져오는 메소드 -> 주로 사용자 정보를 갱신할 때 해당 정보를 불러오는 용도
+	public UserDTO getInfo(int userCode) {
+		String SQL = "SELECT * FROM USERS WHERE userCode = ?";
+		try {
+			pstmt = conn.prepareStatement(SQL);
+			pstmt.setInt(1, userCode);
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				user = new UserDTO();
+				user.setUserCode(rs.getInt(1));
+				user.setUserName(rs.getString(2));
+				user.setUserID(rs.getString(3));
+				user.setUserPassword(rs.getString(4));
+				user.setCategory(rs.getInt(9));
+				user.setClient(rs.getInt(10));
+				user.setDocument(rs.getInt(11));
+			}
+			return user; //아이디가 없으면 emtpy상태와 같음 -> 정보 없음
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null; //데이터베이스 오류
+	}
+	
+	//사용자 ID로 사용자 정보를 가져오는 메소드 -> 로그인 시 세션에 사용자 정보를 저장하는 용도
 	public UserDTO getInfo(String userID) {
 		String SQL = "SELECT * FROM USERS WHERE userID = ?";
 		try {
@@ -116,6 +143,7 @@ public class UserDAO {
 		return null; //데이터베이스 오류
 	}
 	
+	//사용자 아이디로 사번 가져오는 메소드
 	public int getCode(String userID) {
 		String SQL = "SELECT userCode FROM USERS WHERE userID = ?";
 		try {
@@ -124,14 +152,15 @@ public class UserDAO {
 			rs = pstmt.executeQuery();
 			
 			if(rs.next()) {
-				return rs.getInt(1);
+				return rs.getInt(1); //사번
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return -1; //데이터베이스 오류
 	}
-	
+
+	//사용자 사번으로 사용자 아이디를 가져오는 메소드
 	public String getID(int userCode) {
 		String SQL = "SELECT userID FROM USERS WHERE userCode = ?";
 		try {
@@ -140,32 +169,8 @@ public class UserDAO {
 			rs = pstmt.executeQuery();
 			
 			if(rs.next()) {
-				return rs.getString(1);
+				return rs.getString(1); //사용자 아이디
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null; //데이터베이스 오류
-	}
-	
-	public UserDTO getInfo(int userCode) {
-		String SQL = "SELECT * FROM USERS WHERE userCode = ?";
-		try {
-			pstmt = conn.prepareStatement(SQL);
-			pstmt.setInt(1, userCode);
-			rs = pstmt.executeQuery();
-			
-			if(rs.next()) {
-				user = new UserDTO();
-				user.setUserCode(rs.getInt(1));
-				user.setUserName(rs.getString(2));
-				user.setUserID(rs.getString(3));
-				user.setUserPassword(rs.getString(4));
-				user.setCategory(rs.getInt(9));
-				user.setClient(rs.getInt(10));
-				user.setDocument(rs.getInt(11));
-			}
-			return user; //아이디가 없으면 emtpy상태와 같음 -> 정보 없음
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -176,7 +181,7 @@ public class UserDAO {
 	public int passwordRenew(String userID, String nowPassword, String newPassword) {
 		String SQL = "SELECT userPassword FROM USERS WHERE userID = ?";
 		if(newPassword.equals(nowPassword))
-				return -1;
+				return -1; //신규 비밀번호와 기존 비밀번호가 일치
 
 		try {
 			pstmt = conn.prepareStatement(SQL);
@@ -190,7 +195,7 @@ public class UserDAO {
 					return 1; //변경 성공
 				}
 			}
-			return 0; //비밀번호 불일치
+			return 0; //기존 비밀번호 불일치
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -210,11 +215,10 @@ public class UserDAO {
 		}
 	}
 
-	
+	//SQL query문의 Where절 조합기
 	private String filterSQL(String SQL, String dateOfPassword, String isLock, String isRetire, String searchField, String searchText) {
-		//그 어떠한 값도 들어오지 않은 경우
 		if (dateOfPassword == null && isLock == null && isRetire == null && searchField == null && searchText == null) {
-			return SQL + " WHERE userCode != 0 ";
+			return SQL + " WHERE userCode != 0 "; //통상적인 Where절을 반환
 		}
 		
 		StringBuilder query = new StringBuilder(SQL);
@@ -227,6 +231,7 @@ public class UserDAO {
 		case "2":
 			conditions.add(" dateOfPassword BETWEEN DATEADD(DAY, -180, GETDATE()) AND DATEADD(DAY, -90, GETDATE()) ");
 			break;
+			
 		case "3":
 			conditions.add(" dateOfPassword < DATEADD(DAY, -180, GETDATE()) ");
 			break;
@@ -253,96 +258,42 @@ public class UserDAO {
 		    query.append(" WHERE ").append(String.join(" AND ", conditions));
 		}
 		
-		return query.toString();
+		return query.toString(); //조합된 Where절을 반환
 	}
-	
-	
-	public int maxPage(String dateOfPassword, String isLock, String isRetire) { //다음 글 가지고 오기
-		String SQL = "SELECT COUNT(*) AS cnt FROM dbo.USERS ";
-		SQL = filterSQL(SQL, dateOfPassword, isLock, isRetire, null, null);
-		try {
-			PreparedStatement pstmt = conn.prepareStatement(SQL);
-			rs = pstmt.executeQuery();
-			if(rs.next()) {
-				return (rs.getInt(1)-1) / 10 + 1;
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		return -1; //DB 오류
-	}
-	
-	
+
+	//최대 페이지 수 구하기
 	public int maxPage(String dateOfPassword, String isLock, String isRetire, String searchField, String searchText) { //다음 글 가지고 오기
 		String SQL = "SELECT COUNT(*) AS cnt FROM dbo.USERS ";
 			
-		if (searchText.trim() != ""){
-			SQL = filterSQL(SQL, dateOfPassword, isLock, isRetire, searchField, searchText);
-		} else {
-			SQL = filterSQL(SQL, dateOfPassword, isLock, isRetire, null, null);
-		}
+		SQL = filterSQL(SQL, dateOfPassword, isLock, isRetire, searchField, searchText);
 		
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(SQL);
 			rs = pstmt.executeQuery();
 			if(rs.next()) {
-				return (rs.getInt(1)-1) / 10 + 1;
+				return (rs.getInt(1)-1) / 10 + 1; //최대 페이지
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
 		return -1; //DB 오류
 	}
-	
 
-	public ArrayList<UserDTO> getList(String dateOfPassword, String isLock, String isRetire, String nowPage){
-		String SQL = "SELECT userCode, userName, isCategory, isClient, isDocument, isLock, isRetire, DATEDIFF(DAY, dateOfPassword, GETDATE()) "
-				+ "FROM dbo.USERS ";
-		SQL = filterSQL(SQL, dateOfPassword, isLock, isRetire, null, null);
-		SQL += "ORDER BY userCode DESC OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
-		ArrayList<UserDTO> list = new ArrayList<UserDTO>();
-		
-		try {
-			PreparedStatement pstmt = conn.prepareStatement(SQL);	
-			if (nowPage == null) {
-				pstmt.setInt(1, 0);
-			} else {
-				pstmt.setInt(1, (Integer.parseInt(nowPage) -1) * 10);
-			}
-			
-			rs = pstmt.executeQuery();
-			while (rs.next()) {
-				UserDTO user = new UserDTO();
-				user.setUserCode(rs.getInt(1));
-				user.setUserName(rs.getString(2));
-				user.setCategory(rs.getInt(3));
-				user.setClient(rs.getInt(4));
-				user.setDocument(rs.getInt(5));
-				user.setLock(rs.getInt(6));
-				user.setRetire(rs.getInt(7));
-				user.setDateOfPassword(rs.getString(8));
-				list.add(user);
-			}			
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-		return list;
-	}
-	
-	public ArrayList<UserDTO> getSearch(String dateOfPassword, String isLock, String isRetire, 
+	//사용자들의 정보 리스트를 반환하는 메소드
+	public ArrayList<UserDTO> getList(String dateOfPassword, String isLock, String isRetire, 
 			String nowPage, String searchField, String searchOrder, String searchText){
 		ArrayList<UserDTO> list = new ArrayList<UserDTO>();
 		String SQL = "SELECT userCode, userName, isCategory, isClient, isDocument, isLock, isRetire, DATEDIFF(DAY, dateOfPassword, GETDATE()) "
 				+ "FROM dbo.USERS ";
 
-		if (searchText.trim() != ""){
-			SQL = filterSQL(SQL, dateOfPassword, isLock, isRetire, searchField, searchText);
+		SQL = filterSQL(SQL, dateOfPassword, isLock, isRetire, searchField, searchText);
+		
+		if (searchField != null && searchOrder != null && searchText != null) {
+			SQL += "ORDER BY " + searchField.trim() + " " + searchOrder +" OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
 		} else {
-			SQL = filterSQL(SQL, dateOfPassword, isLock, isRetire, null, null);
+			SQL += "ORDER BY userCode DESC OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
 		}
 		
-		SQL += "ORDER BY " + searchField.trim() + " " + searchOrder +" OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
 		try {
 			pstmt = conn.prepareStatement(SQL);	
 			if (nowPage == null) {
@@ -368,25 +319,22 @@ public class UserDAO {
 			e.printStackTrace();
 		}
 		
-		return list;
+		return list; //리스트 반환 -> 결과 없으면 빈 리스트
 	}
-	
+
+	//엑셀 시트를 다운로드 하기 위한 정보를 반환하는 메소드
 	public ArrayList<UserDTO> getExcel(int userCode, String dateOfPassword, String isLock, String isRetire, 
 			String searchField, String searchOrder, String searchText){
 		ArrayList<UserDTO> list = new ArrayList<UserDTO>();
 		String SQL = "SELECT userCode, userName, isCategory, isClient, isDocument, isLock, isRetire, DATEDIFF(DAY, dateOfPassword, GETDATE()) "
 				+ "FROM dbo.USERS ";
 		
+		SQL = filterSQL(SQL, dateOfPassword, isLock, isRetire, searchField, searchText);
+		
 		if (searchField != null && searchText != null && searchOrder != null) {
-			if (searchText.trim() != ""){
-				SQL = filterSQL(SQL, dateOfPassword, isLock, isRetire, searchField, searchText);
-			} else {
-				SQL = filterSQL(SQL, dateOfPassword, isLock, isRetire, null, null);
-			}
 			SQL += "ORDER BY " + searchField.trim() + " " + searchOrder +" ;";
-		} else {
-			SQL = filterSQL(SQL, dateOfPassword, isLock, isRetire, null, null);
-		}
+		} 
+		
 		try {
 			pstmt = conn.prepareStatement(SQL);
 			
@@ -409,9 +357,10 @@ public class UserDAO {
 			e.printStackTrace();
 		}
 		
-		return list;
+		return list; //리스트 반환 -> 결과 없으면 빈 리스트
 	}
 	
+	//사용자 계정 잠금 상태를 변경하는 메소드
 	public void updateLock(int userCode, String status) {
 		String SQL = "UPDATE USERS SET isLock=? FROM USERS WHERE userCode=?";
 		
@@ -430,6 +379,7 @@ public class UserDAO {
 		}
 	}
 	
+	//새로운 사용자를 등록하는 메소드
 	public int userUpload(String userName, String userID, String userPassword, boolean isCategory, boolean isClient, boolean isDocument) {
 		String SQL = "INSERT INTO USERS VALUES (?, ?, ?, null,0,0,0,?,?,?)";
 		try {
@@ -456,19 +406,20 @@ public class UserDAO {
 			pstmt.executeUpdate();
 			logUpload(getCode(userID), userID, "user", "create", "신규 계정 등록");
 			
-			return 1;
+			return 1; //등록 성공
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
-		return 0;
+		return 0; //등록 실패
 	}
 	
+	//아이디 중복 여부를 확인하는 메소드
 	public int userIDCheck(String userID) {
 		String SQL = "SELECT COUNT(*) AS cnt FROM dbo.USERS WHERE userID = ?;";
 		
 		if (userID == null)
-			return 0;
+			return 0; //사용 불가능
 		
 		try {
 			pstmt = conn.prepareStatement(SQL);
@@ -477,15 +428,16 @@ public class UserDAO {
 			
 			if(rs.next()) {
 				if(rs.getInt(1) == 0)
-					return 1;
+					return 1; //사용 가능
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
-		return 0;
+		return 0; //사용 불가능
 	}
 	
+	//사용자 정보를 갱신하는 메소드
 	public int userUpdate(String userID, String userName, String hiddenName, String userPassword, String hiddenPassword,
 			String isCategory, String hiddenCategory, String isClient, String hiddenClient, String isDocument, String hiddenDocument) {
 		String SQL = "UPDATE USERS SET ";
@@ -541,13 +493,14 @@ public class UserDAO {
 			pstmt.executeUpdate();
 			logUpload(getCode(userID), userID, "user", "update", "계정 정보 변경");
 			
-			return 1;
+			return 1; //사용자 정보 갱신 성공
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return 0;
+		return 0; //갱신 실패
 	}
 	
+	//사용자 퇴사 여부를 변경하는 메소드
 	public void userRetire(int userCode, String isRetire) {
 		String SQL = "UPDATE USERS SET isRetire=?, isLock=? FROM USERS WHERE userCode=?";
 		try {
@@ -567,8 +520,8 @@ public class UserDAO {
 		}
 	}
 
-	
-	public int logUpload(int logWho, String logWhat, String logWhere, String logHow, String logWhy) {
+	//로그를 기록하는 메소드
+	public void logUpload(int logWho, String logWhat, String logWhere, String logHow, String logWhy) {
 		String SQL = "INSERT INTO dbo.LOGS (logWho, logWhat, logWhere, logHow, logWhy) "
 				+ " VALUES (?, ?, ?, ?, ?);";
 
@@ -584,14 +537,12 @@ public class UserDAO {
 				pstmt.setString(5, logWhy);
 			}
 			pstmt.executeUpdate();
-			
-			return 1;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return -1;
 	}
-	
+
+	//접속한 DB의 연결을 끝는 메소드
 	public void userClose() {
 	    try {
 	        if (rs != null) {

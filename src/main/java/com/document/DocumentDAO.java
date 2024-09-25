@@ -24,13 +24,13 @@ public class DocumentDAO {
 			e.printStackTrace();
 		}
 	}
-	
+
+	//SQL query문의 Where절 조합기
 	private String filterSQL(String SQL, String startDate, String endDate, String filterCategory, 
 			String filterClient, String searchField, String searchText) {
-		//그 어떠한 값도 들어오지 않은 경우
 		if (startDate == null && endDate == null && filterCategory == null && 
 				filterClient == null && searchField == null && searchText == null) {
-			return SQL + " WHERE c.isUse=1 ";
+			return SQL + " WHERE c.isUse=1 "; //통상적인 Where절 반환
 		}
 		
 		StringBuilder query = new StringBuilder(SQL);
@@ -61,44 +61,23 @@ public class DocumentDAO {
 		    query.append(" WHERE ").append(String.join(" AND ", conditions));
 		}
 		
-		return query.toString();
+		return query.toString(); //조합된 Where절을 반환
 	}
 
-	
-	public int maxPage(String startDate, String endDate, String filterCategory, String filterClient) {
-		String SQL = "SELECT COUNT(*) AS cnt FROM dbo.FILES f "
-				+ "LEFT JOIN dbo.CLIENTS c ON c.clientCode = f.clientCode ";
-		SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, null, null);
-		try {
-			pstmt = conn.prepareStatement(SQL);
-			rs = pstmt.executeQuery();
-			if(rs.next()) {
-				return (rs.getInt(1)-1) / 10 + 1;
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		return -1; //DB 오류
-	}	
-	
-	
+	//최대 페이지 수 구하기
 	public int maxPage(String startDate, String endDate, String filterCategory, 
 			String filterClient, String searchField, String searchText) { 
 		String SQL = "SELECT COUNT(*) AS cnt FROM dbo.FILES f "
 				+ "LEFT JOIN dbo.CATEGORIES cat ON cat.categoryCode = f.categoryCode "
 				+ "LEFT JOIN dbo.USERS u ON u.userCode = f.userCode "
 				+ "LEFT JOIN dbo.CLIENTS c ON c.clientCode = f.clientCode ";
-		if (searchText.trim() != ""){
-			SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, searchField, searchText);
-		} else {
-			SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, null, null);
-		}
+		SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, searchField, searchText);
 		
 		try {
 			pstmt = conn.prepareStatement(SQL);
 			rs = pstmt.executeQuery();
 			if(rs.next()) {
-				return (rs.getInt(1)-1) / 10 + 1;
+				return (rs.getInt(1)-1) / 10 + 1; //최대 페이지 반환
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -106,59 +85,21 @@ public class DocumentDAO {
 		return -1; //DB 오류
 	}
 	
-	public ArrayList<DocumentDTO> getList(String startDate, String endDate, String filterCategory, String filterClient, String nowPage){
-		String SQL = "SELECT f.fileTitle, c.clientName, cat.categoryName, u.userName, f.dateOfUpdate, f.fileName, f.categoryCode, f.clientCode "
-				+ "FROM dbo.FILES f "
-				+ "LEFT JOIN dbo.CATEGORIES cat ON cat.categoryCode = f.categoryCode "
-				+ "LEFT JOIN dbo.USERS u ON u.userCode = f.userCode "
-				+ "LEFT JOIN dbo.CLIENTS c ON c.clientCode = f.clientCode ";
-		
-		SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, null, null);
-		SQL += "ORDER BY f.dateOfCreate ASC OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
-		ArrayList<DocumentDTO> list = new ArrayList<DocumentDTO>();
-		
-		try {
-			pstmt = conn.prepareStatement(SQL);
-			if (nowPage == null) {
-				pstmt.setInt(1, 0);
-			} else {
-				pstmt.setInt(1, (Integer.parseInt(nowPage) -1) * 10);
-			}
-			
-			rs = pstmt.executeQuery();
-			while (rs.next()) {
-				document = new DocumentDTO();
-				document.setFileTitle(rs.getString(1));
-				document.setClientName(rs.getString(2));
-				document.setCategoryName(rs.getString(3));
-				document.setUserName(rs.getString(4));
-				document.setDateOfUpdate(rs.getString(5));
-				document.setFileName(rs.getString(6));
-				document.setCategoryCode(rs.getInt(7));
-				document.setClientCode(rs.getInt(8));
-				list.add(document);
-			}			
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-		return list;
-	}
-	
-	
-	public ArrayList<DocumentDTO> getSearch(String startDate, String endDate, String filterCategory, String filterClient, 
+	//문서들의 정보 리스트를 반환하는 메소드
+	public ArrayList<DocumentDTO> getList(String startDate, String endDate, String filterCategory, String filterClient, 
 			String nowPage, String searchField, String searchOrder, String searchText){
 		String SQL = "SELECT f.fileTitle, c.clientName, cat.categoryName, u.userName, f.dateOfUpdate, f.fileName, f.categoryCode, f.clientCode "
 				+ "FROM dbo.FILES f "
 				+ "LEFT JOIN dbo.CATEGORIES cat ON cat.categoryCode = f.categoryCode "
 				+ "LEFT JOIN dbo.USERS u ON u.userCode = f.userCode "
 				+ "LEFT JOIN dbo.CLIENTS c ON c.clientCode = f.clientCode ";
-		if (searchText != null && searchText.trim() != ""){
-			SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, searchField, searchText);
+		SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, searchField, searchText);
+
+		if (searchOrder != null && searchField != null) {
+			SQL += " ORDER BY " + searchField.trim() + " " + searchOrder +" OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
 		} else {
-			SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, null, null);
+			SQL += "ORDER BY f.dateOfCreate ASC OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
 		}
-		SQL += " ORDER BY " + searchField.trim() + " " + searchOrder +" OFFSET ? ROWS FETCH NEXT 10 ROWS ONLY;";
 		ArrayList<DocumentDTO> list = new ArrayList<DocumentDTO>();
 		
 		try {
@@ -186,21 +127,18 @@ public class DocumentDAO {
 			e.printStackTrace();
 		}
 		
-		return list;
+		return list; //리스트 반환 -> 결과 없을 시 빈 리스트
 	}
 	
-	
+	//원하는 문서들을 한번에 다운로드 위해 정보들 가져오는 메소드
 	public ArrayList<DocumentDTO> getDownload(String startDate, String endDate, String filterCategory, String filterClient, String searchField, String searchText){
 		String SQL = "SELECT c.clientName, cat.categoryName, f.fileName, f.categoryCode, f.clientCode "
 				+ "FROM dbo.FILES f "
 				+ "LEFT JOIN dbo.CATEGORIES cat ON cat.categoryCode = f.categoryCode "
 				+ "LEFT JOIN dbo.USERS u ON u.userCode = f.userCode "
 				+ "LEFT JOIN dbo.CLIENTS c ON c.clientCode = f.clientCode ";
-		if (searchText != null && searchText.trim() != ""){
-			SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, searchField, searchText);
-		} else {
-			SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, null, null);
-		}
+		SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, searchField, searchText);
+
 		ArrayList<DocumentDTO> list = new ArrayList<DocumentDTO>();
 		
 		try {
@@ -220,10 +158,10 @@ public class DocumentDAO {
 			e.printStackTrace();
 		}
 		
-		return list;
+		return list; //리스트 반환 -> 결과 없을 시 빈 리스트
 	}
-	
-	
+
+	//엑셀 시트를 다운로드 하기 위한 정보를 반환하는 메소드
 	public ArrayList<DocumentDTO> getExcel(int userCode, String startDate, String endDate, String filterCategory, 
 			String filterClient, String searchField, String searchOrder, String searchText){
 		String SQL = "SELECT f.fileTitle, c.clientName, cat.categoryName, u.userName, f.dateOfUpdate, f.fileName, f.categoryCode, f.clientCode, f.fileContent "
@@ -232,15 +170,10 @@ public class DocumentDAO {
 				+ "LEFT JOIN dbo.USERS u ON u.userCode = f.userCode "
 				+ "LEFT JOIN dbo.CLIENTS c ON c.clientCode = f.clientCode ";
 		
+		SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, searchField, searchText);
+		
 		if (searchField != null && searchText != null && searchOrder != null) {
-			if (searchText.trim() != ""){
-				SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, searchField, searchText);
-			} else {
-				SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, null, null);
-			}
 			SQL += "ORDER BY " + searchField.trim() + " " + searchOrder +" ;";
-		} else {
-			SQL = filterSQL(SQL, startDate, endDate, filterCategory, filterClient, null, null);
 		}
 		
 		ArrayList<DocumentDTO> list = new ArrayList<DocumentDTO>();
@@ -267,11 +200,10 @@ public class DocumentDAO {
 			e.printStackTrace();
 		}
 		
-		return list;
+		return list; //리스트 반환 -> 결과 없을 시 빈 리스트
 	}
 	
-	
-	
+	//특정 문서의 정보를 가져오는 메소드
 	public DocumentDTO getDocumentInfo(String fileName, String categoryCode, String clientCode){
 		String SQL = "SELECT f.fileTitle, c.clientName, cat.categoryName, u.userName, f.dateOfUpdate, f.fileName, f.categoryCode, f.fileContent, f.clientCode "
 				+ "FROM dbo.FILES f "
@@ -291,7 +223,7 @@ public class DocumentDAO {
 		try {
 			pstmt = conn.prepareStatement(SQL);
 			if (fileName == null || categoryCode == null) {
-				return null;
+				return null; //입력값 오류
 			}
 			
 			pstmt.setString(1, fileName);
@@ -310,35 +242,37 @@ public class DocumentDAO {
 				document.setCategoryCode(rs.getInt(7));
 				document.setFileContent(rs.getString(8));
 				document.setClientCode(rs.getInt(9));
-				return document;
+				return document; //문서 정보 반환
 			}			
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
 		
-		return null;
+		return null; //데이터 베이스 오류
 	}
 	
+	//해당 문서 목록 경로를 가져오는 메소드
 	public String getRoot(String categoryCode) {
 		String SQL = "SELECT categoryRoot FROM dbo.CATEGORIES WHERE categoryCode=?;";
 		try {
 			pstmt = conn.prepareStatement(SQL);
 			if (categoryCode == null) {
-				return null;
+				return null; //입력값 오류
 			} else {
 				pstmt.setInt(1, Integer.parseInt(categoryCode));
 			}
 			
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
-				return rs.getString(1);
+				return rs.getString(1); //문서 경로 반환
 			}			
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
-		return null;
+		return null; //데이터베이스 오류
 	}
 	
+	//새로운 문서를 등록하는 메소드
 	public int documentUpload(String fileTitle, String fileName, String categoryCode, 
 			int userCode, String clientCode, String fileContent) {
 		String SQL = "INSERT INTO dbo.FILES VALUES (?, ?, ?, ?, ?, GETDATE(), GETDATE(), ?);";
@@ -363,14 +297,15 @@ public class DocumentDAO {
 			pstmt.executeUpdate();
 			logUpload(userCode, fileName, "file", "create", categoryCode + "/"+ clientCode + ": 위치의 신규 문서 생성");
 			
-			return 1;
+			return 1; //등록 성공
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
 		
-		return -1;
+		return -1; //등록 실패
 	}
 	
+	//문서를 등록하거나 갱신할 때 해당 위치에 같은 이름의 문서가 존재하는지 확인하는 메소드
 	public int documentUpdateCheck(String categoryCode, String clientCode, String fileName) {
 		String SQL = "SELECT * FROM dbo.FILES "
 				+ "WHERE fileName=? AND categoryCode=? AND clientCode ";
@@ -381,7 +316,7 @@ public class DocumentDAO {
 		}
 		
 		if (categoryCode == null || fileName == null)
-			return -1;
+			return -1; //입력값 오류
 		
 		try {
 			pstmt = conn.prepareStatement(SQL);
@@ -392,19 +327,18 @@ public class DocumentDAO {
 			
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
-				return 1;
+				return 1; //문서 있음
 			}			
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
 		
-		return -1;
+		return -1; //문서 없음
 	}
 	
-	public int documentUpdate(String fileTitle, String fileName, String categoryCode, 
-			int userCode, String clientCode, String fileContent) {
-		String SQL = "UPDATE FILES SET fileTitle=?, fileContent=?, dateOfUpdate=GETDATE() "
-				+ "WHERE fileName=? AND categoryCode=? AND clientCode ";
+	//문서를 갱신하는 메소드 - 위치가 변하지 않았을 경우
+	public int documentUpdate(String fileName, String categoryCode, int userCode, String clientCode, String fileContent) {
+		String SQL = "UPDATE FILES SET fileContent=?, dateOfUpdate=GETDATE() WHERE fileName=? AND categoryCode=? AND clientCode ";
 		
 		if (clientCode == null) {
 			SQL += "IS NULL;";
@@ -414,76 +348,28 @@ public class DocumentDAO {
 		
 		try {
 			pstmt = conn.prepareStatement(SQL);
-			pstmt.setString(1, fileTitle);
 			if (fileContent == null){
-				pstmt.setNull(2, java.sql.Types.VARCHAR);
+				pstmt.setNull(1, java.sql.Types.VARCHAR);
 			} else {
-				pstmt.setString(2, fileContent);
+				pstmt.setString(1, fileContent);
 			}
-			pstmt.setString(3, fileName);
-			pstmt.setInt(4, Integer.parseInt(categoryCode));
+			pstmt.setString(2, fileName);
+			pstmt.setInt(3, Integer.parseInt(categoryCode));
 			if (clientCode != null)
-				pstmt.setInt(5, Integer.parseInt(clientCode));
+				pstmt.setInt(4, Integer.parseInt(clientCode));
 
 			pstmt.executeUpdate();
 			logUpload(userCode, fileName, "file", "update", categoryCode + "/" + clientCode + ": 위치의 문서 갱신");
 			
-			return 1;
+			return 1; //문서 갱신 성공
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
 		
-		return -1;
+		return -1; //문서 갱신 실패
 	}
 	
-	
-	public int documentUpdate(String fileTitle, String fileName, String categoryCode, String originCategoryCode, 
-			int userCode, String clientCode, String originClientCode, String fileContent) {
-		String SQL = "UPDATE FILES SET fileTitle=?, clientCode=?, fileContent=?, dateOfUpdate=GETDATE(), categoryCode=? "
-				+ "WHERE fileName=? AND categoryCode=? AND clientCode ";
-		String logContent = "";
-		if (!categoryCode.equals(originCategoryCode)) 
-			logContent += " 문서 위치: " + originCategoryCode + "-&gt;" + categoryCode;
-		if (originClientCode == null) {
-			SQL += "IS NULL;";
-		} else {
-			SQL += "=?;";
-			if (clientCode != null && !clientCode.equals(originClientCode)) {
-				logContent += "  고객사: " + originClientCode + "-&gt;" + clientCode;
-			} else if (clientCode == null && originClientCode != null){
-				logContent += "  고객사: " + originClientCode + "-&gt;" + clientCode;
-			}
-		}
-		
-		try {
-			pstmt = conn.prepareStatement(SQL);
-			pstmt.setString(1, fileTitle);
-			if (clientCode == null){
-				pstmt.setNull(2, java.sql.Types.INTEGER);
-			} else {
-				pstmt.setInt(2, Integer.parseInt(clientCode));
-			}
-			if (fileContent == null){
-				pstmt.setNull(3, java.sql.Types.VARCHAR);
-			} else {
-				pstmt.setString(3, fileContent);
-			}
-			pstmt.setInt(4, Integer.parseInt(categoryCode));
-			pstmt.setString(5, fileName);
-			pstmt.setInt(6, Integer.parseInt(originCategoryCode));
-			if (originClientCode != null)
-				pstmt.setInt(7, Integer.parseInt(originClientCode));
-			pstmt.executeUpdate();
-			logUpload(userCode, fileName, "file", "update", logContent);
-			
-			return 1;
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-		return -1;
-	}	
-	
+	//문서를 갱신하는 메소드 - 위치가 변했을 경우
 	public int documentUpdate(String fileTitle, String fileName, String originFileName, String categoryCode, 
 			String originCategoryCode, int userCode, String clientCode, String originClientCode, String fileContent) {
 		String SQL = "UPDATE FILES SET fileTitle=?, fileName=?, clientCode=?, fileContent=?, dateOfUpdate=GETDATE(), categoryCode=? "
@@ -526,14 +412,15 @@ public class DocumentDAO {
 			pstmt.executeUpdate();
 			logUpload(userCode, fileName, "file", "update", logContent);
 			
-			return 1;
+			return 1; //문서 갱신 성공
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
 		
-		return -1;
+		return -1; //문서 갱신 실패
 	}
 	
+	//특정 문서의 정보를 가져오는 메소드
 	public DocumentDTO getInfo(String fileName, String categoryCode, String clientCode) {
 		String SQL = "SELECT fileTitle, clientCode, fileContent FROM dbo.FILES "
 				+ "WHERE fileName=? AND categoryCode=? AND clientCode ";
@@ -548,7 +435,7 @@ public class DocumentDAO {
 		try {
 			pstmt = conn.prepareStatement(SQL);
 			if (fileName == null || categoryCode == null) {
-				return null;
+				return null; //입력값 오류
 			}
 			
 			pstmt.setString(1, fileName);
@@ -563,16 +450,16 @@ public class DocumentDAO {
 				document.setFileContent(rs.getString(3));
 				document.setFileName(fileName);
 				document.setCategoryCode(Integer.parseInt(categoryCode));
-				return document;
+				return document; //문서 정보 반환
 			}			
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
 		
-		return null;
+		return null; //해당 문서 없음 or 데이터베이스 오류
 	}
 	
-	
+	//문서를 삭제하는 메소드
 	public int documentDelete(String fileName, String categoryCode, String clientCode, int userCode) {
 		String SQL = "DELETE FILES WHERE fileName=? AND categoryCode=?  AND clientCode ";
 		if (clientCode == null) {
@@ -582,7 +469,7 @@ public class DocumentDAO {
 		}
 		
 		if(fileName == null || categoryCode == null) {
-			return -1;
+			return -1; //입력값 오류
 		}
 		
 		try {
@@ -594,14 +481,15 @@ public class DocumentDAO {
 			
 			pstmt.executeUpdate();
 			logUpload(userCode, fileName, "file", "delete", categoryCode + "/" + clientCode + ": 위치의 문서 삭제");
-			return 1;
+			return 1; //문서 삭제 성공
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
-		return -1;
+		return -1; //문서 삭제 실패
 	}
-	
-	public int logUpload(int logWho, String logWhat, String logWhere, String logHow, String logWhy) {
+
+	//로그를 기록하는 메소드
+	public void logUpload(int logWho, String logWhat, String logWhere, String logHow, String logWhy) {
 		String SQL = "INSERT INTO dbo.LOGS (logWho, logWhat, logWhere, logHow, logWhy) "
 				+ " VALUES (?, ?, ?, ?, ?);";
 
@@ -617,21 +505,19 @@ public class DocumentDAO {
 				pstmt.setString(5, logWhy);
 			}
 			pstmt.executeUpdate();
-			
-			return 1;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return -1;
 	}
-	
+
+	//접속한 DB의 연결을 끝는 메소드
 	public void documentClose() {
 	    try {
 	        if (rs != null) {
 	            rs.close();
 	        }
 	    } catch (Exception e) {
-	        e.printStackTrace(); // 예외 처리 로직 추가
+	        e.printStackTrace(); 
 	    }
 
 	    try {
@@ -639,7 +525,7 @@ public class DocumentDAO {
 	            pstmt.close();
 	        }
 	    } catch (Exception e) {
-	        e.printStackTrace(); // 예외 처리 로직 추가
+	        e.printStackTrace();
 	    }
 
 	    try {
@@ -647,7 +533,7 @@ public class DocumentDAO {
 	            conn.close();
 	        }
 	    } catch (Exception e) {
-	        e.printStackTrace(); // 예외 처리 로직 추가
+	        e.printStackTrace(); 
 	    }
 	}
 	

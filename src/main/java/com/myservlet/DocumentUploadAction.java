@@ -83,15 +83,16 @@ public class DocumentUploadAction extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html; charset=UTF-8");
 
-        //세션에 로그인 정보가 있는지 확인부터 한다.
+        //사용자 권한 확인
 		HttpSession session = request.getSession();
 		UserDTO user = (UserDTO) session.getAttribute("user");
 		if (user == null || !user.isDocument() ) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 			return;
 		}
 		
+		//권한이 있을 시 해당 페이지 로딩
 	    ArrayList<CategoryDTO> category = new ArrayList<CategoryDTO>();
 	    ArrayList<ClientDTO> client = new ArrayList<ClientDTO>();
 		CategoryDAO categoryDAO= new CategoryDAO();
@@ -105,7 +106,7 @@ public class DocumentUploadAction extends HttpServlet {
 
         request.setAttribute("category", category);
         request.setAttribute("client", client);
-	    request.getRequestDispatcher("DocumentUpload.jsp").forward(request, response);
+	    request.getRequestDispatcher("WEB-INF/DocumentUpload.jsp").forward(request, response);
 	    
 	}
 
@@ -120,12 +121,12 @@ public class DocumentUploadAction extends HttpServlet {
 		response.setContentType("text/html; charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
 		
-        //세션에 로그인 정보가 있는지 확인부터 한다.
+        //사용자 권한 확인
 		HttpSession session = request.getSession();
 		UserDTO user = (UserDTO) session.getAttribute("user");
 		if (user == null || !user.isDocument() ) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 			return;
 		}
         
@@ -153,7 +154,7 @@ public class DocumentUploadAction extends HttpServlet {
                 }
     		} catch (Exception e) {
 		        request.setAttribute("errorMessage", "서버 폴더 에러");
-			    request.getRequestDispatcher("Error.jsp").forward(request, response);
+			    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 				return;
     		}
                 
@@ -176,7 +177,7 @@ public class DocumentUploadAction extends HttpServlet {
     			if (categoryCode  == null || categoryRoot == null || clientCode == null) {
     				deleteFile(multipartRequest.getFile("fileName"));
     		        request.setAttribute("errorMessage", "모두 정확하게 기입해주시길 바랍니다.");
-    			    request.getRequestDispatcher("Error.jsp").forward(request, response);
+    			    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
             		clientDAO.clientClose();
             		documentDAO.documentClose();
     				return;
@@ -208,7 +209,7 @@ public class DocumentUploadAction extends HttpServlet {
     			if (fileName == null || !isAllowedExtension(fileName) || !fileName.equals(orgFileName)) {
     				deleteFile(multipartRequest.getFile("fileName"));
     		        request.setAttribute("errorMessage", "업로드에 문제가 생겼습니다.");
-    			    request.getRequestDispatcher("Error.jsp").forward(request, response);
+    			    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
             		clientDAO.clientClose();
             		documentDAO.documentClose();
     				return;
@@ -224,7 +225,7 @@ public class DocumentUploadAction extends HttpServlet {
     				if(!folder.mkdir()) {
         				deleteFile(multipartRequest.getFile("fileName"));
         		        request.setAttribute("errorMessage", "비정상적인 접근");
-        			    request.getRequestDispatcher("Error.jsp").forward(request, response);
+        			    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
                 		clientDAO.clientClose();
                 		documentDAO.documentClose();
     					return;
@@ -235,31 +236,37 @@ public class DocumentUploadAction extends HttpServlet {
     			folderPath += fileName;
     			movePath += fileName;
     			File moveFile = new File(movePath);
+    			
+    			//이미 파일이 존재한다면 파일을 삭제하고 다시 올린다.
     			boolean isFile = moveFile.exists();
     			if (isFile) {
-    				result = documentDAO.documentUpdate(getFileTitle(fileName), fileName, categoryCode, user.getUserCode(), clientCode, fileContent);
+    				result = documentDAO.documentUpdate(fileName, categoryCode, user.getUserCode(), clientCode, fileContent);
     			} else {
     				result = documentDAO.documentUpload(getFileTitle(fileName), fileName, categoryCode, user.getUserCode(), clientCode, fileContent);
     			}
+    			
+    			//문서 덮어 쓰기
     			if (isFile && result == 1) {
     				deleteFile(moveFile);
     				Files.move(Paths.get(folderPath), Paths.get(movePath));
                     request.setAttribute("messageDocument", "문서 덮어쓰기 성공!");
-            	    request.getRequestDispatcher("Message.jsp").forward(request, response);
+            	    request.getRequestDispatcher("WEB-INF/Message.jsp").forward(request, response);
             		clientDAO.clientClose();
             		documentDAO.documentClose();
             	    return;
-    			} else if (result == 1){
+    			} //문서 등록 성공
+    			else if (result == 1){
     				Files.move(Paths.get(folderPath), Paths.get(movePath));
                     request.setAttribute("messageDocument", "문서 등록 성공!");
-            	    request.getRequestDispatcher("Message.jsp").forward(request, response);
+            	    request.getRequestDispatcher("WEB-INF/Message.jsp").forward(request, response);
             		clientDAO.clientClose();
             		documentDAO.documentClose();
             	    return;
-    			} else {
+    			} //문서 등록 실패 
+    			else {
     				deleteFile(multipartRequest.getFile("fileName"));
                     request.setAttribute("messageDocument", "문서 등록 실패!");
-            	    request.getRequestDispatcher("Message.jsp").forward(request, response);
+            	    request.getRequestDispatcher("WEB-INF/Message.jsp").forward(request, response);
             		clientDAO.clientClose();
             		documentDAO.documentClose();
             	    return;
@@ -269,19 +276,20 @@ public class DocumentUploadAction extends HttpServlet {
     		} catch(Exception e) {
     			e.printStackTrace();
 		        request.setAttribute("errorMessage", "비정상적인 접근");
-			    request.getRequestDispatcher("Error.jsp").forward(request, response);
+			    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 				return;
     		}
     		
         } else {
             // 일반 form-data 처리
 	        request.setAttribute("errorMessage", "비정상적인 접근");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
         	return;
         }
 		
 	}
 	
+	//파일 삭제 메소드
 	private void deleteFile(File file) {
         if (file != null)
         	file.delete();

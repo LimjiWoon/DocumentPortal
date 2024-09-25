@@ -40,6 +40,7 @@ public class ExcelDownloadAction extends HttpServlet {
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * 직접 url을 타이핑하여 접근하는 것을 차단한다 -> 오로지 동작을 위한 servlet임
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
@@ -54,7 +55,7 @@ public class ExcelDownloadAction extends HttpServlet {
 		} else {
 	        request.setAttribute("errorMessage", "Url을 직접 입력하여 들어올 수 없습니다.");
 		}
-	    request.getRequestDispatcher("Error.jsp").forward(request, response);
+	    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 	}
 
   
@@ -74,7 +75,7 @@ public class ExcelDownloadAction extends HttpServlet {
 	    String code = XSSEscape.changeText(request.getParameter("code"));
 		if (user == null || code == null) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 			return;
 		}
 		
@@ -95,13 +96,14 @@ public class ExcelDownloadAction extends HttpServlet {
 	    
 
 	    
-	    
+	    //엑셀을 만들어 다운로드 한다. code에 따라 다운받는 엑셀 페이지가 달라진다.
 	    try {
 	    	Workbook workBook;
 
 			response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 	    	
 	    	//각 권한에 따른 엑셀 생성
+			//사용자 페이지
 	    	if ("hidden1".equals(code) && user.getUserCode() == 0) {
 	    	    ArrayList<UserDTO> list = new ArrayList<UserDTO>();
 	    	    UserDAO userDAO = new UserDAO();
@@ -116,7 +118,8 @@ public class ExcelDownloadAction extends HttpServlet {
 	    		workBook = CreateExcel.userExcel(list);
 		        response.setHeader("Content-Disposition", "attachment; filename=\"user_list.xlsx\"");
 	    		userDAO.userClose();
-			} else if ("hidden2".equals(code) && user.isClient()) {
+			} //고객사 페이지 
+	    	else if ("hidden2".equals(code) && user.isClient()) {
 			    ArrayList<ClientDTO> list = new ArrayList<ClientDTO>();
 			    ClientDAO clientDAO = new ClientDAO();
 			    searchField = XSSEscape.changeClientField(request.getParameter("searchField"));
@@ -130,7 +133,8 @@ public class ExcelDownloadAction extends HttpServlet {
 				workBook = CreateExcel.clientExcel(list);
 		        response.setHeader("Content-Disposition", "attachment; filename=\"client_list.xlsx\"");
 				clientDAO.clientClose();
-			} else if ("hidden3".equals(code) && user.isCategory()) {
+			} //문서 목록 페이지
+	    	else if ("hidden3".equals(code) && user.isCategory()) {
 			    ArrayList<CategoryDTO> list = new ArrayList<CategoryDTO>();
 			    CategoryDAO categoryDAO = new CategoryDAO();
 			    searchField = XSSEscape.changeCategoryField(request.getParameter("searchField"));
@@ -144,7 +148,8 @@ public class ExcelDownloadAction extends HttpServlet {
 				workBook = CreateExcel.categoryExcel(list);
 		        response.setHeader("Content-Disposition", "attachment; filename=\"category_list.xlsx\"");
 				categoryDAO.categoryClose();
-			} else if ("hidden4".equals(code) && user.isDocument()) {
+			} //문서 페이지
+	    	else if ("hidden4".equals(code) && user.isDocument()) {
 			    ArrayList<DocumentDTO> list = new ArrayList<DocumentDTO>();
 			    DocumentDAO documentDAO = new DocumentDAO();
 			    searchField = XSSEscape.changeDocumentField(request.getParameter("searchField"));
@@ -158,7 +163,8 @@ public class ExcelDownloadAction extends HttpServlet {
 				workBook = CreateExcel.documentExcel(list);
 		        response.setHeader("Content-Disposition", "attachment; filename=\"document_list.xlsx\"");
 				documentDAO.documentClose();
-			} else if ("hidden5".equals(code) && user.getUserCode() == 0) {
+			} //로그 페이지
+	    	else if ("hidden5".equals(code) && user.getUserCode() == 0) {
 			    ArrayList<LogDTO> list = new ArrayList<LogDTO>();
 			    LogDAO logDAO = new LogDAO();
 			    searchField = XSSEscape.changeLogField(request.getParameter("searchField"));
@@ -172,7 +178,8 @@ public class ExcelDownloadAction extends HttpServlet {
 				workBook = CreateExcel.logExcel(list);
 		        response.setHeader("Content-Disposition", "attachment; filename=\"log_list.xlsx\"");
 				logDAO.logClose();
-			} else {
+			} //만약 이상한 값이 들어왔을 경우 빈 엑셀을 반환
+	    	else {
 				workBook = new XSSFWorkbook();
 		        response.setHeader("Content-Disposition", "attachment; filename=\"Excel.xlsx\"");
 			}
@@ -191,7 +198,7 @@ public class ExcelDownloadAction extends HttpServlet {
 	    } catch (Exception e) {
 	    	e.printStackTrace();
 	        request.setAttribute("errorMessage", "에러");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 			return;
 	    }
 	    

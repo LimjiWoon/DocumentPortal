@@ -28,6 +28,7 @@ public class UserRetireAction extends HttpServlet {
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * 직접 url을 타이핑하여 접근하는 것을 차단한다 -> 오로지 동작을 위한 servlet임
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
@@ -42,7 +43,7 @@ public class UserRetireAction extends HttpServlet {
 		} else {
 	        request.setAttribute("errorMessage", "Url을 직접 입력하여 들어올 수 없습니다.");
 		}
-	    request.getRequestDispatcher("Error.jsp").forward(request, response);
+	    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 	}
 
   
@@ -68,7 +69,7 @@ public class UserRetireAction extends HttpServlet {
         			|| (!"0".equals(isRetire) && !"1".equals(isRetire))
         			|| master == null || master.getUserCode() != 0) {
                 request.setAttribute("errorMessage", "잘못된 접근입니다.");
-                request.getRequestDispatcher("Error.jsp").forward(request, response);
+                request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
         	} else{
         		// 유저 탈퇴 or 복직 처리
             	userDAO.userRetire(Integer.parseInt(userCode), isRetire);
@@ -77,7 +78,7 @@ public class UserRetireAction extends HttpServlet {
 
         } catch(Exception e) {
             request.setAttribute("errorMessage", "오류");
-            request.getRequestDispatcher("Error.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
         }
         userDAO.userClose();
 

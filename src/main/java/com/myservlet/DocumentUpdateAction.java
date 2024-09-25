@@ -46,8 +46,8 @@ public class DocumentUpdateAction extends HttpServlet {
        "csv", "hwp", "hwpx", "docx", "txt", "zip"
     		);
 
+    // 허용된 확장자의 파일인지 확인하는 메소드
     public boolean isAllowedExtension(String fileName) {
-    	// 파일 확장자 추출
 		String extension = "";
 	
 		// 파일명에서 마지막 '.' 이후의 확장자 추출
@@ -60,9 +60,8 @@ public class DocumentUpdateAction extends HttpServlet {
 	    return ALLOWED_EXTENSIONS.contains(extension);
 	}
 
-
+    //파일명 추출 메소드
     public String getFileTitle(String fileName) {
-        // 파일 확장자 추출
         String fileTitle = "";
 
         // 파일명에서 마지막 '.' 이후의 확장자 추출
@@ -78,6 +77,7 @@ public class DocumentUpdateAction extends HttpServlet {
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * 직접 url을 타이핑하여 접근하는 것을 차단한다 -> 오로지 동작을 위한 servlet임
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
@@ -92,7 +92,7 @@ public class DocumentUpdateAction extends HttpServlet {
 		} else {
 	        request.setAttribute("errorMessage", "Url을 직접 입력하여 들어올 수 없습니다.");
 		}
-	    request.getRequestDispatcher("Error.jsp").forward(request, response);
+	    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 	}
 
   
@@ -108,12 +108,12 @@ public class DocumentUpdateAction extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 		
 
-        //세션에 로그인 정보가 있는지 확인부터 한다.
+        //사용자 권한을 확인한다.
 		HttpSession session = request.getSession();
 		UserDTO user = (UserDTO) session.getAttribute("user");
 		if (user == null || !user.isDocument()) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 			return;
 		}
 		
@@ -144,7 +144,7 @@ public class DocumentUpdateAction extends HttpServlet {
                 }
     		} catch (Exception e) {
 		        request.setAttribute("errorMessage", "서버 폴더 에러");
-			    request.getRequestDispatcher("Error.jsp").forward(request, response);
+			    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 				return;
     		}
     		
@@ -172,7 +172,7 @@ public class DocumentUpdateAction extends HttpServlet {
     			if(categoryCode == null || originFileName == null || originCategoryCode == null || categoryRoot == null) {
     				deleteFile(multipartRequest.getFile("fileName"));
     		        request.setAttribute("errorMessage", "값을 제대로 기입해주시길 바랍니다.");
-    			    request.getRequestDispatcher("Error.jsp").forward(request, response);
+    			    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
     				return;
     			}
 
@@ -182,17 +182,17 @@ public class DocumentUpdateAction extends HttpServlet {
                 	//변경된 값 아예 X
                 	if (isClientSame(originClientCode, clientCode) && originCategoryCode.equals(categoryCode) && originFileContent.equals(fileContent)) {
         		        request.setAttribute("errorMessage", "변경된 사항이 없습니다.");
-        			    request.getRequestDispatcher("Error.jsp").forward(request, response);
+        			    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
         				return;
                 	}
                 	//위치가 변경이 없을 경우
                 	if(isClientSame(originClientCode, clientCode) && originCategoryCode.equals(categoryCode)) {
-                		if (documentDAO.documentUpdate(getFileTitle(originFileName), originFileName, categoryCode, user.getUserCode(), clientCode, fileContent) == 1) {
+                		if (documentDAO.documentUpdate(originFileName, categoryCode, user.getUserCode(), clientCode, fileContent) == 1) {
                             request.setAttribute("messageDocument", "문서 수정 성공!");
-                    	    request.getRequestDispatcher("Message.jsp").forward(request, response);
+                    	    request.getRequestDispatcher("WEB-INF/Message.jsp").forward(request, response);
                 		} else {
             		        request.setAttribute("errorMessage", "문서 수정 실패!");
-            			    request.getRequestDispatcher("Error.jsp").forward(request, response);
+            			    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
                 		}
         				return;
                 	}
@@ -208,7 +208,7 @@ public class DocumentUpdateAction extends HttpServlet {
                 	//만약 파일이 제대로 올라가지 않았을 경우, 옮길 위치에 폴더가 없으면 폴더를 만든다.
                 	if (!uploadedFile.exists() || (!moveFile.exists() && !moveFile.mkdir())) {
         		        request.setAttribute("errorMessage", "비정상적인 접근");
-        			    request.getRequestDispatcher("Error.jsp").forward(request, response);
+        			    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
                 		clientDAO.clientClose();
                 		documentDAO.documentClose();
                 		return;
@@ -223,7 +223,7 @@ public class DocumentUpdateAction extends HttpServlet {
                 			deleteFile(moveFile);
                 		} else {
             		        request.setAttribute("errorMessage", "문서 수정 실패!");
-            			    request.getRequestDispatcher("Error.jsp").forward(request, response);
+            			    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
                     		clientDAO.clientClose();
                     		documentDAO.documentClose();
                     		return;
@@ -231,20 +231,20 @@ public class DocumentUpdateAction extends HttpServlet {
                 	}
                 	
                 	//2. 파일 이동시키고 DB 수정하기
-        			if (documentDAO.documentUpdate(getFileTitle(originFileName), originFileName, categoryCode, originCategoryCode,
+        			if (documentDAO.documentUpdate(getFileTitle(originFileName), originFileName, originFileName, categoryCode, originCategoryCode,
                 			user.getUserCode(), clientCode, originClientCode, fileContent) == 1){
         				Files.move(Paths.get(folderPath + originFileName), Paths.get(movePath + originFileName));
         				if (deleteFile.isDirectory() && deleteFile.listFiles().length == 0) {
         				    deleteFile.delete();
         				}
                         request.setAttribute("messageDocument", "문서 수정 성공!");
-                	    request.getRequestDispatcher("Message.jsp").forward(request, response);
+                	    request.getRequestDispatcher("WEB-INF/Message.jsp").forward(request, response);
                 		clientDAO.clientClose();
                 		documentDAO.documentClose();
                 	    return;
         			} else {
                         request.setAttribute("messageDocument", "문서 수정 실패!");
-                	    request.getRequestDispatcher("Message.jsp").forward(request, response);
+                	    request.getRequestDispatcher("WEB-INF/Message.jsp").forward(request, response);
                 		clientDAO.clientClose();
                 		documentDAO.documentClose();
                 	    return;
@@ -267,7 +267,7 @@ public class DocumentUpdateAction extends HttpServlet {
     			if (!isAllowedExtension(fileName)) {
     				deleteFile(multipartRequest.getFile("fileName"));
     		        request.setAttribute("errorMessage", "허용되지 않은 확장자가 업로드 되었습니다.");
-    			    request.getRequestDispatcher("Error.jsp").forward(request, response);
+    			    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
             		clientDAO.clientClose();
             		documentDAO.documentClose();
     				return;
@@ -281,7 +281,7 @@ public class DocumentUpdateAction extends HttpServlet {
                 			deleteFile(moveFile);
                 		} else {
             		        request.setAttribute("errorMessage", "문서 수정 실패!");
-            			    request.getRequestDispatcher("Error.jsp").forward(request, response);
+            			    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
                     		clientDAO.clientClose();
                     		documentDAO.documentClose();
                     		return;
@@ -290,7 +290,7 @@ public class DocumentUpdateAction extends HttpServlet {
                 	moveFile = new File(moveFolderPath);
                 	if (!moveFile.exists() && !moveFile.mkdir()) {
         		        request.setAttribute("errorMessage", "문서 수정 실패!");
-        			    request.getRequestDispatcher("Error.jsp").forward(request, response);
+        			    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
                 		clientDAO.clientClose();
                 		documentDAO.documentClose();
                 		return;
@@ -313,7 +313,7 @@ public class DocumentUpdateAction extends HttpServlet {
         				    deleteFile.delete();
         				}
                         request.setAttribute("messageDocument", "문서 수정 성공!");
-                	    request.getRequestDispatcher("Message.jsp").forward(request, response);
+                	    request.getRequestDispatcher("WEB-INF/Message.jsp").forward(request, response);
                 		clientDAO.clientClose();
                 		documentDAO.documentClose();
                 	    return;
@@ -321,7 +321,7 @@ public class DocumentUpdateAction extends HttpServlet {
                 }
 
 		        request.setAttribute("errorMessage", "문서 수정 실패!");
-			    request.getRequestDispatcher("Error.jsp").forward(request, response);
+			    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
         		clientDAO.clientClose();
         		documentDAO.documentClose();
         		return;
@@ -329,13 +329,14 @@ public class DocumentUpdateAction extends HttpServlet {
     		} catch(Exception e) {
     			e.printStackTrace();
 		        request.setAttribute("errorMessage", "그냥 에러");
-			    request.getRequestDispatcher("Error.jsp").forward(request, response);
+			    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 				return;
     		}
     		
 
         } else {
             // 일반 form-data 처리
+        	// 페이지 로딩을 처리한다.
     	    ArrayList<CategoryDTO> categoryList = new ArrayList<CategoryDTO>();
     	    ArrayList<ClientDTO> client = new ArrayList<ClientDTO>();
     	    DocumentDTO document = new DocumentDTO();
@@ -346,9 +347,10 @@ public class DocumentUpdateAction extends HttpServlet {
     		String categoryCode = XSSEscape.isNumber(request.getParameter("categoryCode"));
     		String clientCode = XSSEscape.isClientCode(request.getParameter("clientCode"));
     		
+    		//입력값 확인
     		if (fileName == null || categoryCode == null) {
     	        request.setAttribute("errorMessage", "비정상적인 접근");
-    		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+    		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
     			return;
     		}
     		
@@ -364,18 +366,19 @@ public class DocumentUpdateAction extends HttpServlet {
             request.setAttribute("client", client);
             request.setAttribute("document", document);
     		
-    	    request.getRequestDispatcher("DocumentUpdate.jsp").forward(request, response);
+    	    request.getRequestDispatcher("WEB-INF/DocumentUpdate.jsp").forward(request, response);
         }
 		
 		
 	}
 	
-
+	//파일 삭제 메소드
 	private void deleteFile(File file) {
         if (file != null)
         	file.delete();
 	}
 	
+	//고객사명이 같은지 확인하는 메소드
 	private boolean isClientSame(String client1, String client2) {
 		if (client1 == null) {
 			if (client2 == null)

@@ -17,6 +17,7 @@ function passwordChange(){
   }, 500);
 }
 
+
 function createAndSubmitForm(item) {
   var form = document.createElement("form");
   form.setAttribute("method", "post");

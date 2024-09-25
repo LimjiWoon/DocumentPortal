@@ -30,6 +30,7 @@ public class PasswordRenewAction extends HttpServlet {
     
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * 직접 url을 타이핑하여 접근하는 것을 차단한다
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
@@ -40,16 +41,20 @@ public class PasswordRenewAction extends HttpServlet {
 		HttpSession session = request.getSession();
 		UserDTO user = (UserDTO) session.getAttribute("user");
 		
+		//사용자 검증
 		if(user == null || user.getUserID() == null) {
             request.setAttribute("errorMessage", "비정상적인 접근");
-            request.getRequestDispatcher("Error.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
             session.invalidate();
-		} else {
+		} //사용자 검증에 성공했을 때 비밀번호 변경창 띄움 
+		else {
+			//단, 로그인페이지에서 접속했을 경우 세션에 저장된 사용자 정보를 없앤다.
             if (user.getUserName() == null) {
                 session.invalidate();
             }
+            //사용자 ID 정보만 비밀번호 변경창에 전달한다.
 			request.setAttribute("ID", user.getUserID());
-            request.getRequestDispatcher("PasswordRenewPage.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/PasswordRenewPage.jsp").forward(request, response);
 		}
 	}
 
@@ -68,29 +73,35 @@ public class PasswordRenewAction extends HttpServlet {
         String message = "";
         int result = -3;
         
-        
-        
+        //비밀번호 변경 시도
         try {
+        	//비밀번호 검증
             if(userID.length() < 21 || userID.matches("[A-Za-z0-9]*")
             		|| request.getParameter("nowPassword").length() < 21
             		|| request.getParameter("newPassword").length() < 21) {
+            	//신규 비밀번호와 신규 비밀번호 재입력이 다를 경우
                 if (!newPassword.equals(confirmPassword)) {
                 	message = "변경할 비밀번호와 비밀번호 확인이 일치하지 않습니다.";
                 } else {
                 	result = userDAO.passwordRenew(userID, nowPassword, newPassword);
+                	//변경할 비밀번호와 현재 비밀번호가 같을 경우
                 	if (result == -1) {
                     	message = "변경할 비밀번호가 현재 비밀번호와 같습니다.";
-                    } else if (result == 1) {
+                    } //변경 성공
+                	else if (result == 1) {
                     	message = "변경 성공! \\n 다시 로그인하여주십시오";
                         request.setAttribute("LoginSuccess", "1");
                         request.setAttribute("errorMessage", message);
-                        request.getRequestDispatcher("PasswordRenewPage.jsp").forward(request, response);
+                        request.getRequestDispatcher("WEB-INF/PasswordRenewPage.jsp").forward(request, response);
                         return;
-                    } else if (result == 0) {
+                    } //가존 비밀번호가 틀릴 경우
+                	else if (result == 0) {
                     	message = "기존 비밀번호가 일치하지 않습니다.";
-                    } else if (result == -2) {
+                    } //DB 오류
+                	else if (result == -2) {
                     	message = "데이터베이스 오류가 발생했습니다.";
-                    } else if (result == -3) {
+                    } //비정상적인 오류 
+                	else if (result == -3) {
                     	message = "비정상적인 접근";
                     }
                 }
@@ -104,9 +115,10 @@ public class PasswordRenewAction extends HttpServlet {
 
         userDAO.userClose();
         
+        //변경 실패 시 다시 비밀번호 변경창으로 돌아간다.
         request.setAttribute("errorMessage", message);
         request.setAttribute("user", message);
-        request.getRequestDispatcher("Error.jsp").forward(request, response);
+        request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 
 		
 	}

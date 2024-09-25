@@ -30,6 +30,7 @@ public class UserUploadAction extends HttpServlet {
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * 페이지 로딩을 위한 doGet()
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
@@ -42,9 +43,9 @@ public class UserUploadAction extends HttpServlet {
 		UserDTO user = (UserDTO) session.getAttribute("user");
 		if (user == null || user.getUserCode() != 0) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
-	        request.getRequestDispatcher("Error.jsp").forward(request, response);
+	        request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 		} else {
-			request.getRequestDispatcher("UserUpload.jsp").forward(request, response);
+			request.getRequestDispatcher("WEB-INF/UserUpload.jsp").forward(request, response);
 		}
 		
 	}
@@ -53,6 +54,7 @@ public class UserUploadAction extends HttpServlet {
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * 사용자 등록을 위한 doPost()
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
@@ -73,27 +75,27 @@ public class UserUploadAction extends HttpServlet {
 			if (userID == null || userName == null || userPassword == null 
 					|| isCategory == null || isClient == null || isDocument == null){
 		        request.setAttribute("errorMessage", "비정상적인 접근");
-		        request.getRequestDispatcher("Error.jsp").forward(request, response);
+		        request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 			} //아이디 중복 체크
 			else if (userDAO.userIDCheck(userID) == 1) {
 				//아이디 등록 성공
 				if(userDAO.userUpload(userName, userID, userPassword, isCategory.equals("1"),
 						isClient.equals("1"), isDocument.equals("1")) == 1) {
 	                request.setAttribute("messageUser", "사용자 등록 성공!");
-	                request.getRequestDispatcher("Message.jsp").forward(request, response);
+	                request.getRequestDispatcher("WEB-INF/Message.jsp").forward(request, response);
 				} //DB 오류 등으로 등록 실패
 				else {
 	                request.setAttribute("errorMessage", "에러가 발생해 등록하지 못했습니다.");
-	                request.getRequestDispatcher("Error.jsp").forward(request, response);
+	                request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 				}
 			} //중복된 아이디가 있을 경우 등록 실패
 			else {
                 request.setAttribute("errorMessage", "아이디가 중복됩니다.");
-                request.getRequestDispatcher("Error.jsp").forward(request, response);
+                request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 			}
 		} catch (Exception e) {
             request.setAttribute("errorMessage", "비정상적인 접근");
-            request.getRequestDispatcher("Error.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 		}
 		
 		userDAO.userClose();

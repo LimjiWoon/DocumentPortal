@@ -32,6 +32,7 @@ public class CategoryModalAction extends HttpServlet {
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * 직접 url을 타이핑하여 접근하는 것을 차단한다 -> 오로지 동작을 위한 servlet임
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
@@ -46,7 +47,7 @@ public class CategoryModalAction extends HttpServlet {
 		} else {
 	        request.setAttribute("errorMessage", "Url을 직접 입력하여 들어올 수 없습니다.");
 		}
-	    request.getRequestDispatcher("Error.jsp").forward(request, response);
+	    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 	}
 
     
@@ -59,20 +60,27 @@ public class CategoryModalAction extends HttpServlet {
         response.setContentType("text/html; charset=UTF-8");
 		
         ArrayList<String> list;
+		HttpSession session = request.getSession();
+		UserDTO user = (UserDTO) session.getAttribute("user");
         String selectType = XSSEscape.isNumber(request.getParameter("selectType"));
 		String dataType = XSSEscape.isNumber(request.getParameter("dataType"));
         
-        if ("0".equals(selectType)) {
+		//입력된 값에 따라 띄울 모달창의 정보를 변경
+		//사용자 권한 검증도 같이한다.
+		if (user == null) {
+			list = null;
+		} //문서 목록 페이지에서 고객사 정보 리스트를 가져온다.
+		else if ("0".equals(selectType) && user.isCategory()) {
             CategoryDAO categoryDAO = new CategoryDAO();
             list = categoryDAO.getModal(dataType);
             categoryDAO.categoryClose();
-        } else if ("1".equals(selectType)) {
+        } //고객사 페이지에서 문서 목록 정보 리스트를 가져온다.
+		else if ("1".equals(selectType) && user.isClient()) {
         	ClientDAO clientDAO = new ClientDAO();
             list = clientDAO.getModal(dataType);
             clientDAO.clientClose();
         } else {
         	list = null;
-        	return;
         }
 
         // 데이터와 타입을 요청에 응답으로 전달
@@ -81,7 +89,7 @@ public class CategoryModalAction extends HttpServlet {
         
         
         // 모달의 HTML을 생성할 JSP 페이지를 통해 응답
-        RequestDispatcher dispatcher = request.getRequestDispatcher("CategoryModal.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("WEB-INF/CategoryModal.jsp");
         dispatcher.forward(request, response);
     }
 

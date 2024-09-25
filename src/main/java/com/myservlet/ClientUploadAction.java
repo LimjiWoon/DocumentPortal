@@ -31,6 +31,7 @@ public class ClientUploadAction extends HttpServlet {
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * 직접 url을 타이핑하여 접근하는 것을 차단한다 -> 오로지 동작을 위한 servlet임
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
@@ -45,7 +46,7 @@ public class ClientUploadAction extends HttpServlet {
 		} else {
 	        request.setAttribute("errorMessage", "Url을 직접 입력하여 들어올 수 없습니다.");
 		}
-	    request.getRequestDispatcher("Error.jsp").forward(request, response);
+	    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 	}
 
   
@@ -68,20 +69,30 @@ public class ClientUploadAction extends HttpServlet {
 			HttpSession session = request.getSession();
 			UserDTO user = (UserDTO) session.getAttribute("user");
 			
+			//사용자 권한 확인
+			if (user == null || !user.isClient()) {
+	            request.setAttribute("errorMessage", "비정상적인 접근");
+	            request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
+				return;
+			}
+			
+			//입력값이 이상할 경우
 			if (clientName == null) {
 	            request.setAttribute("errorMessage", "실패");
-	            request.getRequestDispatcher("Error.jsp").forward(request, response);
-			} else if(clientDAO.clientUniqueName(clientName)){
+	            request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
+			} //고객사 이름이 중복될 경우
+			else if(clientDAO.clientUniqueName(clientName)){
 	            request.setAttribute("errorMessage", "이름이 중복됩니다.");
-	            request.getRequestDispatcher("Error.jsp").forward(request, response);
-			} else {
+	            request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
+			} //등록 성공
+			else {
 	            clientDAO.clientUpload(clientName, clientContent, user.getUserCode());
 	            request.setAttribute("messageClient", "고객사를 등록했습니다.");
-	            request.getRequestDispatcher("Message.jsp").forward(request, response);
+	            request.getRequestDispatcher("WEB-INF/Message.jsp").forward(request, response);
 			}
         } catch(Exception e) {
             request.setAttribute("errorMessage", "비정상적인 접근");
-            request.getRequestDispatcher("Error.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
         }
 
 		clientDAO.clientClose();

@@ -31,6 +31,7 @@ public class CategoryUpdateAction extends HttpServlet {
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * 직접 url을 타이핑하여 접근하는 것을 차단한다 -> 오로지 동작을 위한 servlet임
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
@@ -45,7 +46,7 @@ public class CategoryUpdateAction extends HttpServlet {
 		} else {
 	        request.setAttribute("errorMessage", "Url을 직접 입력하여 들어올 수 없습니다.");
 		}
-	    request.getRequestDispatcher("Error.jsp").forward(request, response);
+	    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 	}
 
   
@@ -68,17 +69,18 @@ public class CategoryUpdateAction extends HttpServlet {
 		String originCategoryName = categoryDAO.getCategoryName(Integer.parseInt(categoryCode));
 		String folderPath = getServletContext().getRealPath("/root/");
 		
-		//데이터 검증
+		//사용자 권한 확인 및 데이터 검증
 		if (user == null || !user.isCategory() || categoryName == null || categoryCode == null || originCategoryName == null) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 			categoryDAO.categoryClose();
 			return;
 		}
 		
+		//입력된 값이 기존의 데이터와 같을 경우
 		if (originCategoryName.equals(categoryName)) {
 	        request.setAttribute("errorMessage", "바뀐 값이 없습니다.");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 			categoryDAO.categoryClose();
 			return;
 		}
@@ -86,12 +88,13 @@ public class CategoryUpdateAction extends HttpServlet {
 		File folder = new File(folderPath + originCategoryName);
 		File newFolder = new File(folderPath + categoryName);
 		
+		//값이 바꼈을 경우 폴더의 존재 확인 후 변경을 하고 DB 수정
 		if(folder.exists() && folder.renameTo(newFolder) && categoryDAO.categoryUpdate(categoryName, originCategoryName, Integer.parseInt(categoryCode), user.getUserCode()) == 1) {
             request.setAttribute("messageCategory", "문서 목록 수정 성공!");
-            request.getRequestDispatcher("Message.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/Message.jsp").forward(request, response);
 		} else {
 	        request.setAttribute("errorMessage", "문서 목록 수정 실패!");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 		}
 		
 		

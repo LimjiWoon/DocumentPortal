@@ -31,6 +31,7 @@ public class LogAction extends HttpServlet {
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * 페이지 로딩을 위한 servlet, 페이지에 보여줄 정보 리스트를 가져와 화면에 띄워준다.
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
@@ -42,55 +43,11 @@ public class LogAction extends HttpServlet {
 		UserDTO user = (UserDTO) session.getAttribute("user");
 		if (user == null || user.getUserCode() != 0) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 			return;
 		}
 		
 
-	    ArrayList<LogDTO> list = new ArrayList<LogDTO>();
-	    LogDAO logDAO = new LogDAO();
-	    int startPage = 1;
-	    int totalPages = Math.max(logDAO.maxPage(null, null, null, null), 1);
-	    int endPage = Math.min(startPage + 4, totalPages);
-
-	    if (endPage - startPage < 4) {
-	      startPage = Math.max(endPage - 4, 1);
-	    }
-	    
-	    list = logDAO.getList(null, null, null, null, null);
-	    
-	    logDAO.logClose();
-
-	    //값 반환
-        request.setAttribute("startPage", startPage);
-        request.setAttribute("endPage", endPage);
-        request.setAttribute("totalPages", totalPages);
-        request.setAttribute("list", list);
-	    request.getRequestDispatcher("Log.jsp").forward(request, response);
-	    
-	}
-
-  
-    
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		request.setCharacterEncoding("UTF-8");
-		response.setContentType("text/html; charset=UTF-8");
-        response.setCharacterEncoding("UTF-8");
-		
-
-        //세션에 로그인 정보가 있는지 확인부터 한다.
-		HttpSession session = request.getSession();
-		UserDTO user = (UserDTO) session.getAttribute("user");
-		if (user == null || user.getUserCode() != 0) {
-	        request.setAttribute("errorMessage", "비정상적인 접근");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
-			return;
-		}
-        
 	    int startPage;
 	    int endPage;
 	    int totalPages;
@@ -104,7 +61,7 @@ public class LogAction extends HttpServlet {
 	    ArrayList<LogDTO> list = new ArrayList<LogDTO>();
 	    LogDAO logDAO = new LogDAO();
         
-
+	    //현재 페이지, 최대 페이지 수, 이동할 수 있는 페이지 범위를 계산한다.
 	    if (nowPage == null){
 	      startPage = 1;
 	    } else {
@@ -116,33 +73,21 @@ public class LogAction extends HttpServlet {
 	      }
 	    }
 	    
-	    
-	    
-	    if (searchText != null && searchField != null){
-	    	totalPages = Math.max(logDAO.maxPage(startDate, endDate, logWhere, logHow, searchField, searchText), 1);
-			
-		    endPage = Math.min(startPage + 4, totalPages);
-
-		    if (endPage - startPage < 4) {
-		      startPage = Math.max(endPage - 4, 1);
-		    }
-		    
-		    list = logDAO.getSearch(startDate, endDate, logWhere, logHow, nowPage, searchField, searchText);
-	    } else{
-	    	startDate = null;
-	    	endDate = null;
+	    //검색 입력값이 정상인지 확인한다.
+	    if (searchText == null || searchField == null){
 	    	searchText = null;
 	    	searchField = null;
-	    	totalPages = Math.max(logDAO.maxPage(startDate, endDate, logWhere, logHow), 1);
-	    	
-		    endPage = Math.min(startPage + 4, totalPages);
-
-		    if (endPage - startPage < 4) {
-		      startPage = Math.max(endPage - 4, 1);
-		    }
-		    
-		    list = logDAO.getList(startDate, endDate, logWhere, logHow, nowPage);
 	    }
+	    
+	    totalPages = Math.max(logDAO.maxPage(startDate, endDate, logWhere, logHow, searchField, searchText), 1);
+	    endPage = Math.min(startPage + 4, totalPages);
+
+	    if (endPage - startPage < 4) {
+	      startPage = Math.max(endPage - 4, 1);
+	    }
+	    
+	    //위의 정보를 가지고 현재 화면에 출력할 정보 리스트를 가지고 온다.
+	    list = logDAO.getList(startDate, endDate, logWhere, logHow, nowPage, searchField, searchText);
 	    
 	    logDAO.logClose();
 
@@ -158,8 +103,18 @@ public class LogAction extends HttpServlet {
         request.setAttribute("logWhere", XSSEscape.restoreLogWhere(logWhere));
         request.setAttribute("logHow", XSSEscape.restoreLogHow(logHow));
         request.setAttribute("list", list);
-	    request.getRequestDispatcher("Log.jsp").forward(request, response);
-		
+	    request.getRequestDispatcher("WEB-INF/Log.jsp").forward(request, response);
+	    
+	}
+
+  
+    
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		doGet(request, response);
 	}
 
 }

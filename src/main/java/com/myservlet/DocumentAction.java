@@ -34,6 +34,7 @@ public class DocumentAction extends HttpServlet {
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * 페이지 로딩을 위한 servlet, 페이지에 보여줄 정보 리스트를 가져와 화면에 띄워준다.
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
@@ -45,64 +46,9 @@ public class DocumentAction extends HttpServlet {
 		UserDTO user = (UserDTO) session.getAttribute("user");
 		if (user == null || !user.isDocument() ) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 			return;
 		}
-
-    	DocumentDAO documentDAO = new DocumentDAO();
-    	CategoryDAO categoryDAO = new CategoryDAO();
-    	ClientDAO clientDAO = new ClientDAO();
-		
-	    int startPage = 1;
-	    int totalPages = Math.max(documentDAO.maxPage(null, null, null, null), 1);
-	    int endPage = Math.min(startPage + 4, totalPages);
-	    ArrayList<CategoryDTO> categoryList = new ArrayList<CategoryDTO>();
-	    ArrayList<ClientDTO> clientList = new ArrayList<ClientDTO>();
-	    ArrayList<DocumentDTO> list = new ArrayList<DocumentDTO>();
-	    
-	    if (endPage - startPage < 4) {
-	      startPage = Math.max(endPage - 4, 1);
-	    }
-	    
-	    list = documentDAO.getList(null, null, null, null, null);
-	    categoryList = categoryDAO.getList();
-	    clientList = clientDAO.getList();
-	    
-	    categoryDAO.categoryClose();
-	    clientDAO.clientClose();
-	    documentDAO.documentClose();
-		
-
-        request.setAttribute("startPage", startPage);
-        request.setAttribute("endPage", endPage);
-        request.setAttribute("totalPages", totalPages);
-	    request.setAttribute("categoryList", categoryList);
-	    request.setAttribute("clientList", clientList);
-        request.setAttribute("list", list);
-        
-	    request.getRequestDispatcher("Document.jsp").forward(request, response);
-	}
-
-  
-
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		// TODO Auto-generated method stub
-		request.setCharacterEncoding("UTF-8"); 
-        response.setContentType("text/html; charset=UTF-8");
-        
-		HttpSession session = request.getSession();
-		UserDTO user = (UserDTO) session.getAttribute("user");
-		
-		//권한을 검증하는 블럭
-		if (user == null || !user.isDocument()) {
-	        request.setAttribute("errorMessage", "비정상적인 접근");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
-			return;
-		}	
 
     	DocumentDAO documentDAO = new DocumentDAO();
     	CategoryDAO categoryDAO = new CategoryDAO();
@@ -125,9 +71,7 @@ public class DocumentAction extends HttpServlet {
 	    ArrayList<DocumentDTO> list = new ArrayList<DocumentDTO>();
 	    
 
-		//nowPage XSS 검증 및 값 처리
-		//startPage, endPage, totalPages 값 계산
-		//위의 검증 된 값들로 사용자 list, DB에서 가져오기
+		//현재 페이지, 최대 페이지, 이동할 수 있는 페이지를 계산한다.
 	    if (nowPage == null){
 	      startPage = 1;
 	    } else {
@@ -139,32 +83,22 @@ public class DocumentAction extends HttpServlet {
 	      }
 	    }
 	    
-	    if (searchField != null && searchText != null && searchOrder != null){
-			totalPages = Math.max(documentDAO.maxPage(startDate, endDate, filterCategory, filterClient, searchField, searchText), 1);
-			
-		    endPage = Math.min(startPage + 4, totalPages);
-
-		    if (endPage - startPage < 4) {
-		      startPage = Math.max(endPage - 4, 1);
-		    }
-		    
-		    list = documentDAO.getSearch(startDate, endDate, filterCategory, filterClient, nowPage, searchField, searchOrder, searchText);
-		    
-	    } //전체 문서 리스트 반환
-	    else {
+	    //검색 입력값을 한번 검증한다.
+	    if (searchField == null || searchText == null || searchOrder == null){
 	    	searchField = null;
 	    	searchText = null;
 	    	searchOrder = null;
-	    	totalPages = Math.max(documentDAO.maxPage(startDate, endDate, filterCategory, filterClient), 1);
-	    	
-		    endPage = Math.min(startPage + 4, totalPages);
-
-		    if (endPage - startPage < 4) {
-		      startPage = Math.max(endPage - 4, 1);
-		    }
-		    
-		    list = documentDAO.getList(startDate, endDate, filterCategory, filterClient, nowPage);
 	    }
+	    
+    	totalPages = Math.max(documentDAO.maxPage(startDate, endDate, filterCategory, filterClient, searchField, searchText), 1);
+	    endPage = Math.min(startPage + 4, totalPages);
+
+	    if (endPage - startPage < 4) {
+	      startPage = Math.max(endPage - 4, 1);
+	    }
+	    
+	    //페이지에 띄울 리스트 정보를 가져온다.
+	    list = documentDAO.getList(startDate, endDate, filterCategory, filterClient, nowPage, searchField, searchOrder, searchText);
 	    
 	    categoryList = categoryDAO.getList();
 	    clientList = clientDAO.getList();
@@ -190,7 +124,17 @@ public class DocumentAction extends HttpServlet {
         request.setAttribute("category", category);
         request.setAttribute("list", list);
         
-	    request.getRequestDispatcher("Document.jsp").forward(request, response);
+	    request.getRequestDispatcher("WEB-INF/Document.jsp").forward(request, response);
+	}
+
+  
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		doGet(request, response);
 	}
 
 }

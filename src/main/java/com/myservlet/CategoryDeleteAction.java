@@ -31,6 +31,7 @@ public class CategoryDeleteAction extends HttpServlet {
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * 직접 url을 타이핑하여 접근하는 것을 차단한다 -> 오로지 동작을 위한 servlet임
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
@@ -45,7 +46,7 @@ public class CategoryDeleteAction extends HttpServlet {
 		} else {
 	        request.setAttribute("errorMessage", "Url을 직접 입력하여 들어올 수 없습니다.");
 		}
-	    request.getRequestDispatcher("Error.jsp").forward(request, response);
+	    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 	}
 
   
@@ -69,10 +70,10 @@ public class CategoryDeleteAction extends HttpServlet {
 		String folderPath = getServletContext().getRealPath("/root/");
 		File folder = new File(folderPath + categoryName);
 		
-		//입력된 값 검증
+		//입력된 값 검증 및 사용자 권한 확인
 		if (user == null || !user.isCategory() || categoryCode == null || categoryName == null) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 		    categoryDAO.categoryClose();
 			return;
 		}
@@ -84,41 +85,43 @@ public class CategoryDeleteAction extends HttpServlet {
 				categoryDAO.categoryDelete(categoryName, Integer.parseInt(categoryCode), user.getUserCode()) == 1 &&
 				deleteDirectory(folder)) {
             request.setAttribute("messageCategory", "문서 목록 삭제 성공!");
-            request.getRequestDispatcher("Message.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/Message.jsp").forward(request, response);
 		} //문서 권한이 없으면 폴더가 비어 있을 때만 삭제시킴
 		else if(folder.exists() && isDirectoryEmpty(folder) && 
 				categoryDAO.categoryDelete(categoryName, Integer.parseInt(categoryCode), user.getUserCode()) == 1 && folder.delete()) {
             request.setAttribute("messageCategory", "문서 목록 삭제 성공!");
-            request.getRequestDispatcher("Message.jsp").forward(request, response);
-		} 
+            request.getRequestDispatcher("WEB-INF/Message.jsp").forward(request, response);
+		} //만약 문서 목록 내부에 문서들이 있고 문서에 대한 권한이 없으면 삭제 실패
 		else if (!user.isDocument() && folder.exists()){
 	        request.setAttribute("errorMessage", "문서 권한이 없어 삭제에 실패했습니다.");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
-		} 
+		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
+		} //실패
 		else {
 	        request.setAttribute("errorMessage", "삭제 실패!");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 		}
 		
 		categoryDAO.categoryClose();
 
 	}
 	
-   private static boolean isDirectoryEmpty(File directory) {
-        String[] files = directory.list();
+	//해당 폴더(문서 목록)가 비어있는지 확인하는 메소드
+	private static boolean isDirectoryEmpty(File directory) {
+    	String[] files = directory.list();
         return files == null || files.length == 0;
     }
    
-   private static boolean deleteDirectory(File folder) {
-       if (folder.isDirectory()) {
-           File[] files = folder.listFiles();
-           if (files != null) {
-               for (File file : files) {
-                   deleteDirectory(file);
-               }
-           }
-       }
-       return folder.delete();
-   }
+	//해당 폴더(문서 목록) 안의 모든 파일(문서)를 삭제하는 메소드
+	private static boolean deleteDirectory(File folder) {
+		if (folder.isDirectory()) {
+			File[] files = folder.listFiles();
+			if (files != null) {
+				for (File file : files) {
+					deleteDirectory(file);
+				}
+			}
+		}
+		return folder.delete();
+	}
 
 }

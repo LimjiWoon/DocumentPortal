@@ -25,6 +25,7 @@ public class LogoutAction extends HttpServlet {
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * 그냥 세션에 있는 모든 정보를 없애는 servlet -> 로그아웃 처리를 담당함
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub

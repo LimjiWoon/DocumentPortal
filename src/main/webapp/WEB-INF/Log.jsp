@@ -101,7 +101,7 @@
         <thead class="table-dark">
           <tr>
             <th scope="col" class="t-c w-5">사번</th>
-            <th scope="col" class="t-c w-7">사용자</th>
+            <th scope="col" class="t-c w-7">이름</th>
             <th scope="col" class="t-c w-10">페이지</th>
             <th scope="col" class="t-c w-18">시간</th>
             <th scope="col" class="t-c w-25">대상</th>

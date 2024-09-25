@@ -34,7 +34,7 @@ public class LoginAction extends HttpServlet {
 		// TODO Auto-generated method stub
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html; charset=UTF-8");
-	    request.getRequestDispatcher("Login.jsp").forward(request, response);
+	    request.getRequestDispatcher("WEB-INF/Login.jsp").forward(request, response);
 	}
     
     
@@ -65,7 +65,7 @@ public class LoginAction extends HttpServlet {
             if(userID == null || userPassword == null) {
             	message += "비정상적인 접근";
                 request.setAttribute("errorMessage", message);
-                request.getRequestDispatcher("Error.jsp").forward(request, response);
+                request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
             } //로그인 시도 - 일치하는 아이디가 있을 경우
             else if (result == 1) {
             	realUser = userDAO.getInfo(userID);
@@ -73,17 +73,17 @@ public class LoginAction extends HttpServlet {
                 if (realUser.isRetire()) {
                 	message += "퇴사한 사원입니다.";
                     request.setAttribute("errorMessage", message);
-                    request.getRequestDispatcher("Error.jsp").forward(request, response);
+                    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
                 } //로그인 실패 2- 계정 잠금 
                 else if (realUser.isLock()) {
                 	message += "계정이 잠겼습니다.";
                     request.setAttribute("errorMessage", message);
-                    request.getRequestDispatcher("Error.jsp").forward(request, response);
+                    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
                 } //로그인 실패 3- 장기 미접속 시
                 else if (logic.getPasswordChangeDay(realUser.getDateOfPassword()) > 180) {
                 	message += "장기간 미접속한 사람입니다. \\n계정이 잠겼습니다.";
                     request.setAttribute("errorMessage", message);
-                    request.getRequestDispatcher("Error.jsp").forward(request, response);
+                    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
                 } //로그인 성공 1 - 비밀번호 변경 필요
                 else if (logic.getPasswordChangeDay(realUser.getDateOfPassword()) > 90) {
                     HttpSession session = request.getSession();
@@ -95,7 +95,7 @@ public class LoginAction extends HttpServlet {
                     }
                 	message += "비밀번호를 변경해야합니다.";
                     request.setAttribute("errorMessage", message);
-                    request.getRequestDispatcher("PasswordRenewPage.jsp").forward(request, response);
+                    request.getRequestDispatcher("WEB-INF/PasswordRenewPage.jsp").forward(request, response);
                 } //로그인 성공 2
                 else {
                     userDAO.loginSuccess(realUser.getUserCode(), userID);
@@ -114,23 +114,23 @@ public class LoginAction extends HttpServlet {
                     message += " 비밀번호를 5회 틀려 계정이 잠겼습니다. 관리자에게 문의해주시길 바랍니다.";
                 }
                 request.setAttribute("errorMessage", message);
-                request.getRequestDispatcher("Error.jsp").forward(request, response);
+                request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
             } //로그인 실패 5 - 아이디 틀림
             else if (result == -1) {
                 message = "존재하지 않는 아이디입니다.";
                 request.setAttribute("errorMessage", message);
-                request.getRequestDispatcher("Error.jsp").forward(request, response);
+                request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
             } //로그인 실패 6 - DB 자체의 오류
             else if (result == -2) {
                 message = "데이터베이스 오류가 발생했습니다.";
                 request.setAttribute("errorMessage", message);
-                request.getRequestDispatcher("Error.jsp").forward(request, response);
+                request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
             }
         }  //중간에 에러 뭔지 모를 에러 발생 시 따로 처리
         catch (Exception e) {
         	message = "에러";
             request.setAttribute("errorMessage", message);
-            request.getRequestDispatcher("Error.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
         }
         
         userDAO.userClose();

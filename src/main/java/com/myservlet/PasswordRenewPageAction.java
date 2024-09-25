@@ -28,6 +28,7 @@ public class PasswordRenewPageAction extends HttpServlet {
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * 직접 url을 타이핑하여 접근하는 것을 차단한다 -> 페이지 로딩을 위한 서블릿이지만 특정 조건에서만 로딩해야함
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
@@ -42,7 +43,7 @@ public class PasswordRenewPageAction extends HttpServlet {
 		} else {
 	        request.setAttribute("errorMessage", "Url을 직접 입력하여 들어올 수 없습니다.");
 		}
-	    request.getRequestDispatcher("Error.jsp").forward(request, response);
+	    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 	}
 
   
@@ -57,14 +58,15 @@ public class PasswordRenewPageAction extends HttpServlet {
 		response.setContentType("text/html; charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
         
+        //해당 정보가 있을 때만 페이지를 로딩한다.
         String ID = request.getParameter("item");
         
         if (ID == null) {
             request.setAttribute("errorMessage", "비정상적인 접근");
-            request.getRequestDispatcher("Error.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
         } else {
 			request.setAttribute("ID", ID);
-            request.getRequestDispatcher("PasswordRenew.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/PasswordRenew.jsp").forward(request, response);
         }
 	}
 

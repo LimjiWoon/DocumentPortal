@@ -31,6 +31,7 @@ public class CategoryAction extends HttpServlet {
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * 페이지 로딩을 위한 servlet, 페이지에 보여줄 정보 리스트를 가져와 화면에 띄워준다.
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
@@ -42,44 +43,7 @@ public class CategoryAction extends HttpServlet {
 		UserDTO user = (UserDTO) session.getAttribute("user");
 		if (user == null || !user.isCategory()) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
-			return;
-		}
-        
-    	CategoryDAO categoryDAO = new CategoryDAO();
-	    int startPage = 1;
-	    int totalPages = Math.max(categoryDAO.maxPage(null, null), 1);
-	    int endPage = Math.min(startPage + 4, totalPages);
-	    if (endPage - startPage < 4) {
-	      startPage = Math.max(endPage - 4, 1);
-	    }
-	    
-	    ArrayList<CategoryDTO> list = categoryDAO.getList(null, null, null);
-	    
-	    categoryDAO.categoryClose();
-	    
-        request.setAttribute("startPage", startPage);
-        request.setAttribute("endPage", endPage);
-        request.setAttribute("totalPages", totalPages);
-        request.setAttribute("list", list);
-        
-	    request.getRequestDispatcher("Category.jsp").forward(request, response);
-	}
-
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		request.setCharacterEncoding("UTF-8"); 
-        response.setContentType("text/html; charset=UTF-8");
-        
-        //세션에 로그인 정보가 있는지 확인부터 한다.
-		HttpSession session = request.getSession();
-		UserDTO user = (UserDTO) session.getAttribute("user");
-		if (user == null || !user.isCategory()) {
-	        request.setAttribute("errorMessage", "비정상적인 접근");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 			return;
 		}
         
@@ -96,9 +60,7 @@ public class CategoryAction extends HttpServlet {
 	    ArrayList<CategoryDTO> list = new ArrayList<CategoryDTO>();
 	    
 	    
-		//nowPage XSS 검증 및 값 처리
-		//startPage, endPage, totalPages 값 계산
-		//위의 검증 된 값들로 사용자 list, DB에서 가져오기
+		//현재 페이지, 최대 페이지 수, 이동할 수 있는 페이지 범위를 계산한다.
 	    if (nowPage == null){
 	      startPage = 1;
 	    } else {
@@ -110,33 +72,22 @@ public class CategoryAction extends HttpServlet {
 	      }
 	    }
 	    
-	    //검색 기록이 있는가 없는 가에 따라 반환하는 사용자 list가 다름
-	    if (searchField != null && searchText != null && searchOrder != null){
-			totalPages = Math.max(categoryDAO.maxPage(startDate, endDate, searchField, searchText), 1);
-			
-		    endPage = Math.min(startPage + 4, totalPages);
-
-		    if (endPage - startPage < 4) {
-		      startPage = Math.max(endPage - 4, 1);
-		    }
-		    
-		    list = categoryDAO.getSearch(startDate, endDate, nowPage, searchField, searchOrder, searchText);
-		    
-	    } else {
+	    //검색이 올바른지 아닌지를 확인한다.
+	    if (searchField == null || searchText == null || searchOrder == null){
 	    	searchField = null;
 	    	searchText = null;
 	    	searchOrder = null;
-	    	totalPages = Math.max(categoryDAO.maxPage(startDate, endDate), 1);
-	    	
-		    endPage = Math.min(startPage + 4, totalPages);
-
-		    if (endPage - startPage < 4) {
-		      startPage = Math.max(endPage - 4, 1);
-		    }
-		    
-		    list = categoryDAO.getList(startDate, endDate, nowPage);
 	    }
 	    
+	    totalPages = Math.max(categoryDAO.maxPage(startDate, endDate, searchField, searchText), 1);
+	    endPage = Math.min(startPage + 4, totalPages);
+
+	    if (endPage - startPage < 4) {
+	      startPage = Math.max(endPage - 4, 1);
+	    }
+	    
+	    //위 정보들을 가지고 화면에 출력할 정보 리스트를 가져온다.
+	    list = categoryDAO.getList(startDate, endDate, nowPage, searchField, searchOrder, searchText);
 	    
 	    categoryDAO.categoryClose();
 	    
@@ -152,7 +103,15 @@ public class CategoryAction extends HttpServlet {
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("list", list);
         
-	    request.getRequestDispatcher("Category.jsp").forward(request, response);
+	    request.getRequestDispatcher("WEB-INF/Category.jsp").forward(request, response);
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		doGet(request, response);
 	}
 
 }

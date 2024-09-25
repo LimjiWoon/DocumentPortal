@@ -39,6 +39,7 @@ public class DocumentViewDownloadAction extends HttpServlet {
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * 직접 url을 타이핑하여 접근하는 것을 차단한다 -> 오로지 동작을 위한 servlet임
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
@@ -53,7 +54,7 @@ public class DocumentViewDownloadAction extends HttpServlet {
 		} else {
 	        request.setAttribute("errorMessage", "Url을 직접 입력하여 들어올 수 없습니다.");
 		}
-	    request.getRequestDispatcher("Error.jsp").forward(request, response);
+	    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 	}
 
   
@@ -70,9 +71,10 @@ public class DocumentViewDownloadAction extends HttpServlet {
 		HttpSession session = request.getSession();
 		UserDTO user = (UserDTO) session.getAttribute("user");
 		
+		//사용자 권한 확인
 		if (user == null || !user.isDocument()) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 			return;
 		}
 		
@@ -85,9 +87,9 @@ public class DocumentViewDownloadAction extends HttpServlet {
 		String[] checkedDocumentCodes = request.getParameterValues("checkedDocumentCode");
 		DocumentDAO documentDAO = new DocumentDAO();
 		
-		//다중 다운로드 할 때
+		// 1. 다중 다운로드 할 때
 		if (checkedDocumentCodes != null) {
-			//1. 파일 경로 List 설정
+			// 1-1. 파일 경로 List 설정
 			ArrayList<String> filePaths = new ArrayList<String>();
 			LogDAO logDAO = new LogDAO();
 			ClientDAO clientDAO = new ClientDAO();
@@ -111,12 +113,12 @@ public class DocumentViewDownloadAction extends HttpServlet {
 			logDAO.logClose();
 			clientDAO.clientClose();
 			
-	        // 2. ZIP 파일명 설정
+	        // 1-2. ZIP 파일명 설정
 	        String zipFileName = "download.zip";
 	        response.setContentType("application/zip");
 	        response.setHeader("Content-Disposition", "attachment; filename=\"" + zipFileName + "\"");
 
-	        // 3. ZIP 파일 생성 및 파일 추가
+	        // 1-3. ZIP 파일 생성 및 파일 추가
 	        try (ServletOutputStream servletOutputStream = response.getOutputStream();
 	        	     ZipOutputStream zipOutputStream = new ZipOutputStream(servletOutputStream)) {
 
@@ -129,7 +131,7 @@ public class DocumentViewDownloadAction extends HttpServlet {
 	        	        }
 
 	        	        try (FileInputStream fileInputStream = new FileInputStream(file)) {
-	        	            // 4. ZipEntry 생성 및 중복 이름 처리
+	        	            // 1-4. ZipEntry 생성 및 중복 이름 처리
 	        	            String originalFileName = file.getName();
 	        	            String zipEntryName = originalFileName;
 
@@ -148,7 +150,7 @@ public class DocumentViewDownloadAction extends HttpServlet {
 	        	            ZipEntry zipEntry = new ZipEntry(zipEntryName);
 	        	            zipOutputStream.putNextEntry(zipEntry);
 
-	        	            // 5. 파일 데이터를 읽어서 ZipOutputStream에 쓰기
+	        	            // 1-5. 파일 데이터를 읽어서 ZipOutputStream에 쓰기
 	        	            byte[] buffer = new byte[1024];
 	        	            int bytesRead;
 	        	            while ((bytesRead = fileInputStream.read(buffer)) != -1) {
@@ -159,7 +161,7 @@ public class DocumentViewDownloadAction extends HttpServlet {
 	        	        }
 	        	    }
 
-	            zipOutputStream.finish(); // ZIP 파일 완성
+	            zipOutputStream.finish(); // 1-6. ZIP 파일 완성 후 다운로드
 
 	        } catch (IOException e) {
 	            // 에러 처리
@@ -170,25 +172,29 @@ public class DocumentViewDownloadAction extends HttpServlet {
 	    }
 			
 		
-		// 단일 파일 다운로드 할 때 파일이 이상할 경우
+		// 2. 단일 파일 다운로드 할 때 파일이 이상할 경우
 		categoryRoot = documentDAO.getRoot(categoryCode);
 		
+		// 입력값 검증
 		if (fileName == null || categoryCode== null || categoryRoot == null || clientName == null) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 	        documentDAO.documentClose();
 			return;
 		}
 		
+		// 2-1. 파일 경로 설정
 		File file = new File(folderPath + File.separator + categoryRoot + File.separator + clientName + File.separator + fileName);
 		
+		// 2-2. 파일 존재 확인
 		if (!file.exists()) {
 	        request.setAttribute("errorMessage", "파일이 없습니다.");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 	        documentDAO.documentClose();
 			return;
         }
 		
+		// 2-3. 파일 다운로드 설정
 		String mineType = getServletContext().getMimeType(file.toString());
 		if(mineType == null) {
 			response.setContentType("application/octet-stream");
@@ -208,7 +214,8 @@ public class DocumentViewDownloadAction extends HttpServlet {
 		ServletOutputStream servletOutputStream = response.getOutputStream();
 		LogDAO logDAO = new LogDAO();
 		ClientDAO clientDAO = new ClientDAO();
-
+		
+		//로그에 기록
 		logDAO.logUpload(user.getUserCode(), fileName, "client", "download", categoryCode+ "/" + clientDAO.getClientCode(clientName) + " 의 문서 다운로드");
 		
 		logDAO.logClose();
@@ -217,6 +224,7 @@ public class DocumentViewDownloadAction extends HttpServlet {
 		byte b[] = new byte[1024];
 		int data = 0;
 		
+		// 2-4. 파일 다운로드
 		while ((data = (fileInputStream.read(b, 0, b.length))) != -1) {
 			servletOutputStream.write(b, 0, data);
 		}

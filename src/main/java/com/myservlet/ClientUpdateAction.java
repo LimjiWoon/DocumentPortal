@@ -31,6 +31,7 @@ public class ClientUpdateAction extends HttpServlet {
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * 직접 url을 타이핑하여 접근하는 것을 차단한다 -> 오로지 동작을 위한 servlet임
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
@@ -45,7 +46,7 @@ public class ClientUpdateAction extends HttpServlet {
 		} else {
 	        request.setAttribute("errorMessage", "Url을 직접 입력하여 들어올 수 없습니다.");
 		}
-	    request.getRequestDispatcher("Error.jsp").forward(request, response);
+	    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 	}
 
   
@@ -66,7 +67,7 @@ public class ClientUpdateAction extends HttpServlet {
 		String clientCode = XSSEscape.isNumber(request.getParameter("clientCode"));
 		if (user == null || clientCode == null || !user.isClient()) {
             request.setAttribute("errorMessage", "비정상적인 접근");
-            request.getRequestDispatcher("Error.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 			return;
 		}
 
@@ -79,16 +80,18 @@ public class ClientUpdateAction extends HttpServlet {
 		String hiddenClientContent = XSSEscape.changeText(request.getParameter("hiddenClientContent"));
         int result = clientDAO.clientUpdate(Integer.parseInt(clientCode), clientName, hiddenClientName, 
         		clientContent, hiddenClientContent, user.getUserCode());
+        //수정 성공 시
 		if ( result == 1 ) {
             request.setAttribute("messageClient", "수정 성공");
-            request.getRequestDispatcher("Message.jsp").forward(request, response);
-		} else if ( result == 0 ) {
+            request.getRequestDispatcher("WEB-INF/Message.jsp").forward(request, response);
+		} //바뀐 값 없을 때
+		else if ( result == 0 ) {
             request.setAttribute("errorMessage", "바뀐 값이 없습니다.");
-            request.getRequestDispatcher("Error.jsp").forward(request, response);
-			
-		} else {
+            request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
+		} //수정 실패 시
+		else {
             request.setAttribute("errorMessage", "수정에 실패했습니다.");
-            request.getRequestDispatcher("Error.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 		}
 		
 		clientDAO.clientClose();

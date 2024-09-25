@@ -30,6 +30,7 @@ public class UserAction extends HttpServlet {
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * 페이지 로딩을 위한 servlet, 페이지에 보여줄 정보 리스트를 가져와 화면에 띄워준다.
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
@@ -41,47 +42,10 @@ public class UserAction extends HttpServlet {
 		UserDTO user = (UserDTO) session.getAttribute("user");
 		if (user == null || user.getUserCode() != 0) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 		    return;
-		} else {
-	    	UserDAO userDAO = new UserDAO();
-		    ArrayList<UserDTO> list = new ArrayList<UserDTO>();
-	    	
-		    int startPage = 1;
-		    int endPage;
-		    int totalPages;
-			
-	    	totalPages = Math.max(userDAO.maxPage(null, null, null), 1);
-	    	
-		    endPage = Math.min(startPage + 4, totalPages);
-
-		    if (endPage - startPage < 4) {
-		      startPage = Math.max(endPage - 4, 1);
-		    }
-		    
-		    list = userDAO.getList(null, null, null, null);
-
-	        userDAO.userClose();
-
-	        request.setAttribute("startPage", startPage);
-	        request.setAttribute("endPage", endPage);
-	        request.setAttribute("totalPages", totalPages);
-	        request.setAttribute("list", list);
-		    request.getRequestDispatcher("User.jsp").forward(request, response);
 		}
-	}
-
-  
-
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		request.setCharacterEncoding("UTF-8"); 
-        response.setContentType("text/html; charset=UTF-8");
-        
-    	UserDAO userDAO = new UserDAO();
     	
 	    int startPage;
 	    int endPage;
@@ -93,70 +57,65 @@ public class UserAction extends HttpServlet {
 	    String searchText = XSSEscape.changeText(request.getParameter("searchText"));
 	    String isRetire = XSSEscape.changePermisson(request.getParameter("isRetire"));
 	    String isLock = XSSEscape.changePermisson(request.getParameter("isLock"));
+    	UserDAO userDAO = new UserDAO();
 	    ArrayList<UserDTO> list = new ArrayList<UserDTO>();
-
-	    
-		//nowPage XSS 검증 및 값 처리
-		//startPage, endPage, totalPages 값 계산
-		//위의 검증 된 값들로 사용자 list, DB에서 가져오기
-	    if (nowPage == null){
-	      startPage = 1;
-	    } else {
-	      try {
-	        startPage = Math.max(Integer.parseInt(nowPage) - 2, 1);
-	      } catch (NumberFormatException e) {
-	        startPage = 1;
-	        nowPage = null;
-	      }
-	    }
-	    
-
-	    //검색 기록이 있는가 없는 가에 따라 반환하는 사용자 list가 다름
-	    if (searchField != null && searchText != null && searchOrder != null){
-			totalPages = Math.max(userDAO.maxPage(dateOfPassword, isLock, isRetire, searchField, searchText), 1);
+		
+		//실제 페이지 계산
+		if (nowPage == null){
+		  startPage = 1;
+		} else {
+		  try {
+		    startPage = Math.max(Integer.parseInt(nowPage) - 2, 1);
+		  } catch (NumberFormatException e) {
+		    startPage = 1;
+		    nowPage = null;
+		  }
+		}
+		
+		
+		//검색 입력값 검증
+		if (searchField == null || searchText == null || searchOrder == null){
+			searchField = null;
+			searchText = null;
+			searchOrder = null;
 			
-		    endPage = Math.min(startPage + 4, totalPages);
+		}
+		
+		totalPages = Math.max(userDAO.maxPage(dateOfPassword, isLock, isRetire, searchField, searchText), 1);
+		endPage = Math.min(startPage + 4, totalPages);
+		
+		if (endPage - startPage < 4) {
+		  startPage = Math.max(endPage - 4, 1);
+		}
+		
+		//화면에 출력할 리스트 획득
+		list = userDAO.getList(dateOfPassword, isLock, isRetire,nowPage, searchField, searchOrder, searchText);
+		
+		userDAO.userClose();
+		  
+		//값 반환
+		  request.setAttribute("isRetire", isRetire);
+		  request.setAttribute("isLock", isLock);
+		  request.setAttribute("dateOfPassword", dateOfPassword);
+		  request.setAttribute("searchField", XSSEscape.restoreUserField(searchField));
+		  request.setAttribute("searchOrder", XSSEscape.restoreOrder(searchOrder));
+		  request.setAttribute("searchText", searchText);
+		  request.setAttribute("startPage", startPage);
+		  request.setAttribute("nowPage", nowPage);
+		  request.setAttribute("endPage", endPage);
+		  request.setAttribute("totalPages", totalPages);
+		  request.setAttribute("list", list);
+		  
+		request.getRequestDispatcher("WEB-INF/User.jsp").forward(request, response);
+	}
 
-		    if (endPage - startPage < 4) {
-		      startPage = Math.max(endPage - 4, 1);
-		    }
-		    
-		    list = userDAO.getSearch(dateOfPassword, isLock, isRetire,nowPage, searchField, searchOrder, searchText);
-		    
-	    } else {
-	    	searchField = null;
-	    	searchText = null;
-	    	searchOrder = null;
-	    	totalPages = Math.max(userDAO.maxPage(dateOfPassword, isLock, isRetire), 1);
-	    	
-		    endPage = Math.min(startPage + 4, totalPages);
+  
 
-		    if (endPage - startPage < 4) {
-		      startPage = Math.max(endPage - 4, 1);
-		    }
-		    
-		    list = userDAO.getList(dateOfPassword, isLock, isRetire, nowPage);
-	    }
-
-
-        userDAO.userClose();
-        
-	    //값 반환
-        request.setAttribute("isRetire", isRetire);
-        request.setAttribute("isLock", isLock);
-        request.setAttribute("dateOfPassword", dateOfPassword);
-        request.setAttribute("searchField", XSSEscape.restoreUserField(searchField));
-        request.setAttribute("searchOrder", XSSEscape.restoreOrder(searchOrder));
-        request.setAttribute("searchText", searchText);
-        request.setAttribute("startPage", startPage);
-        request.setAttribute("nowPage", nowPage);
-        request.setAttribute("endPage", endPage);
-        request.setAttribute("totalPages", totalPages);
-        request.setAttribute("list", list);
-        
-	    request.getRequestDispatcher("User.jsp").forward(request, response);
-        
-	    
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		doGet(request, response);
 	}
 
 }

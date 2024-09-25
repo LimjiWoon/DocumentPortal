@@ -46,7 +46,7 @@ public class DocumentDeleteAction extends HttpServlet {
 		} else {
 	        request.setAttribute("errorMessage", "Url을 직접 입력하여 들어올 수 없습니다.");
 		}
-	    request.getRequestDispatcher("Error.jsp").forward(request, response);
+	    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 	}
 
   
@@ -75,7 +75,7 @@ public class DocumentDeleteAction extends HttpServlet {
 		//유저의 권한 먼저 확인
 		if (user == null || !user.isDocument() ) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 		    documentDAO.documentClose();
 			return;
 		}
@@ -106,20 +106,20 @@ public class DocumentDeleteAction extends HttpServlet {
 			}
 			
             request.setAttribute("messageDocument", "문서 삭제 성공!");
-            request.getRequestDispatcher("Message.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/Message.jsp").forward(request, response);
 		    documentDAO.documentClose();
 			return;
 		}
 		//단일 삭제
 		if (user == null || !user.isDocument() || categoryCode == null || fileName == null || clientCode == null) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 		    documentDAO.documentClose();
 			return;
 		}
 		
 		if (clientCode != null) {
-			clientName = clientDAO.getClientName(Integer.parseInt(clientCode));
+			clientName = clientDAO.getClientName(clientCode);
 		}
 
 		folderPath = getServletContext().getRealPath(File.separator + documentDAO.getRoot(categoryCode) + File.separator + clientName + "/");
@@ -132,10 +132,10 @@ public class DocumentDeleteAction extends HttpServlet {
             	file.delete();
             }
             request.setAttribute("messageDocument", "문서 삭제 성공!");
-            request.getRequestDispatcher("Message.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/Message.jsp").forward(request, response);
         } else {
             request.setAttribute("errorMessage", "비정상적인 접근");
-            request.getRequestDispatcher("Error.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
         }
 	    documentDAO.documentClose();
 	    clientDAO.clientClose();

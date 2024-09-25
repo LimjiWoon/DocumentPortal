@@ -24,12 +24,13 @@ public class MainAction extends HttpServlet {
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * Main 페이지를 로딩하는 서블릿, doPost로 접근해도 doGet과 작동 방식이 동일하다.
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html; charset=UTF-8");
-	    request.getRequestDispatcher("Main.jsp").forward(request, response); 
+	    request.getRequestDispatcher("WEB-INF/Main.jsp").forward(request, response); 
 	}
 
 	/**

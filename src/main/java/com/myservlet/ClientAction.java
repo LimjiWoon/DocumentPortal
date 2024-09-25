@@ -32,6 +32,7 @@ public class ClientAction extends HttpServlet {
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * 페이지 로딩을 위한 servlet, 페이지에 보여줄 정보 리스트를 가져와 화면에 띄워준다.
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
@@ -43,54 +44,12 @@ public class ClientAction extends HttpServlet {
 		UserDTO user = (UserDTO) session.getAttribute("user");
 		if (user == null || !user.isClient()) {
 	        request.setAttribute("errorMessage", "비정상적인 접근");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
+		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 			return;
 		}
         
 
-	    int startPage = 1;
-	    int endPage;
-	    int totalPages;
-    	ClientDAO clientDAO = new ClientDAO();
-	    ArrayList<ClientDTO> list = new ArrayList<ClientDTO>();
-    	
-    	totalPages = Math.max(clientDAO.maxPage(null, null, null), 1);
-	    endPage = Math.min(startPage + 4, totalPages);
-
-	    if (endPage - startPage < 4) {
-	      startPage = Math.max(endPage - 4, 1);
-	    }
-	    
-	    list = clientDAO.getList(null, null, null, null);
-
-        request.setAttribute("startPage", startPage);
-        request.setAttribute("endPage", endPage);
-        request.setAttribute("totalPages", totalPages);
-        request.setAttribute("list", list);
-	    request.getRequestDispatcher("Client.jsp").forward(request, response);
-    	
-	}
-
-  
-
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		request.setCharacterEncoding("UTF-8"); 
-        response.setContentType("text/html; charset=UTF-8");
-        
-
-        //세션에 로그인 정보가 있는지 확인부터 한다.
-		HttpSession session = request.getSession();
-		UserDTO user = (UserDTO) session.getAttribute("user");
-		if (user == null || !user.isClient()) {
-	        request.setAttribute("errorMessage", "비정상적인 접근");
-		    request.getRequestDispatcher("Error.jsp").forward(request, response);
-			return;
-		}
-        
-    	ClientDAO clientDAO = new ClientDAO();
+		ClientDAO clientDAO = new ClientDAO();
 
 	    int startPage;
 	    int endPage;
@@ -102,18 +61,9 @@ public class ClientAction extends HttpServlet {
 	    String startDate = XSSEscape.checkDate(request.getParameter("startDate"));
 	    String endDate = XSSEscape.checkDate(request.getParameter("endDate"));
 	    String isUse = XSSEscape.changePermisson(request.getParameter("isUse"));
-	    String message = (String) request.getSession().getAttribute("message");
 	    ArrayList<ClientDTO> list = new ArrayList<ClientDTO>();
-	    
-		 // 메시지가 있으면 request에 저장하고 세션에서 제거
-		 if (message != null) {
-		     request.setAttribute("message", message);
-		     request.getSession().removeAttribute("message");
-		 }
 		 
-		//nowPage XSS 검증 및 값 처리
-		//startPage, endPage, totalPages 값 계산
-		//위의 검증 된 값들로 사용자 list, DB에서 가져오기
+		//현재 페이지, 최대 페이지 수, 이동할 수 있는 페이지 범위를 계산한다.
 	    if (nowPage == null){
 	      startPage = 1;
 	    } else {
@@ -125,32 +75,22 @@ public class ClientAction extends HttpServlet {
 	      }
 	    }
 	    
-	    //검색 기록이 있는가 없는 가에 따라 반환하는 사용자 list가 다름
-	    if (searchField != null && searchText != null && searchOrder != null){
-			totalPages = Math.max(clientDAO.maxPage(startDate, endDate, isUse, searchField, searchText), 1);
-			
-		    endPage = Math.min(startPage + 4, totalPages);
-
-		    if (endPage - startPage < 4) {
-		      startPage = Math.max(endPage - 4, 1);
-		    }
-		    
-		    list = clientDAO.getSearch(startDate, endDate, isUse, nowPage, searchField, searchOrder, searchText);
-		    
-	    } else {
+	    //검색이 올바른지 아닌지를 확인한다.
+	    if (searchField == null || searchText == null || searchOrder == null){
 	    	searchField = null;
 	    	searchText = null;
 	    	searchOrder = null;
-	    	totalPages = Math.max(clientDAO.maxPage(startDate, endDate, isUse), 1);
-	    	
-		    endPage = Math.min(startPage + 4, totalPages);
-
-		    if (endPage - startPage < 4) {
-		      startPage = Math.max(endPage - 4, 1);
-		    }
-		    
-		    list = clientDAO.getList(startDate, endDate, isUse, nowPage);
 	    }
+	    
+	    totalPages = Math.max(clientDAO.maxPage(startDate, endDate, isUse, searchField, searchText), 1);
+	    endPage = Math.min(startPage + 4, totalPages);
+
+	    if (endPage - startPage < 4) {
+	      startPage = Math.max(endPage - 4, 1);
+	    }
+	    
+	    //위 정보들로 화면에 출력할 리스트 정보를 가져온다.
+	    list = clientDAO.getList(startDate, endDate, isUse, nowPage, searchField, searchOrder, searchText);
 	    
 	    clientDAO.clientClose();
 
@@ -167,7 +107,17 @@ public class ClientAction extends HttpServlet {
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("list", list);
         
-	    request.getRequestDispatcher("Client.jsp").forward(request, response);
+	    request.getRequestDispatcher("WEB-INF/Client.jsp").forward(request, response);
+    	
+	}
+
+  
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		doGet(request, response);
 	}
 
 }
