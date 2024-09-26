@@ -91,6 +91,7 @@ public class ClientUploadAction extends HttpServlet {
 	            request.getRequestDispatcher("WEB-INF/Message.jsp").forward(request, response);
 			}
         } catch(Exception e) {
+        	clientDAO.errorLogUpload(e);
             request.setAttribute("errorMessage", "비정상적인 접근");
             request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
         }

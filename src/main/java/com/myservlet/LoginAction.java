@@ -128,6 +128,7 @@ public class LoginAction extends HttpServlet {
             }
         }  //중간에 에러 뭔지 모를 에러 발생 시 따로 처리
         catch (Exception e) {
+	    	userDAO.errorLogUpload(e);
         	message = "에러";
             request.setAttribute("errorMessage", message);
             request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);

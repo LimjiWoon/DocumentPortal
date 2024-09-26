@@ -133,9 +133,19 @@
                       log.logHow == 'update' ? '갱신' :
                       log.logHow == 'delete' ? '삭제' : 
                       log.logHow == 'download' ? '다운' :
-                      log.logHow == 'login' ? '로그인' : log.logHow}
+                      log.logHow == 'login' ? '로그인' :
+                      log.logHow == 'error' ? '에러' : log.logHow}
                   </td>
-                  <td>${log.logWhy}</td>
+                  <td>
+                    <c:choose>
+                      <c:when test="${fn:length(log.logWhy) > 100}">
+                        ${fn:substring(log.logWhy, 0, 100)}.....
+                      </c:when>
+                      <c:otherwise>
+                        ${log.logWhy}
+                      </c:otherwise>
+                    </c:choose>
+                  </td>
                 </tr>
               </c:forEach>
             </c:otherwise>
@@ -303,6 +313,7 @@
                         <option value="2" ${'2'.equals(logHow) ? 'selected' : ''}>갱신</option>
                         <option value="3" ${'3'.equals(logHow) ? 'selected' : ''}>삭제</option>
                         <option value="4" ${'4'.equals(logHow) ? 'selected' : ''}>다운</option>
+                        <option value="6" ${'6'.equals(logHow) ? 'selected' : ''}>에러</option>
                       </select>
                     </td>
                   </tr> 

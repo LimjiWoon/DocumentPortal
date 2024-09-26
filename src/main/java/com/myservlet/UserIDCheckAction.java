@@ -82,8 +82,8 @@ public class UserIDCheckAction extends HttpServlet {
             	out.println("0");
         	}
         } catch (Exception e) {
+	    	userDAO.errorLogUpload(e);
         	out.println("0");
-            e.printStackTrace();
         }
         
         out.close();

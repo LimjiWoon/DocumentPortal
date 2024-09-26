@@ -88,12 +88,18 @@ public class CategoryUpdateAction extends HttpServlet {
 		File folder = new File(folderPath + originCategoryName);
 		File newFolder = new File(folderPath + categoryName);
 		
-		//값이 바꼈을 경우 폴더의 존재 확인 후 변경을 하고 DB 수정
-		if(folder.exists() && folder.renameTo(newFolder) && categoryDAO.categoryUpdate(categoryName, originCategoryName, Integer.parseInt(categoryCode), user.getUserCode()) == 1) {
-            request.setAttribute("messageCategory", "문서 목록 수정 성공!");
-            request.getRequestDispatcher("WEB-INF/Message.jsp").forward(request, response);
-		} else {
-	        request.setAttribute("errorMessage", "문서 목록 수정 실패!");
+		try {
+			//값이 바꼈을 경우 폴더의 존재 확인 후 변경을 하고 DB 수정
+			if(folder.exists() && folder.renameTo(newFolder) && categoryDAO.categoryUpdate(categoryName, originCategoryName, Integer.parseInt(categoryCode), user.getUserCode()) == 1) {
+	            request.setAttribute("messageCategory", "문서 목록 수정 성공!");
+	            request.getRequestDispatcher("WEB-INF/Message.jsp").forward(request, response);
+			} else {
+		        request.setAttribute("errorMessage", "문서 목록 수정 실패!");
+			    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
+			}
+		} catch(Exception e) {
+			categoryDAO.errorLogUpload(e);
+	        request.setAttribute("errorMessage", "에러");
 		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 		}
 		

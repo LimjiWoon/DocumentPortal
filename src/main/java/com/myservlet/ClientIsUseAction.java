@@ -79,9 +79,10 @@ public class ClientIsUseAction extends HttpServlet {
         try {
         	clientDAO.updateUse(Integer.parseInt(clientCode), status, user.getUserCode(), clientName);
         } catch (NumberFormatException e) {
+        	clientDAO.errorLogUpload(e);
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "고객사 입력 오류");
         } catch (Exception e) {
-            e.printStackTrace();
+        	clientDAO.errorLogUpload(e);
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "서버 에러");
         }
         clientDAO.clientClose();

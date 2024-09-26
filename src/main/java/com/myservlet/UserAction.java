@@ -67,6 +67,7 @@ public class UserAction extends HttpServlet {
 		  try {
 		    startPage = Math.max(Integer.parseInt(nowPage) - 2, 1);
 		  } catch (NumberFormatException e) {
+			userDAO.errorLogUpload(e);
 		    startPage = 1;
 		    nowPage = null;
 		  }

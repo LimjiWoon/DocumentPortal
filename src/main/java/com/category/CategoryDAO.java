@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import com.myclass.CollectLog;
 
 
 
@@ -70,7 +71,7 @@ public class CategoryDAO {
 				return (rs.getInt(1)-1) / 10 + 1; //최대 페이지 반환
 			}
 		} catch(Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		return -1; //DB 오류
 	}
@@ -93,7 +94,7 @@ public class CategoryDAO {
 				list.add(category);
             }
         } catch (Exception e) {
-        	e.printStackTrace();
+			errorLogUpload(e);
         }
 		
 		return list; //리스트를 반환 -> 결과가 없으면 빈 리스트 반환
@@ -134,7 +135,7 @@ public class CategoryDAO {
 				list.add(category);
 			}			
 		} catch(Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		
 		return list; //리스트를 반환 -> 결과가 없으면 빈 리스트 반환
@@ -169,7 +170,7 @@ public class CategoryDAO {
 				list.add(category);
 			}			
 		} catch(Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		
 		return list; //리스트를 반환 -> 결과가 없으면 빈 리스트 반환
@@ -198,7 +199,7 @@ public class CategoryDAO {
 				list.add(rs.getString(1));
             }
         } catch (Exception e) {
-        	e.printStackTrace();
+			errorLogUpload(e);
         }
 		
 		return list; //리스트를 반환 -> 결과가 없으면 빈 리스트 반환
@@ -222,7 +223,7 @@ public class CategoryDAO {
 			
 			return 1; //등록 성공
 		} catch(Exception e) {
-			e.printStackTrace();
+			logUpload(userCode, "", "category", "error", CollectLog.getLog(e));
 		}
 		
 		return -1; //등록 실패
@@ -248,7 +249,7 @@ public class CategoryDAO {
 				return category; //문서 목록 정보 있음 
 			}
 		} catch(Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		return null; //문서 목록 정보 없음
 	}
@@ -266,7 +267,7 @@ public class CategoryDAO {
 				return rs.getString(1); //해당 문서 목록 있음
 			}
 		} catch(Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		return null; //해당 문서 목록 없음
 	}
@@ -285,7 +286,7 @@ public class CategoryDAO {
 			
 			return 1; //갱신 성공
 		} catch(Exception e) {
-			e.printStackTrace();
+			logUpload(userCode, "", "category", "error", CollectLog.getLog(e));
 		}
 		return -1; //갱신 실패
 	}
@@ -302,7 +303,7 @@ public class CategoryDAO {
 			
 			return 1; //삭제 성공
 		} catch(Exception e) {
-			e.printStackTrace();
+			logUpload(userCode, "", "category", "error", CollectLog.getLog(e));
 		}
 		
 		
@@ -321,7 +322,7 @@ public class CategoryDAO {
 			
 			return 1; //삭제 성공
 		} catch(Exception e) {
-			e.printStackTrace();
+			logUpload(userCode, "", "category", "error", CollectLog.getLog(e));
 		}
 		
 		
@@ -344,6 +345,20 @@ public class CategoryDAO {
 			} else {
 				pstmt.setString(5, logWhy);
 			}
+			pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	//에러 로그를 기록하는 메소드
+	public void errorLogUpload(Exception error) {
+		String SQL = "INSERT INTO dbo.LOGS (logWho, logWhat, logWhere, logHow, logWhy) "
+				+ " VALUES (NULL, '', 'category', 'error', ?);";
+
+		try {
+			pstmt = conn.prepareStatement(SQL);
+			pstmt.setString(1, CollectLog.getLog(error));
 			pstmt.executeUpdate();
 		} catch (Exception e) {
 			e.printStackTrace();

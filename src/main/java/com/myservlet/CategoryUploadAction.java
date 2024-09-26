@@ -98,7 +98,7 @@ public class CategoryUploadAction extends HttpServlet {
 				}
 			}
 		} catch(Exception e) {
-            e.printStackTrace();
+	    	categoryDAO.errorLogUpload(e);
 		}
 		
 		//만약에 위 과정에서 에러처리로 빠졌다면 생성했던 폴더를 삭제한다

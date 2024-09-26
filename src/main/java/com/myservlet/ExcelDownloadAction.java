@@ -196,7 +196,35 @@ public class ExcelDownloadAction extends HttpServlet {
 			workBook.close();
 			
 	    } catch (Exception e) {
-	    	e.printStackTrace();
+			//사용자 페이지
+	    	if ("hidden1".equals(code) && user.getUserCode() == 0) {
+	    	    UserDAO userDAO = new UserDAO();
+	    	    userDAO.errorLogUpload(e);
+	    		userDAO.userClose();
+			} //고객사 페이지 
+	    	else if ("hidden2".equals(code) && user.isClient()) {
+			    ClientDAO clientDAO = new ClientDAO();
+			    clientDAO.errorLogUpload(e);
+				clientDAO.clientClose();
+			} //문서 목록 페이지
+	    	else if ("hidden3".equals(code) && user.isCategory()) {
+			    CategoryDAO categoryDAO = new CategoryDAO();
+			    categoryDAO.errorLogUpload(e);
+				categoryDAO.categoryClose();
+			} //문서 페이지
+	    	else if ("hidden4".equals(code) && user.isDocument()) {
+			    DocumentDAO documentDAO = new DocumentDAO();
+			    documentDAO.errorLogUpload(e);
+				documentDAO.documentClose();
+			} //로그 페이지
+	    	else if ("hidden5".equals(code) && user.getUserCode() == 0) {
+			    LogDAO logDAO = new LogDAO();
+			    logDAO.errorLogUpload(e);
+				logDAO.logClose();
+			}
+	    	else {
+	    		e.printStackTrace();
+			}
 	        request.setAttribute("errorMessage", "에러");
 		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 			return;

@@ -132,6 +132,7 @@ public class DocumentUploadAction extends HttpServlet {
         
         // 요청의 Content-Type 확인
         String contentType = request.getContentType();
+        DocumentDAO documentDAO = new DocumentDAO();
 
         // multipart/form-data 여부 확인
         if (contentType != null && contentType.toLowerCase().startsWith("multipart/form-data")) {
@@ -153,6 +154,7 @@ public class DocumentUploadAction extends HttpServlet {
                     }
                 }
     		} catch (Exception e) {
+	        	documentDAO.errorLogUpload(e);
 		        request.setAttribute("errorMessage", "서버 폴더 에러");
 			    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 				return;
@@ -163,7 +165,6 @@ public class DocumentUploadAction extends HttpServlet {
     			MultipartRequest multipartRequest
     				= new MultipartRequest(request, folderPath, maxSize, encoding,
     					new DefaultFileRenamePolicy());
-    	        DocumentDAO documentDAO = new DocumentDAO();
         		ClientDAO clientDAO= new ClientDAO();
     			String categoryCode = XSSEscape.isNumber(multipartRequest.getParameter("categoryCode"));
     			String clientCode = XSSEscape.isClientCode(multipartRequest.getParameter("clientCode"));
@@ -274,7 +275,7 @@ public class DocumentUploadAction extends HttpServlet {
 
         		
     		} catch(Exception e) {
-    			e.printStackTrace();
+	        	documentDAO.errorLogUpload(e);
 		        request.setAttribute("errorMessage", "비정상적인 접근");
 			    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 				return;

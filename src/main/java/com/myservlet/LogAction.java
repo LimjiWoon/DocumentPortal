@@ -68,6 +68,7 @@ public class LogAction extends HttpServlet {
 	      try {
 	        startPage = Math.max(Integer.parseInt(nowPage) - 2, 1);
 	      } catch (NumberFormatException e) {
+	    	logDAO.errorLogUpload(e);
 	        startPage = 1;
 	        nowPage = null;
 	      }

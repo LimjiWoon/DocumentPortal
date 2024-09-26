@@ -78,6 +78,7 @@ public class DocumentAction extends HttpServlet {
 	      try {
 	        startPage = Math.max(Integer.parseInt(nowPage) - 2, 1);
 	      } catch (NumberFormatException e) {
+		    documentDAO.errorLogUpload(e);
 	        startPage = 1;
 	        nowPage = null;
 	      }

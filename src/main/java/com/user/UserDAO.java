@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
+import com.myclass.CollectLog;
 import com.myclass.PasswordLogic;
 
 import java.sql.Connection;
@@ -48,7 +49,7 @@ public class UserDAO {
 			}
 			return -1; //아이디 없음
 		} catch (Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		return -2; //데이터베이스 오류
 	}
@@ -62,7 +63,7 @@ public class UserDAO {
 			pstmt.executeUpdate();
 			logUpload(userCode, userID, "user", "login", "로그인 성공");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logUpload(userCode, "", "user", "error", CollectLog.getLog(e));
 		}
 	}
 	
@@ -85,7 +86,7 @@ public class UserDAO {
 	        }
 
 	    } catch (Exception e) {
-	        e.printStackTrace();
+			logUpload(userCode, "", "user", "error", CollectLog.getLog(e));
 	    }
 	}
 	
@@ -109,7 +110,7 @@ public class UserDAO {
 			}
 			return user; //아이디가 없으면 emtpy상태와 같음 -> 정보 없음
 		} catch (Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		return null; //데이터베이스 오류
 	}
@@ -138,7 +139,7 @@ public class UserDAO {
 			}
 			return user; //아이디가 없으면 emtpy상태와 같음 -> 정보 없음
 		} catch (Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		return null; //데이터베이스 오류
 	}
@@ -155,7 +156,7 @@ public class UserDAO {
 				return rs.getInt(1); //사번
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		return -1; //데이터베이스 오류
 	}
@@ -172,7 +173,7 @@ public class UserDAO {
 				return rs.getString(1); //사용자 아이디
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		return null; //데이터베이스 오류
 	}
@@ -197,7 +198,7 @@ public class UserDAO {
 			}
 			return 0; //기존 비밀번호 불일치
 		} catch (Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		return -2; //데이터베이스 오류
 	}
@@ -211,7 +212,7 @@ public class UserDAO {
 			pstmt.setString(2, userID);
 			pstmt.executeUpdate();
 		} catch (Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 	}
 
@@ -274,7 +275,7 @@ public class UserDAO {
 				return (rs.getInt(1)-1) / 10 + 1; //최대 페이지
 			}
 		} catch(Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		return -1; //DB 오류
 	}
@@ -316,7 +317,7 @@ public class UserDAO {
 				list.add(user);
 			}			
 		} catch(Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		
 		return list; //리스트 반환 -> 결과 없으면 빈 리스트
@@ -354,7 +355,7 @@ public class UserDAO {
 				list.add(user);
 			}			
 		} catch(Exception e) {
-			e.printStackTrace();
+			logUpload(userCode, "", "user", "error", CollectLog.getLog(e));
 		}
 		
 		return list; //리스트 반환 -> 결과 없으면 빈 리스트
@@ -375,7 +376,7 @@ public class UserDAO {
 			pstmt.executeUpdate();
 			logUpload(userCode, getID(userCode), "user", "update", "계정 잠금 상태 변경");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logUpload(userCode, "", "user", "error", CollectLog.getLog(e));
 		}
 	}
 	
@@ -408,7 +409,7 @@ public class UserDAO {
 			
 			return 1; //등록 성공
 		} catch (Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		
 		return 0; //등록 실패
@@ -431,7 +432,7 @@ public class UserDAO {
 					return 1; //사용 가능
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		
 		return 0; //사용 불가능
@@ -495,7 +496,7 @@ public class UserDAO {
 			
 			return 1; //사용자 정보 갱신 성공
 		} catch (Exception e) {
-			e.printStackTrace();
+			logUpload(getCode(userID), "", "user", "error", CollectLog.getLog(e));
 		}
 		return 0; //갱신 실패
 	}
@@ -516,7 +517,7 @@ public class UserDAO {
 			pstmt.executeUpdate();
 			logUpload(userCode, getID(userCode), "user", "update", "계정 재직 상태 변경");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logUpload(userCode, "", "user", "error", CollectLog.getLog(e));
 		}
 	}
 
@@ -536,6 +537,20 @@ public class UserDAO {
 			} else {
 				pstmt.setString(5, logWhy);
 			}
+			pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	//에러 로그를 기록하는 메소드
+	public void errorLogUpload(Exception error) {
+		String SQL = "INSERT INTO dbo.LOGS (logWho, logWhat, logWhere, logHow, logWhy) "
+				+ " VALUES (NULL, '', 'user', 'error', ?);";
+
+		try {
+			pstmt = conn.prepareStatement(SQL);
+			pstmt.setString(1, CollectLog.getLog(error));
 			pstmt.executeUpdate();
 		} catch (Exception e) {
 			e.printStackTrace();

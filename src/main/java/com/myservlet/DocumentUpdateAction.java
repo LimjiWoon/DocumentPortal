@@ -120,7 +120,7 @@ public class DocumentUpdateAction extends HttpServlet {
 
         // 요청의 Content-Type 확인
         String contentType = request.getContentType();
-
+		DocumentDAO documentDAO= new DocumentDAO();
 
         // multipart/form-data 여부 확인
         if (contentType != null && contentType.toLowerCase().startsWith("multipart/form-data")) {
@@ -143,6 +143,7 @@ public class DocumentUpdateAction extends HttpServlet {
                     }
                 }
     		} catch (Exception e) {
+	        	documentDAO.errorLogUpload(e);
 		        request.setAttribute("errorMessage", "서버 폴더 에러");
 			    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 				return;
@@ -153,7 +154,6 @@ public class DocumentUpdateAction extends HttpServlet {
     			MultipartRequest multipartRequest
     				= new MultipartRequest(request, folderPath, maxSize, encoding,
     					new DefaultFileRenamePolicy());
-        		DocumentDAO documentDAO= new DocumentDAO();
         		ClientDAO clientDAO = new ClientDAO();
                 String fileName = multipartRequest.getFilesystemName("fileName");
     			String fileContent = XSSEscape.escapeHtml(multipartRequest.getParameter("fileContent"));
@@ -327,7 +327,7 @@ public class DocumentUpdateAction extends HttpServlet {
         		return;
                 
     		} catch(Exception e) {
-    			e.printStackTrace();
+	        	documentDAO.errorLogUpload(e);
 		        request.setAttribute("errorMessage", "그냥 에러");
 			    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 				return;
@@ -342,7 +342,6 @@ public class DocumentUpdateAction extends HttpServlet {
     	    DocumentDTO document = new DocumentDTO();
     		CategoryDAO categoryDAO= new CategoryDAO();
     		ClientDAO clientDAO= new ClientDAO();
-    		DocumentDAO documentDAO= new DocumentDAO();
     		String fileName = XSSEscape.changeCategoryName(request.getParameter("fileName"));
     		String categoryCode = XSSEscape.isNumber(request.getParameter("categoryCode"));
     		String clientCode = XSSEscape.isClientCode(request.getParameter("clientCode"));

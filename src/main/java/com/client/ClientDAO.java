@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.Connection;
 import java.util.ArrayList;
 
+import com.myclass.CollectLog;
+
 
 
 public class ClientDAO {
@@ -75,7 +77,7 @@ public class ClientDAO {
 				return (rs.getInt(1) - 1) / 10 + 1; //최대 페이지
 			}
 		} catch(Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		return -1; //DB 오류
 	}
@@ -97,7 +99,7 @@ public class ClientDAO {
 				list.add(client);
 			}			
 		} catch(Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		return list; //리스트 반환 -> 결과 없으면 빈 리스트
 	}
@@ -139,7 +141,7 @@ public class ClientDAO {
 				list.add(client);
 			}			
 		} catch(Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		
 		return list; //리스트 반환 -> 결과 없으면 빈 리스트
@@ -175,7 +177,7 @@ public class ClientDAO {
 				list.add(client);
 			}			
 		} catch(Exception e) {
-			e.printStackTrace();
+			logUpload(userCode, "", "client", "error", CollectLog.getLog(e));
 		}
 		
 		return list; //리스트 반환 -> 결과 없으면 빈 리스트
@@ -196,7 +198,7 @@ public class ClientDAO {
 			pstmt.executeUpdate();
 			logUpload(userCode, clientName, "client", "update", "사용유무 변경");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logUpload(userCode, "", "client", "error", CollectLog.getLog(e));
 		}
 	}
 	
@@ -216,7 +218,7 @@ public class ClientDAO {
 			
 			return 1; //등록 성공
 		} catch(Exception e) {
-			e.printStackTrace();
+			logUpload(userCode, "", "client", "error", CollectLog.getLog(e));
 		}
 		
 		return -1; //등록 실패
@@ -235,7 +237,7 @@ public class ClientDAO {
 				return true; // 중복 없음
 			}	
 		} catch(Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 
 		
@@ -258,7 +260,7 @@ public class ClientDAO {
 				return rs.getString(1); //고객사 있음
 			}	
 		} catch(Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 
 		return null; //고객사 없음
@@ -281,7 +283,7 @@ public class ClientDAO {
 				return rs.getString(1); //고객사 있음
 			}	
 		} catch(Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		
 		return null; //고객사 없음
@@ -304,7 +306,7 @@ public class ClientDAO {
 				return client; //고객사 있음
 			}	
 		} catch(Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		
 		return null; //고객사 없음
@@ -347,7 +349,7 @@ public class ClientDAO {
 			logUpload(userCode, hiddenClientName, "client", "update", logContent);
 			return 1; //갱신 성공
 		} catch(Exception e) {
-			e.printStackTrace();
+			logUpload(userCode, "", "client", "error", CollectLog.getLog(e));
 		}
 		
 		return -1; //갱신 실패
@@ -377,7 +379,7 @@ public class ClientDAO {
 				list.add(rs.getString(1));
             }
         } catch (Exception e) {
-        	e.printStackTrace();
+			errorLogUpload(e);
         }
 		
 		return list; //리스트 반환 -> 결과 없을 시 빈 리스트 반환
@@ -399,6 +401,20 @@ public class ClientDAO {
 			} else {
 				pstmt.setString(5, logWhy);
 			}
+			pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	//에러 로그를 기록하는 메소드
+	public void errorLogUpload(Exception error) {
+		String SQL = "INSERT INTO dbo.LOGS (logWho, logWhat, logWhere, logHow, logWhy) "
+				+ " VALUES (NULL, '', 'client', 'error', ?);";
+
+		try {
+			pstmt = conn.prepareStatement(SQL);
+			pstmt.setString(1, CollectLog.getLog(error));
 			pstmt.executeUpdate();
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -75,9 +75,10 @@ public class UserLockAction extends HttpServlet {
         try {
             userDAO.updateLock(Integer.parseInt(userCode), status);
         } catch (NumberFormatException e) {
+	    	userDAO.errorLogUpload(e);
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "요청 오류");
         } catch (Exception e) {
-            e.printStackTrace();
+	    	userDAO.errorLogUpload(e);
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "서버 에러");
         }
         userDAO.userClose();

@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
+import com.myclass.CollectLog;
+
 
 public class LogDAO {
 	private Connection conn;
@@ -78,7 +80,7 @@ public class LogDAO {
 				return (rs.getInt(1)-1) / 10 + 1; //최대 페이지 수 반환
 			}
 		} catch(Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		return -1; //DB 오류
 	}	
@@ -117,7 +119,7 @@ public class LogDAO {
 				list.add(log);
 			}			
 		} catch(Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		
 		return list; //리스트 반환 -> 결과 없을 시 빈 리스트 반환
@@ -160,7 +162,7 @@ public class LogDAO {
 				list.add(log);
 			}			
 		} catch(Exception e) {
-			e.printStackTrace();
+			logUpload(userCode, "", "user", "error", CollectLog.getLog(e));
 		}
 		
 		return list; //리스트 반환 -> 결과 없을 시 빈 리스트 반환
@@ -182,6 +184,20 @@ public class LogDAO {
 			} else {
 				pstmt.setString(5, logWhy);
 			}
+			pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	//에러 로그를 기록하는 메소드
+	public void errorLogUpload(Exception error) {
+		String SQL = "INSERT INTO dbo.LOGS (logWho, logWhat, logWhere, logHow, logWhy) "
+				+ " VALUES (NULL, '', 'log', 'error', ?);";
+
+		try {
+			pstmt = conn.prepareStatement(SQL);
+			pstmt.setString(1, CollectLog.getLog(error));
 			pstmt.executeUpdate();
 		} catch (Exception e) {
 			e.printStackTrace();

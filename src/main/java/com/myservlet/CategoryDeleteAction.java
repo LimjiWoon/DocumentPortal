@@ -78,26 +78,31 @@ public class CategoryDeleteAction extends HttpServlet {
 			return;
 		}
 		
-		
-		//문서 권한에 따른 문서 목록 삭제 처리
-		if (user.isDocument() && folder.exists() &&
-				categoryDAO.documentDelete(categoryName, Integer.parseInt(categoryCode), user.getUserCode()) == 1 &&
-				categoryDAO.categoryDelete(categoryName, Integer.parseInt(categoryCode), user.getUserCode()) == 1 &&
-				deleteDirectory(folder)) {
-            request.setAttribute("messageCategory", "문서 목록 삭제 성공!");
-            request.getRequestDispatcher("WEB-INF/Message.jsp").forward(request, response);
-		} //문서 권한이 없으면 폴더가 비어 있을 때만 삭제시킴
-		else if(folder.exists() && isDirectoryEmpty(folder) && 
-				categoryDAO.categoryDelete(categoryName, Integer.parseInt(categoryCode), user.getUserCode()) == 1 && folder.delete()) {
-            request.setAttribute("messageCategory", "문서 목록 삭제 성공!");
-            request.getRequestDispatcher("WEB-INF/Message.jsp").forward(request, response);
-		} //만약 문서 목록 내부에 문서들이 있고 문서에 대한 권한이 없으면 삭제 실패
-		else if (!user.isDocument() && folder.exists()){
-	        request.setAttribute("errorMessage", "문서 권한이 없어 삭제에 실패했습니다.");
-		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
-		} //실패
-		else {
-	        request.setAttribute("errorMessage", "삭제 실패!");
+		try {
+			//문서 권한에 따른 문서 목록 삭제 처리
+			if (user.isDocument() && folder.exists() &&
+					categoryDAO.documentDelete(categoryName, Integer.parseInt(categoryCode), user.getUserCode()) == 1 &&
+					categoryDAO.categoryDelete(categoryName, Integer.parseInt(categoryCode), user.getUserCode()) == 1 &&
+					deleteDirectory(folder)) {
+	            request.setAttribute("messageCategory", "문서 목록 삭제 성공!");
+	            request.getRequestDispatcher("WEB-INF/Message.jsp").forward(request, response);
+			} //문서 권한이 없으면 폴더가 비어 있을 때만 삭제시킴
+			else if(folder.exists() && isDirectoryEmpty(folder) && 
+					categoryDAO.categoryDelete(categoryName, Integer.parseInt(categoryCode), user.getUserCode()) == 1 && folder.delete()) {
+	            request.setAttribute("messageCategory", "문서 목록 삭제 성공!");
+	            request.getRequestDispatcher("WEB-INF/Message.jsp").forward(request, response);
+			} //만약 문서 목록 내부에 문서들이 있고 문서에 대한 권한이 없으면 삭제 실패
+			else if (!user.isDocument() && folder.exists()){
+		        request.setAttribute("errorMessage", "문서 권한이 없어 삭제에 실패했습니다.");
+			    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
+			} //실패
+			else {
+		        request.setAttribute("errorMessage", "삭제 실패!");
+			    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
+			}
+		} catch(Exception e) {
+			categoryDAO.errorLogUpload(e);
+	        request.setAttribute("errorMessage", "에러");
 		    request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 		}
 		

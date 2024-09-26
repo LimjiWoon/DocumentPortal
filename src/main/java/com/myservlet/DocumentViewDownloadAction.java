@@ -164,8 +164,7 @@ public class DocumentViewDownloadAction extends HttpServlet {
 	            zipOutputStream.finish(); // 1-6. ZIP 파일 완성 후 다운로드
 
 	        } catch (IOException e) {
-	            // 에러 처리
-	            e.printStackTrace();
+	        	documentDAO.errorLogUpload(e);
 	        }
 	        documentDAO.documentClose();
 			return;

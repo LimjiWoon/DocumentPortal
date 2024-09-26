@@ -110,6 +110,7 @@ public class PasswordRenewAction extends HttpServlet {
             }
 
         } catch (Exception e) {
+	    	userDAO.errorLogUpload(e);
         	message = "에러";
         }
 

@@ -168,7 +168,7 @@ public class DocumentDownloadAction extends HttpServlet {
 
         } catch (IOException e) {
             // 에러 처리
-            e.printStackTrace();
+        	documentDAO.errorLogUpload(e);
         }
         documentDAO.documentClose();
 		return;

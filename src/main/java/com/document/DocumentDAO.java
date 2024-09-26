@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
+import com.myclass.CollectLog;
+
 
 public class DocumentDAO {
 	private Connection conn;
@@ -80,7 +82,7 @@ public class DocumentDAO {
 				return (rs.getInt(1)-1) / 10 + 1; //최대 페이지 반환
 			}
 		} catch(Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		return -1; //DB 오류
 	}
@@ -124,7 +126,7 @@ public class DocumentDAO {
 				list.add(document);
 			}			
 		} catch(Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		
 		return list; //리스트 반환 -> 결과 없을 시 빈 리스트
@@ -155,7 +157,7 @@ public class DocumentDAO {
 				list.add(document);
 			}			
 		} catch(Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		
 		return list; //리스트 반환 -> 결과 없을 시 빈 리스트
@@ -197,7 +199,7 @@ public class DocumentDAO {
 				list.add(document);
 			}			
 		} catch(Exception e) {
-			e.printStackTrace();
+			logUpload(userCode, "", "file", "error", CollectLog.getLog(e));
 		}
 		
 		return list; //리스트 반환 -> 결과 없을 시 빈 리스트
@@ -245,7 +247,7 @@ public class DocumentDAO {
 				return document; //문서 정보 반환
 			}			
 		} catch(Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		
 		return null; //데이터 베이스 오류
@@ -267,7 +269,7 @@ public class DocumentDAO {
 				return rs.getString(1); //문서 경로 반환
 			}			
 		} catch(Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		return null; //데이터베이스 오류
 	}
@@ -299,7 +301,7 @@ public class DocumentDAO {
 			
 			return 1; //등록 성공
 		} catch(Exception e) {
-			e.printStackTrace();
+			logUpload(userCode, "", "file", "error", CollectLog.getLog(e));
 		}
 		
 		return -1; //등록 실패
@@ -330,7 +332,7 @@ public class DocumentDAO {
 				return 1; //문서 있음
 			}			
 		} catch(Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		
 		return -1; //문서 없음
@@ -363,7 +365,7 @@ public class DocumentDAO {
 			
 			return 1; //문서 갱신 성공
 		} catch(Exception e) {
-			e.printStackTrace();
+			logUpload(userCode, "", "file", "error", CollectLog.getLog(e));
 		}
 		
 		return -1; //문서 갱신 실패
@@ -414,7 +416,7 @@ public class DocumentDAO {
 			
 			return 1; //문서 갱신 성공
 		} catch(Exception e) {
-			e.printStackTrace();
+			logUpload(userCode, "", "file", "error", CollectLog.getLog(e));
 		}
 		
 		return -1; //문서 갱신 실패
@@ -453,7 +455,7 @@ public class DocumentDAO {
 				return document; //문서 정보 반환
 			}			
 		} catch(Exception e) {
-			e.printStackTrace();
+			errorLogUpload(e);
 		}
 		
 		return null; //해당 문서 없음 or 데이터베이스 오류
@@ -483,7 +485,7 @@ public class DocumentDAO {
 			logUpload(userCode, fileName, "file", "delete", categoryCode + "/" + clientCode + ": 위치의 문서 삭제");
 			return 1; //문서 삭제 성공
 		} catch(Exception e) {
-			e.printStackTrace();
+			logUpload(userCode, "", "file", "error", CollectLog.getLog(e));
 		}
 		return -1; //문서 삭제 실패
 	}
@@ -504,6 +506,20 @@ public class DocumentDAO {
 			} else {
 				pstmt.setString(5, logWhy);
 			}
+			pstmt.executeUpdate();
+		} catch (Exception e) {
+			errorLogUpload(e);
+		}
+	}
+	
+	//에러 로그를 기록하는 메소드
+	public void errorLogUpload(Exception error) {
+		String SQL = "INSERT INTO dbo.LOGS (logWho, logWhat, logWhere, logHow, logWhy) "
+				+ " VALUES (NULL, '', 'file', 'error', ?);";
+
+		try {
+			pstmt = conn.prepareStatement(SQL);
+			pstmt.setString(1, CollectLog.getLog(error));
 			pstmt.executeUpdate();
 		} catch (Exception e) {
 			e.printStackTrace();

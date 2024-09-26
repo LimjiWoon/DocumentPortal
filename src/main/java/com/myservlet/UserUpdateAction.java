@@ -119,6 +119,7 @@ public class UserUpdateAction extends HttpServlet {
 				}
 			}
 		} catch (Exception e) {
+	    	userDAO.errorLogUpload(e);
             request.setAttribute("errorMessage", "오류");
             request.getRequestDispatcher("WEB-INF/Error.jsp").forward(request, response);
 		}

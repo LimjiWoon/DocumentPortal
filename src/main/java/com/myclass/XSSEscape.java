@@ -372,6 +372,8 @@ public class XSSEscape {
 			return "download";
 		case "5":
 			return "login";
+		case "6":
+			return "error";
 		default:
 			return null;
 		}
@@ -391,6 +393,8 @@ public class XSSEscape {
 			return "4";
 		case "login":
 			return "5";
+		case "error":
+			return "6";
 		default:
 			return null;
 		}
