@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd" version="4.0">
+  <display-name>LucisDocument</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+  </welcome-file-list>
+  
+  <servlet>
+    <servlet-name>Main</servlet-name>
+    <servlet-class>com.myservlet.MainAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Main</servlet-name>
+    <url-pattern>/Main</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>Login</servlet-name>
+    <servlet-class>com.myservlet.LoginAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Login</servlet-name>
+    <url-pattern>/Login</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>Logout</servlet-name>
+    <servlet-class>com.myservlet.LogoutAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Logout</servlet-name>
+    <url-pattern>/Logout</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>PasswordRenew</servlet-name>
+    <servlet-class>com.myservlet.PasswordRenewAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>PasswordRenew</servlet-name>
+    <url-pattern>/PasswordRenew</url-pattern>
+  </servlet-mapping>
+    
+  <servlet>
+    <servlet-name>UpPwd</servlet-name>
+    <servlet-class>com.myservlet.PasswordRenewPageAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>UpPwd</servlet-name>
+    <url-pattern>/UpPwd</url-pattern>
+  </servlet-mapping>
+      
+  <servlet>
+    <servlet-name>User</servlet-name>
+    <servlet-class>com.myservlet.UserAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>User</servlet-name>
+    <url-pattern>/User</url-pattern>
+  </servlet-mapping>
+        
+  <servlet>
+    <servlet-name>UserIDCheck</servlet-name>
+    <servlet-class>com.myservlet.UserIDCheckAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>UserIDCheck</servlet-name>
+    <url-pattern>/UserIDCheck</url-pattern>
+  </servlet-mapping>
+        
+  <servlet>
+    <servlet-name>UserLock</servlet-name>
+    <servlet-class>com.myservlet.UserLockAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>UserLock</servlet-name>
+    <url-pattern>/UserLock</url-pattern>
+  </servlet-mapping>
+        
+  <servlet>
+    <servlet-name>UserRetire</servlet-name>
+    <servlet-class>com.myservlet.UserRetireAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>UserRetire</servlet-name>
+    <url-pattern>/UserRetire</url-pattern>
+  </servlet-mapping>
+        
+  <servlet>
+    <servlet-name>UserUpdate</servlet-name>
+    <servlet-class>com.myservlet.UserUpdateAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>UserUpdate</servlet-name>
+    <url-pattern>/UserUpdate</url-pattern>
+  </servlet-mapping>
+          
+  <servlet>
+    <servlet-name>UserUpload</servlet-name>
+    <servlet-class>com.myservlet.UserUploadAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>UserUpload</servlet-name>
+    <url-pattern>/UserUpload</url-pattern>
+  </servlet-mapping>
+            
+  <servlet>
+    <servlet-name>Log</servlet-name>
+    <servlet-class>com.myservlet.LogAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Log</servlet-name>
+    <url-pattern>/Log</url-pattern>
+  </servlet-mapping>
+            
+  <servlet>
+    <servlet-name>Excel</servlet-name>
+    <servlet-class>com.myservlet.ExcelDownloadAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Excel</servlet-name>
+    <url-pattern>/Excel</url-pattern>
+  </servlet-mapping>
+            
+  <servlet>
+    <servlet-name>DocumentViewDownload</servlet-name>
+    <servlet-class>com.myservlet.DocumentViewDownloadAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DocumentViewDownload</servlet-name>
+    <url-pattern>/DocumentViewDownload</url-pattern>
+  </servlet-mapping>
+            
+  <servlet>
+    <servlet-name>DocumentView</servlet-name>
+    <servlet-class>com.myservlet.DocumentViewAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DocumentView</servlet-name>
+    <url-pattern>/DocumentView</url-pattern>
+  </servlet-mapping>
+            
+  <servlet>
+    <servlet-name>DocumentUpToUp</servlet-name>
+    <servlet-class>com.myservlet.DocumentUploadToUpdateAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DocumentUpToUp</servlet-name>
+    <url-pattern>/DocumentUpToUp</url-pattern>
+  </servlet-mapping>
+              
+  <servlet>
+    <servlet-name>Document</servlet-name>
+    <servlet-class>com.myservlet.DocumentAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Document</servlet-name>
+    <url-pattern>/Document</url-pattern>
+  </servlet-mapping>
+              
+  <servlet>
+    <servlet-name>DocumentDelete</servlet-name>
+    <servlet-class>com.myservlet.DocumentDeleteAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DocumentDelete</servlet-name>
+    <url-pattern>/DocumentDelete</url-pattern>
+  </servlet-mapping>
+              
+  <servlet>
+    <servlet-name>DocumentDownload</servlet-name>
+    <servlet-class>com.myservlet.DocumentDownloadAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DocumentDownload</servlet-name>
+    <url-pattern>/DocumentDownload</url-pattern>
+  </servlet-mapping>
+              
+  <servlet>
+    <servlet-name>DocumentUpdate</servlet-name>
+    <servlet-class>com.myservlet.DocumentUpdateAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DocumentUpdate</servlet-name>
+    <url-pattern>/DocumentUpdate</url-pattern>
+  </servlet-mapping>
+              
+  <servlet>
+    <servlet-name>DocumentUpload</servlet-name>
+    <servlet-class>com.myservlet.DocumentUploadAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DocumentUpload</servlet-name>
+    <url-pattern>/DocumentUpload</url-pattern>
+  </servlet-mapping>
+                
+  <servlet>
+    <servlet-name>Client</servlet-name>
+    <servlet-class>com.myservlet.ClientAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Client</servlet-name>
+    <url-pattern>/Client</url-pattern>
+  </servlet-mapping>
+                
+  <servlet>
+    <servlet-name>ClientUse</servlet-name>
+    <servlet-class>com.myservlet.ClientIsUseAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ClientUse</servlet-name>
+    <url-pattern>/ClientUse</url-pattern>
+  </servlet-mapping>
+                
+  <servlet>
+    <servlet-name>ClientUpdate</servlet-name>
+    <servlet-class>com.myservlet.ClientUpdateAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ClientUpdate</servlet-name>
+    <url-pattern>/ClientUpdate</url-pattern>
+  </servlet-mapping>
+                
+  <servlet>
+    <servlet-name>ClientUpload</servlet-name>
+    <servlet-class>com.myservlet.ClientUploadAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ClientUpload</servlet-name>
+    <url-pattern>/ClientUpload</url-pattern>
+  </servlet-mapping>
+                     
+  <servlet>
+    <servlet-name>Category</servlet-name>
+    <servlet-class>com.myservlet.CategoryAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Category</servlet-name>
+    <url-pattern>/Category</url-pattern>
+  </servlet-mapping>
+                  
+  <servlet>
+    <servlet-name>CategoryDelete</servlet-name>
+    <servlet-class>com.myservlet.CategoryDeleteAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>CategoryDelete</servlet-name>
+    <url-pattern>/CategoryDelete</url-pattern>
+  </servlet-mapping>
+                  
+  <servlet>
+    <servlet-name>Modal</servlet-name>
+    <servlet-class>com.myservlet.CategoryModalAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Modal</servlet-name>
+    <url-pattern>/Modal</url-pattern>
+  </servlet-mapping>
+                  
+  <servlet>
+    <servlet-name>CategoryUpdate</servlet-name>
+    <servlet-class>com.myservlet.CategoryUpdateAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>CategoryUpdate</servlet-name>
+    <url-pattern>/CategoryUpdate</url-pattern>
+  </servlet-mapping>
+                  
+  <servlet>
+    <servlet-name>CategoryUpload</servlet-name>
+    <servlet-class>com.myservlet.CategoryUploadAction</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>CategoryUpload</servlet-name>
+    <url-pattern>/CategoryUpload</url-pattern>
+  </servlet-mapping>
+  
+  
+</web-app>
+

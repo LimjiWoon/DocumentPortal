@@ -157,7 +157,7 @@
 	
     <div class="row">
       <div class="col t-l w-20">
-        <a class="btn btn-secondary" href="Client">검색/필터 초기화</a>
+        <a class="btn btn-secondary" href="Log">검색/필터 초기화</a>
       </div>
       <c:choose>
         <c:when test="${empty list}"></c:when>

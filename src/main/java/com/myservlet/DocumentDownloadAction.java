@@ -9,7 +9,6 @@ import java.util.Set;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,7 +22,6 @@ import com.log.LogDAO;
 /**
  * Servlet implementation class DocumentViewDownloadAction
  */
-@WebServlet("/DocumentDownload")
 public class DocumentDownloadAction extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        

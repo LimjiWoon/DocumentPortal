@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Enumeration;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,7 +26,6 @@ import com.myclass.XSSEscape;
 /**
  * Servlet implementation class DocumentUploadAction
  */
-@WebServlet("/DocumentUpload")
 public class DocumentUploadAction extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
